@@ -1,0 +1,14 @@
+# Chon CPython 3.12; khong cam ket chay tren Python 3.9.
+# Ghim dependency truc tiep; chua lock dependency bac cau theo platform.
+# Pin Torch chap nhan build +cpu/+cu... cung release 2.11.0.
+numpy==1.26.4
+scipy==1.15.3
+scikit-learn==1.6.1
+torch==2.11.0
+matplotlib==3.10.3
+pandas==2.2.3
+pyyaml==6.0.3
+wandb==0.31.0
+datasets==3.6.0
+# Giu PyArrow 19 sau loi import ban 26.0.1 voi NumPy 1.x.
+pyarrow==19.0.1
