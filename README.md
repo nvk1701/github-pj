@@ -8,6 +8,77 @@ Dưới đây là bảng tổng hợp các thí nghiệm tái hiện lại bài 
 | **2. Hàm lồi tổng quát** (Convex Loss) | `experiments/convex.py` | [Tên_Run_Convex](Link_W&B_của_bạn_vào_đây) | *(Điền sau: ví dụ: Tốc độ học dạng ngưỡng hoạt động hiệu quả theo chặn trên của Regret)* |
 | **3. Hàm không lồi** (Non-convex / Neural Net) | `experiments/neural_net.py` | [Tên_Run_NN](Link_W&B_của_bạn_vào_đây) | *(Điền sau: ví dụ: Restart Adam giúp mạng nơ-ron thoát khỏi cực tiểu cục bộ cũ)* |
 
+## Cấu Trúc Thư Mục & Giải Thích Chức Năng Từng File (Dành Cho Cả Nhóm)
+
+Dưới đây là sơ đồ tổ chức repository và hướng dẫn nhanh để các thành viên (**TV1: Khoa**, **TV2: Khôi**, **TV3: Hòa**) tra cứu chức năng của từng thư mục/file:
+
+```text
+PROJECT/
+├── README.md                          # Tổng quan dự án, Bảng ánh xạ thí nghiệm, Hướng dẫn T2 & Cấu trúc repo
+├── requirements.txt                   # Danh sách thư viện ghim phiên bản (CPython 3.12, PyTorch 2.11, W&B 0.31)
+├── core/                              # [KHUNG CODE DÙNG CHUNG CHO CẢ 3 BÀI TOÁN]
+│   ├── tracking.py                    # (T2 - Khôi) Khởi tạo & quản lý W&B run dùng chung (`init_run`)
+│   ├── utils.py                       # (T6 - Khoa) Cố định seed (`set_seed`), đọc/ghi YAML, phép chiếu Euclid `project_to_ball`
+│   ├── drift.py                       # (T6 - Khoa) Sinh quỹ đạo xoắn ốc Eq. 26 (`generate_spiral_trajectory`), tính shift `gamma_t` & `EMADriftEstimator`
+│   ├── schedules.py                   # (T6 - Khoa) Giao diện `BaseSchedule` & các lịch trình cơ sở (`Constant`, `1/t`, `1/sqrt(t)`)
+│   ├── trainer.py                     # (T6 - Khoa) Vòng lặp Never-Ending Online SGD (`OnlineSGDTrainer`) cho Linear & Logistic + log W&B
+│   └── data.py                        # (T11 - Hòa) Tải dữ liệu tế bào tụy `scvelo.datasets.pancreas()` & sinh luồng 4 pha P1->P4
+├── docs/                              # [TÀI LIỆU ĐỌC HIỂU BÀI BÁO (MILESTONE 2) & BÀN GIAO]
+│   ├── 00_fastpass.md                 # (T0) Ghi chú đọc lướt (Fast Pass) nắm ý tưởng cốt lõi bài báo
+│   ├── motivation_example.md          # (T3) Thống nhất phạm vi Full Scope, phân công & Ví dụ thực tế (CTR thương mại điện tử)
+│   ├── 01_context.md                  # (T4 - Khoa) Bối cảnh, động lực thực tế & phân tích 3 phương pháp tiền nhiệm
+│   ├── notation.md                    # (T5 - Khoa) Bảng ký hiệu thống nhất, Bài toán hình thức & Giải thích 2 Pipeline (Inference + Training)
+│   ├── T2_handover.md                 # (T2 - Khôi) Tài liệu bàn giao môi trường, kiểm thử W&B và quy ước commit
+│   └── references.md                  # (T10 - Khôi) Danh mục tài liệu tham khảo chuẩn IEEE
+├── experiments/                       # [CÁC SCRIPT CHẠY THỰC NGHIỆM CHÍNH (LAB 1)]
+│   ├── smoke_test.py                  # (T5, T6 - Khoa) Kiểm thử nhanh (<1 phút) khung `core/`, tích hợp `init_run` & vẽ `figures/pipeline.png`
+│   ├── linear_regression.py           # (T14 - Khoa) Thực nghiệm 1: Tái hiện Figure 4 và Figure 5 (top) cho Linear Regression
+│   ├── convex.py                      # (T15 - Khôi) Thực nghiệm 2: Tái hiện Figure 5 (bottom) cho Logistic Regression
+│   ├── sensitivity.py                 # (T17 - Khôi) Phân tích mở rộng (Bonus): Quét độ nhạy theo tốc độ trôi `gamma` và nhiễu `sigma`
+│   └── neural_net.py                  # (T16 - Hòa) Thực nghiệm 3: Tái hiện Figure 6 (Flow Cytometry MLP 5 tầng với Adam Restart)
+├── figures/                           # [HÌNH VẼ & ĐỒ THỊ TỰ TẠO ĐỂ ĐƯA VÀO SLIDE DECK]
+│   ├── pipeline.png                   # (T5 - Khoa) Sơ đồ Pipeline tổng thể tách rõ Stage A (Online Inference) & Stage B (Online Training)
+│   └── smoke_test.png                 # (T6 - Khoa) Đồ thị kiểm thử quỹ đạo xoắn ốc 2D, learning rate và Cumulative Regret
+├── scripts/                           # [SCRIPT KIỂM TRA MÔI TRƯỜNG & TRACKING (T2)]
+│   ├── check_environment.py           # (T2 - Khôi) Kiểm tra phiên bản CPython 3.12, venv cô lập và các thư viện đã ghim
+│   └── smoke_tracking.py              # (T2 - Khôi) Kiểm tra kết nối W&B (`--mode offline` / `--mode online`) cho từng thành viên
+├── notebooks/                         # [COLAB NOTEBOOKS]
+│   └── T2_environment_wandb.ipynb     # (T2 - Khôi) Notebook kiểm tra môi trường và W&B trên Google Colab
+└── tests/                             # [UNIT TESTS & INTEGRATION TESTS]
+    ├── test_tracking.py               # (T2 - Khôi) 31 unit tests kiểm tra logic `core/tracking.py`, `smoke_tracking.py` và giải nén ZIP
+    └── test_tracking_offline.py       # (T2 - Khôi) Integration test với W&B SDK ở chế độ offline
+```
+
+### Hướng dẫn nhanh cách ghép thuật toán vào `core/` (Dành cho T7, T9, T12)
+1. **Cách viết lịch trình tốc độ học mới**: Kế thừa lớp `BaseSchedule` trong `core/schedules.py`, cài đặt hàm `step(self, t, **kwargs) -> float` (nhận `gamma_prev`, `batch_size`, `d`, `noise_std`, `loss_val`) và hàm `reset(self)`.
+2. **Cách chạy vòng lặp Online SGD và đẩy log lên W&B**:
+   ```python
+   from core.drift import generate_spiral_trajectory
+   from core.schedules import ConstantSchedule
+   from core.tracking import init_run
+   from core.trainer import OnlineSGDTrainer
+   from core.utils import set_seed
+
+   set_seed(42)
+   theta_star, gamma_seq = generate_spiral_trajectory(T=2000, d=128, ell=8)
+   schedule = ConstantSchedule(lr=0.05)
+
+   run = init_run({
+       "experiment": "linear",
+       "method": schedule.name,
+       "seed": 42,
+       "mode": "offline",  # Đổi thành "online" khi đẩy kết quả thật lên W&B
+       "tags": ["linear"],
+   })
+   try:
+       trainer = OnlineSGDTrainer(d=128, schedule=schedule, loss_type="linear", batch_size=256, use_wandb=True)
+       history = trainer.run(theta_star_path=theta_star, gamma_seq=gamma_seq, seed=42)
+   finally:
+       run.finish()
+   ```
+
+---
+
 ## T2 — Environment & W&B
 
 Target chính thức: **CPython 3.12**. Chín package của Issue #6 và PyArrow được
