@@ -1,0 +1,10 @@
+protocol_version: convex-cp03-v1
+parent_config: configs/convex_cp03.yaml
+run_category: sensitivity
+policy: one_factor_at_a_time_after_main_matrix_no_retuning
+dimensions: [128]
+seeds: [0, 1, 2]
+methods: [convex, constant, inverse_sqrt]
+ell_grid: [1, 8, 16]
+label_noise_std_grid: [0.0, 0.31622776601683794, 1.0]
+status: planned_not_executed

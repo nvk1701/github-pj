@@ -123,3 +123,66 @@ def gaussian_population_oracle(reference, label_noise_std, *, tolerance=1e-11):
                 gradient_error_estimate=gradient_error, parameter_error_estimate=parameter_error,
                 risk_suboptimality_estimate=.125*parameter_error**2,
                 quadrature_tolerance=tolerance)
+
+
+class PopulationEvaluator:
+    """Cache a distribution path's scalar quadrature across methods and seeds.
+
+    Exact floating-point reference norms are keys, without rounding or fitting
+    to evaluation samples. Only the learner softplus expectation varies per
+    evaluation. Errors retain the CP02 estimated, non-certified meaning.
+    """
+
+    def __init__(self, reference_path, label_noise_std, *, tolerance=1e-11):
+        reference = np.asarray(reference_path, dtype=float)
+        if reference.ndim != 2 or min(reference.shape) < 1 or not np.isfinite(reference).all():
+            raise ValueError('a finite nonempty reference path is required')
+        self.reference = reference.copy()
+        self.noise = _nonnegative(label_noise_std, 'label_noise_std')
+        self.tolerance = _tolerance(tolerance)
+        self.cache = {}
+        self.entries = []
+        oracle_path = []
+        for ref in self.reference:
+            r = float(np.linalg.norm(ref))
+            if r not in self.cache:
+                scalar = np.array([r])
+                oracle = gaussian_population_oracle(scalar, self.noise, tolerance=self.tolerance)
+                ref_loss, _, ref_errors = gaussian_population_loss_gradient(scalar, scalar, self.noise, tolerance=self.tolerance)
+                oracle_loss, _, oracle_errors = gaussian_population_loss_gradient(oracle['theta'], scalar, self.noise, tolerance=self.tolerance)
+                q = math.hypot(r, self.noise)
+                moment, error = _moment(q, self.tolerance)
+                self.cache[r] = dict(scale=moment/q if q else .25, scale_error=error/q if q else 0.,
+                    ref_loss=ref_loss, ref_error=ref_errors['loss'], oracle_loss=oracle_loss,
+                    oracle_error=oracle_errors['loss'], coefficient=oracle['radial_norm']/r if r else 0.,
+                    parameter_error=oracle['parameter_error_estimate'], risk_error=oracle['risk_suboptimality_estimate'])
+            entry = self.cache[r]
+            self.entries.append(entry)
+            oracle_path.append(ref*entry['coefficient'])
+        self.oracle_path = np.array(oracle_path)
+
+    def evaluate(self, theta_path):
+        """Return pre-update population A/B, correction and error arrays (T,)."""
+        theta = np.asarray(theta_path, dtype=float)
+        if theta.shape != self.reference.shape or not np.isfinite(theta).all():
+            raise ValueError('learner path must match the finite reference path')
+        rows = []
+        for w, ref, entry in zip(theta, self.reference, self.entries):
+            u = float(np.linalg.norm(w))
+            if not math.isfinite(u):
+                raise ValueError('learner norm overflow')
+            loss, error = _integral(lambda z: float(np.logaddexp(0,u*z)+np.logaddexp(0,-u*z)), self.tolerance)
+            dot = float(w@ref)
+            loss -= dot*entry['scale']
+            error += abs(dot)*entry['scale_error']
+            rows.append((loss-entry['ref_loss'], loss-entry['oracle_loss'],
+                entry['ref_loss']-entry['oracle_loss'], error+entry['ref_error'],
+                error+entry['oracle_error'],entry['parameter_error'],entry['risk_error']))
+        keys = ('population_A','population_B','population_correction','population_error_A',
+                'population_error_B','oracle_parameter_error_estimate','oracle_risk_suboptimality_estimate')
+        result = dict(zip(keys,np.array(rows).T))
+        result['population_cum_A'] = np.cumsum(result['population_A'])
+        result['population_cum_B'] = np.cumsum(result['population_B'])
+        if not all(np.isfinite(v).all() for v in result.values()):
+            raise ValueError('nonfinite population evaluation')
+        return result
