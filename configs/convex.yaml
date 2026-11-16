@@ -1,0 +1,25 @@
+# Profile chuan bi Fig5; smoke dung CLI override truoc khi scale.
+steps: 2000
+dimensions: [2, 8, 32, 128, 512]
+batch_size: 256
+eval_batch_size: 512
+seeds: [0, 1, 2]
+methods: [convex, constant, inverse_sqrt]
+label_noise_std: 0.31622776601683794
+label_noise_assumption: "N(0,0.1) interpreted as variance 0.1; logistic inherits linear setup"
+L: 0.25
+gradient_variance_per_dimension: 0.25
+D_max_per_dimension: 1.0
+projection_radius_per_dimension: 0.5
+eta_init: 1.0
+constant_lr: 0.1
+inverse_sqrt_lr0: 0.1
+shift_mode: estimated
+ema_beta: 0.9
+eval_seed_stream: 1
+a: 1.0
+b: -1.0
+k: 4.0
+ell: 8
+mode: disabled
+output_dir: outputs/convex
