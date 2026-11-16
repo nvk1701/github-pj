@@ -203,13 +203,15 @@ def run_official(config):
                 train_seconds=train_seconds,mc_seconds=mc_seconds,population_seconds=population_seconds,
                 oracle_seconds=oracle_seconds,serialize_seconds=serialize_seconds,plot_seconds=plot_seconds,logging_seconds=logging_seconds,
                 tracking_init_seconds=tracking_init,cache_entries=len(population.cache))
-            run.summary.update(final_population_B=record['final_population_B'],completed=True,protocol_version=PROTOCOL)
+            run.summary.update(dict(final_population_B=record['final_population_B'],completed=True,protocol_version=PROTOCOL))
             run.finish()
             record['total_seconds']=time.perf_counter()-started
             _json(directory/'status.json',record)
             records.append(record)
         except BaseException as error:
-            _json(directory/'status.json',dict(local_status='failed',error_type=type(error).__name__,remote_verified=False))
+            _json(directory/'status.json',dict(local_status='failed',error_type=type(error).__name__,remote_verified=False,
+                run_id=run.id if run is not None else None,
+                wandb_url=run.url if run is not None and cfg['mode']=='online' else None))
             if run is not None:
                 try:
                     run.summary['completed']=False

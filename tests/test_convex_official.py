@@ -90,7 +90,7 @@ class OfficialTests(unittest.TestCase):
 
     def test_runner_failure_is_failed_and_preserves_original_exception(self):
         cfg=self.config()
-        fake=Mock(tags=['lab1'],settings=Mock(base_url='https://api.forge.coreweave.com'))
+        fake=Mock(id='failed-test-run',tags=['lab1'],settings=Mock(base_url='https://api.forge.coreweave.com'))
         fake.log.side_effect=RuntimeError('logging failed')
         fake.finish.side_effect=OSError('cleanup failed')
         fake.summary={}
@@ -124,3 +124,19 @@ class OfficialTests(unittest.TestCase):
             with np.load(root/'d128/convex/seed0/history.npz') as data:
                 np.testing.assert_array_equal(curve['mean'],data['population_cum_B'])
             self.assertFalse(a[0]['remote_verified'])
+
+    def test_online_summary_api_requires_a_mapping(self):
+        class SDKSummary(dict):
+            def update(self,payload):
+                super().update(payload)
+        fake=Mock(id='test-run',entity='gr_ml_29_37_37',project='ml-distribution-shift',
+                  tags=['lab1'],settings=Mock(base_url='https://api.forge.coreweave.com'))
+        fake.summary=SDKSummary()
+        cfg=self.config()
+        with tempfile.TemporaryDirectory() as temp:
+            cfg.update(run_category='pilot',steps=2,dimensions=[2],seeds=[0],methods=['constant'],
+                       batch_size=8,eval_batch_size=8,mode='disabled',output_dir=str(Path(temp)/'mapping'))
+            with patch('experiments.convex_official.init_run',return_value=fake):
+                result=run_official(cfg)
+            self.assertEqual(result[0]['local_status'],'complete')
+            self.assertTrue(fake.summary['completed'])
