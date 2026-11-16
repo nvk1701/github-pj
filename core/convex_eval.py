@@ -47,13 +47,16 @@ def sample_logistic_batch(reference, batch_size, label_noise_std, rng):
     return X, expit(X @ reference + eps)
 
 
-def evaluate_history(history, *, batch_size, label_noise_std, eval_batch_size, eval_seed):
+def evaluate_history(history, *, batch_size, label_noise_std, eval_batch_size, eval_seed,
+                     approx_oracle_path=None):
     """Danh gia theta_t truoc update: replay train batch va MC doc lap.
 
     Cung eval_seed cho cac methods tao common evaluation samples. MC gap signed
     la uoc luong excess loss toi generating reference, chua la dynamic regret.
     Tra dict cac arrays (T,) gom loss, signed gap, cumulative gap va MC SE.
     SE conditional theo learned path, khong thay do lech giua training seeds.
+    approx_oracle_path tuy chon phai duoc caller xac minh. Metric oracle co ten
+    rieng, dung cung eval batch va khong thay reference metrics hoac train RNG.
     """
     theta, reference = history.theta_path, history.theta_star_path
     if theta.shape != reference.shape or theta.ndim != 2 or len(theta) < 1:
@@ -62,11 +65,18 @@ def evaluate_history(history, *, batch_size, label_noise_std, eval_batch_size, e
         raise ValueError("trajectories must be finite")
     if eval_batch_size < 2:
         raise ValueError("eval_batch_size must be >= 2 for standard error")
+    if approx_oracle_path is not None:
+        approx_oracle_path = np.asarray(approx_oracle_path, dtype=float)
+        if approx_oracle_path.shape != reference.shape or not np.isfinite(approx_oracle_path).all():
+            raise ValueError("approximate oracle must match the finite reference path")
     train_rng = np.random.default_rng(history.metadata["seed"])
     eval_rng = np.random.default_rng(eval_seed)
     metrics = {key: np.empty(len(theta)) for key in (
         "train_batch_loss", "train_reference_loss", "train_empirical_excess",
         "eval_mc_loss", "eval_mc_reference_loss", "eval_mc_excess", "eval_mc_excess_se")}
+    if approx_oracle_path is not None:
+        for key in ("eval_mc_approx_oracle_loss", "eval_mc_approx_oracle_excess", "eval_mc_approx_oracle_excess_se"):
+            metrics[key] = np.empty(len(theta))
     for i, (w, ref) in enumerate(zip(theta, reference)):
         X, y = sample_logistic_batch(ref, batch_size, label_noise_std, train_rng)
         train_loss, _ = logistic_loss_gradient(w, X, y)
@@ -85,10 +95,22 @@ def evaluate_history(history, *, batch_size, label_noise_std, eval_batch_size, e
         metrics["eval_mc_reference_loss"][i] = ref_loss
         metrics["eval_mc_excess"][i] = np.mean(gap)
         metrics["eval_mc_excess_se"][i] = np.std(gap, ddof=1) / np.sqrt(eval_batch_size)
+        if approx_oracle_path is not None:
+            oracle = approx_oracle_path[i]
+            oracle_loss, _ = logistic_loss_gradient(oracle, X, y)
+            zo = X @ oracle
+            oracle_gap = np.logaddexp(0, z) - np.logaddexp(0, zo) - y*(z-zo)
+            metrics["eval_mc_approx_oracle_loss"][i] = oracle_loss
+            metrics["eval_mc_approx_oracle_excess"][i] = np.mean(oracle_gap)
+            metrics["eval_mc_approx_oracle_excess_se"][i] = np.std(oracle_gap, ddof=1)/np.sqrt(eval_batch_size)
     metrics["train_cum_empirical_excess"] = np.cumsum(metrics["train_empirical_excess"])
     metrics["eval_cum_mc_excess"] = np.cumsum(metrics["eval_mc_excess"])
     # Conditional tren learned path, cac eval batches doc lap qua thoi gian.
     metrics["eval_cum_mc_excess_se"] = np.sqrt(np.cumsum(metrics["eval_mc_excess_se"] ** 2))
+    if approx_oracle_path is not None:
+        metrics["eval_cum_mc_approx_oracle_excess"] = np.cumsum(metrics["eval_mc_approx_oracle_excess"])
+        metrics["eval_cum_mc_approx_oracle_excess_se"] = np.sqrt(
+            np.cumsum(metrics["eval_mc_approx_oracle_excess_se"]**2))
     if not all(np.isfinite(value).all() for value in metrics.values()):
         raise ValueError("nonfinite evaluation metrics")
     return metrics
