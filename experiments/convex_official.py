@@ -10,6 +10,7 @@ from pathlib import Path
 import subprocess
 import sys
 import time
+import uuid
 from urllib.parse import urlsplit
 
 import numpy as np
@@ -19,6 +20,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0,str(ROOT))
 from core.convex_eval import evaluate_history
 from core.convex_population import PopulationEvaluator
+from core.convex_recovery import atomic_json,append_event,check_sdk_directories,science_hash,seal_payload
 from core.drift import generate_spiral_trajectory
 from core.schedules import ConstantSchedule, ConvexSchedule, InverseSqrtSchedule
 from core.tracking import DEFAULT_ENTITY, DEFAULT_PROJECT, init_run
@@ -97,7 +99,7 @@ def build_plan(config):
 
 
 def _json(path,value):
-    path.write_text(json.dumps(value,indent=2,allow_nan=False),encoding='utf-8')
+    atomic_json(path,value)
 
 
 def _provenance():
@@ -105,18 +107,19 @@ def _provenance():
         return subprocess.check_output(['git','-C',str(ROOT),*args],text=True).strip()
     files = ['core/convex_population.py','core/convex_eval.py','core/schedules.py','core/trainer.py',
              'core/drift.py','core/utils.py','core/tracking.py','experiments/convex_official.py',
-             'experiments/convex_figures.py','configs/convex_cp03.yaml','docs/convex_cp03_protocol.md']
+             'experiments/convex_figures.py','core/convex_recovery.py','experiments/convex_reconcile.py',
+             'configs/convex_cp03.yaml','docs/convex_cp03_protocol.md','docs/convex_recovery.md','requirements.txt']
     endpoint = urlsplit(os.environ.get('WANDB_BASE_URL','https://api.wandb.ai'))
     if endpoint.username or endpoint.password:
         raise ValueError('credentials must not be embedded in endpoint URLs')
     return dict(head=git('rev-parse','HEAD'),branch=git('branch','--show-current'),
         source_uncommitted=bool(git('status','--porcelain')),remote_tracking_tip=git('rev-parse','origin/feat/convex'),
         source_sha256={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in files},
-        python=sys.version,packages={p:version(p) for p in ('numpy','scipy','matplotlib','wandb')},
+        python=sys.version,packages={p:version(p) for p in ('numpy','scipy','matplotlib','wandb','torch','PyYAML')},
         requested_api_endpoint=endpoint.geturl())
 
 
-def run_official(config):
+def run_official(config,*,attempt_label=None):
     """Run selected cells once, exporting full arrays and explicit local/remote state."""
     from experiments.convex_figures import export_figures, plot_run
     import wandb
@@ -133,18 +136,29 @@ def run_official(config):
         directory = Path(cell['path'])
         directory.mkdir(parents=True)
         run = None
-        _json(directory/'status.json',dict(local_status='running',remote_verified=False))
+        attempt_id=uuid.uuid4().hex
+        phase='init'
+        local_completed=False
+        sdk_finished=False
+        identity=dict(key=cell['key'],attempt_id=attempt_id)
+        _json(directory/'status.json',dict(identity,local_status='running',local_completed=False,sdk_finished=False,remote_verified=False))
+        append_event(directory,'started',**identity,head=provenance['head'])
         metadata = dict(cfg,**cell,**provenance,config_sha256=plan['config_sha256'],
-                        comparator_definitions=plan['comparators'],baseline_policy=plan['baseline_policy'])
+                        comparator_definitions=plan['comparators'],baseline_policy=plan['baseline_policy'],
+                        attempt_id=attempt_id,science_sha256=science_hash(cfg))
         _json(directory/'config.json',metadata)
         try:
             started = time.perf_counter()
-            name = ('cp03-online-smoke-' if cfg['run_category']=='smoke' else '')+cell['key']
+            check_sdk_directories()
+            name = (attempt_label or ('cp03-online-smoke-' if cfg['run_category']=='smoke' else '')+cell['key'])+'-'+attempt_id[:10]
             run = init_run(dict(experiment='convex',method=cell['method'],seed=cell['seed'],
                 dimension=cell['dimension'],mode=cfg['mode'],entity=DEFAULT_ENTITY,project=DEFAULT_PROJECT,
                 name=name,tags=['lab1',cfg['run_category'],PROTOCOL,'estimated','paper'],resolved=metadata))
             actual_endpoint=run.settings.base_url
+            if cfg['mode']=='online' and (str(run.settings.mode)!='online' or run.entity!=DEFAULT_ENTITY or run.project!=DEFAULT_PROJECT):
+                raise RuntimeError('online mode or destination differs from the declared target')
             metadata['actual_api_endpoint']=actual_endpoint
+            metadata.update(run_id=run.id,wandb_url=run.url if cfg['mode']=='online' else None)
             run.config.update({'actual_api_endpoint':actual_endpoint})
             _json(directory/'config.json',metadata)
             tracking_init = time.perf_counter()-started
@@ -163,18 +177,22 @@ def run_official(config):
                 noise_std=cfg['label_noise_std'],max_norm=d*cfg['projection_radius_per_dimension'],
                 use_oracle_gamma=False,ema_beta=cfg['ema_beta'],use_wandb=False)
             tick = time.perf_counter()
+            phase='training'
             history = trainer.run(reference,gamma,seed=seed)
             train_seconds = time.perf_counter()-tick
             eval_seed = int(np.random.SeedSequence([seed,cfg['eval_seed_stream'],d]).generate_state(1)[0])
             tick = time.perf_counter()
+            phase='evaluation_mc'
             metrics = evaluate_history(history,batch_size=cfg['batch_size'],label_noise_std=cfg['label_noise_std'],
                 eval_batch_size=cfg['eval_batch_size'],eval_seed=eval_seed,approx_oracle_path=population.oracle_path)
             mc_seconds = time.perf_counter()-tick
             tick = time.perf_counter()
+            phase='evaluation_population'
             metrics.update(population.evaluate(history.theta_path),step=np.arange(1,cfg['steps']+1),
                 lr=history.lr_history,gamma_history=history.gamma_used,gamma_schedule=history.gamma_used)
             population_seconds = time.perf_counter()-tick
             tick = time.perf_counter()
+            phase='serialization'
             np.savez_compressed(directory/'history.npz',theta=history.theta_path,reference=reference,
                                 approx_oracle=population.oracle_path,**metrics)
             with (directory/'metrics.csv').open('w',newline='',encoding='utf-8') as stream:
@@ -183,35 +201,60 @@ def run_official(config):
                 writer.writerows(zip(*metrics.values()))
             serialize_seconds = time.perf_counter()-tick
             tick=time.perf_counter()
+            phase='plot'
             plot_run(directory,history,metrics,population.oracle_path)
             plot_seconds=time.perf_counter()-tick
+            seal_payload(directory)
+            local_completed=True
+            _json(directory/'status.json',dict(identity,local_status='computed',local_completed=True,sdk_finished=False,
+                  remote_verified=False,run_id=run.id,wandb_url=run.url if cfg['mode']=='online' else None))
+            append_event(directory,'local_completed',**identity,run_id=run.id)
             tick = time.perf_counter()
+            phase='logging'
             for i in range(cfg['steps']):
                 if i%cfg['log_interval']==0 or i==cfg['steps']-1:
                     run.log({k:float(v[i]) for k,v in metrics.items() if k!='step'},step=i+1)
             if cfg['mode']!='disabled':
-                artifact = wandb.Artifact(cell['key'],type='convex-evidence',metadata={'config_sha256':plan['config_sha256']})
-                for filename in ('history.npz','metrics.csv','config.json','figure.png'):
+                phase='upload'
+                artifact = wandb.Artifact(cell['key']+'-'+attempt_id,type='convex-evidence',metadata={
+                    'config_sha256':plan['config_sha256'],'attempt_id':attempt_id,'science_sha256':science_hash(cfg)})
+                for filename in ('history.npz','metrics.csv','config.json','figure.png','checksums.json'):
                     artifact.add_file(str(directory/filename))
                 run.log_artifact(artifact)
             logging_seconds = time.perf_counter()-tick
             url = run.url if cfg['mode']=='online' else None
-            record = dict(**cell,local_status='complete',run_id=run.id,wandb_url=url,mode=cfg['mode'],
+            record = dict(**cell,attempt_id=attempt_id,local_status='complete',local_completed=True,sdk_finished=False,
+                server_finished=False,artifact_uploaded=None if cfg['mode']=='online' else False,artifact_verified=False,
+                publicly_accessible=None,run_id=run.id,wandb_url=url,mode=cfg['mode'],
                 entity=run.entity,project=run.project,tags=list(run.tags),api_endpoint=actual_endpoint,remote_verified=False,
                 uploaded=None if cfg['mode']=='online' else False,
                 final_population_A=float(metrics['population_cum_A'][-1]),final_population_B=float(metrics['population_cum_B'][-1]),
                 train_seconds=train_seconds,mc_seconds=mc_seconds,population_seconds=population_seconds,
                 oracle_seconds=oracle_seconds,serialize_seconds=serialize_seconds,plot_seconds=plot_seconds,logging_seconds=logging_seconds,
                 tracking_init_seconds=tracking_init,cache_entries=len(population.cache))
+            phase='summary'
             run.summary.update(dict(final_population_B=record['final_population_B'],completed=True,protocol_version=PROTOCOL))
+            phase='finish'
             run.finish()
+            sdk_finished=True
+            record['sdk_finished']=True
             record['total_seconds']=time.perf_counter()-started
             _json(directory/'status.json',record)
+            append_event(directory,'sdk_finished',**identity,run_id=run.id)
             records.append(record)
         except BaseException as error:
-            _json(directory/'status.json',dict(local_status='failed',error_type=type(error).__name__,remote_verified=False,
+            failure=dict(identity,local_status='failed',local_completed=local_completed,sdk_finished=sdk_finished,
+                error_type=type(error).__name__,error_stage=phase,remote_verified=False,
+                recovery_action='reconcile then retry into a fresh root',
                 run_id=run.id if run is not None else None,
-                wandb_url=run.url if run is not None and cfg['mode']=='online' else None))
+                wandb_url=run.url if run is not None and cfg['mode']=='online' else None)
+            try:
+                _json(directory/f'failure-{time.time_ns()}.json',failure)
+                _json(directory/'status.json',failure)
+                append_event(directory,'failed',**failure)
+                _json(root/'status.json',dict(local_status='failed',failed_attempt=attempt_id))
+            except BaseException:
+                pass
             if run is not None:
                 try:
                     run.summary['completed']=False
@@ -242,6 +285,7 @@ def main(argv=None):
     parser.add_argument('--mode',choices=['disabled','offline','online'])
     parser.add_argument('--category',choices=['reproduction','pilot','smoke','sensitivity'])
     parser.add_argument('--output-dir')
+    parser.add_argument('--attempt-label')
     for key in ('dimensions','seeds','methods'):
         parser.add_argument('--'+key,nargs='+',type=str if key=='methods' else int)
     for key in ('steps','batch-size','eval-batch-size','ell'):
@@ -250,9 +294,9 @@ def main(argv=None):
     args=parser.parse_args(argv)
     config=load_config(args.config)
     for key,value in vars(args).items():
-        if key not in ('config','dry_run') and value is not None:
+        if key not in ('config','dry_run','attempt_label') and value is not None:
             config['run_category' if key=='category' else key]=value
-    print(json.dumps(build_plan(config) if args.dry_run else run_official(config),indent=2))
+    print(json.dumps(build_plan(config) if args.dry_run else run_official(config,attempt_label=args.attempt_label),indent=2))
 
 
 if __name__=='__main__':
