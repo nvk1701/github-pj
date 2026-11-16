@@ -11,6 +11,8 @@ from unittest.mock import Mock,patch
 import numpy as np
 
 from core.convex_population import PopulationEvaluator,gaussian_population_loss_gradient
+from scipy.integrate import quad
+from scipy.special import expit
 from core.utils import load_config
 from experiments.convex_official import ROOT,build_plan,main,run_official,validate_official
 
@@ -140,3 +142,23 @@ class OfficialTests(unittest.TestCase):
                 result=run_official(cfg)
             self.assertEqual(result[0]['local_status'],'complete')
             self.assertTrue(fake.summary['completed'])
+
+    def test_population_quadrature_at_d512_projection_boundary(self):
+        ref=np.zeros((1,512))
+        ref[0,0]=16
+        q=np.hypot(16,np.sqrt(.1))
+        density=lambda z: np.exp(-z*z/2)/np.sqrt(2*np.pi)
+        # Independent transformed softplus integral resolves its narrow origin.
+        softplus=256/np.sqrt(2*np.pi)+(2/256)*quad(
+            lambda t: np.log1p(np.exp(-t))*density(t/256),0,100,epsabs=1e-12)[0]
+        target=quad(lambda z: expit(q*z)*expit(-q*z)*density(z),-12,12,epsabs=1e-12)[0]
+        evaluator=PopulationEvaluator(ref,np.sqrt(.1))
+        for sign in (-1,1):
+            theta=np.zeros_like(ref)
+            theta[0,0]=sign*256
+            expected=softplus-sign*256*16*target
+            loss,_,errors=gaussian_population_loss_gradient(theta[0],ref[0],np.sqrt(.1))
+            self.assertAlmostEqual(loss,expected,delta=1e-8)
+            self.assertLess(errors['loss'],1e-8)
+            values=evaluator.evaluate(theta)
+            self.assertTrue(np.isfinite(values['population_B']).all())

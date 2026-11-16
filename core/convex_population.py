@@ -38,7 +38,8 @@ def _integral(function, tolerance):
         warnings.simplefilter('error', IntegrationWarning)
         value, error = quad(lambda z: function(z)*math.exp(-z*z/2)/math.sqrt(2*math.pi),
                             0, np.inf, epsabs=tolerance, epsrel=tolerance, limit=200)
-    if not math.isfinite(value) or error > 10*tolerance:
+    # Match quad's absolute-or-relative budget for large softplus expectations.
+    if not math.isfinite(value) or error > 10*tolerance*max(1.,abs(value)):
         raise ValueError('population quadrature did not meet its error budget')
     return value, error
 
