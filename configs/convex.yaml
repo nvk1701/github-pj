@@ -1,4 +1,4 @@
-# Profile chuan bi Fig5; smoke dung CLI override truoc khi scale.
+# Profile chuan bi Fig5. Smoke dung CLI override truoc khi scale.
 steps: 2000
 dimensions: [2, 8, 32, 128, 512]
 batch_size: 256
@@ -8,6 +8,7 @@ methods: [convex, constant, inverse_sqrt]
 label_noise_std: 0.31622776601683794
 label_noise_assumption: "N(0,0.1) interpreted as variance 0.1; logistic inherits linear setup"
 L: 0.25
+# Nhan voi d de lay variance sigma^2, diameter D_max va radius R.
 gradient_variance_per_dimension: 0.25
 D_max_per_dimension: 1.0
 projection_radius_per_dimension: 0.5

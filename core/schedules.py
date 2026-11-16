@@ -155,7 +155,7 @@ class InverseSqrtSchedule(BaseSchedule):
 
 
 class ConvexSchedule(BaseSchedule):
-    """Tinh LR theo Prop. 4.3, Eq. (18)-(20); variance la sigma binh phuong.
+    """Tinh LR theo Prop. 4.3, Eq. (18)-(20). Variance la sigma binh phuong.
 
     L, D_max va gradient_variance la tham so cua bound, tach khoi nhieu nhan.
     eta_init nam trong (0, 1/L]. reset khoi phuc LR nay cho seed moi.
@@ -229,7 +229,7 @@ class ConvexSchedule(BaseSchedule):
     def step(self, t: int, **kwargs: Any) -> float:
         """Tra eta_t, nhan gamma hoac adapter gamma_prev cua shared trainer.
 
-        gamma_prev chi la signal dau vao: EMA hoac lagged oracle do caller chon.
+        gamma_prev chi la signal dau vao: EMA hoac lagged reference do caller chon.
         Khong coi gamma_(t-1) la true gamma_t. noise_std/loss_val khong duoc dung.
         """
         t = self._integer(t, "t")
@@ -247,7 +247,7 @@ class ConvexSchedule(BaseSchedule):
         return float(eta)
 
     def reset(self) -> None:
-        """Bo state cua run cu; khong de LR seed truoc anh huong seed sau."""
+        """Bo state cua run cu de LR seed truoc khong anh huong seed sau."""
         self.eta_prev = self.eta_init
         self.last_t = 0
         self.last_thresholds = None

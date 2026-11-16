@@ -32,6 +32,7 @@ def sample_logistic_batch(reference, batch_size, label_noise_std, rng):
     """Sinh X Gaussian va y=sigmoid(X reference+epsilon) giong shared trainer.
 
     label_noise_std la do lech chuan epsilon, khong phai sigma cua schedule.
+    Tra X(B,d) va soft targets y(B,) theo thu tu RNG X roi epsilon.
     """
     reference = np.asarray(reference, dtype=float)
     if reference.ndim != 1 or not np.isfinite(reference).all() or reference.size == 0:
@@ -51,6 +52,8 @@ def evaluate_history(history, *, batch_size, label_noise_std, eval_batch_size, e
 
     Cung eval_seed cho cac methods tao common evaluation samples. MC gap signed
     la uoc luong excess loss toi generating reference, chua la dynamic regret.
+    Tra dict cac arrays (T,) gom loss, signed gap, cumulative gap va MC SE.
+    SE conditional theo learned path, khong thay do lech giua training seeds.
     """
     theta, reference = history.theta_path, history.theta_star_path
     if theta.shape != reference.shape or theta.ndim != 2 or len(theta) < 1:

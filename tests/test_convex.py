@@ -1,12 +1,11 @@
-"""Kiem cong thuc, y nghia metric va integration; khong can W&B online."""
+"""Kiem cong thuc, y nghia metric va integration khong can W&B online."""
 
-import copy
 import json
 import math
 from pathlib import Path
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 from scipy.optimize import minimize_scalar
@@ -14,13 +13,15 @@ from scipy.special import expit
 
 from core.convex_eval import evaluate_history, logistic_loss_gradient, sample_logistic_batch
 from core.drift import EMADriftEstimator, generate_spiral_trajectory
-from core.schedules import BaseSchedule, ConstantSchedule, ConvexSchedule, InverseSqrtSchedule
+from core.schedules import ConstantSchedule, ConvexSchedule, InverseSqrtSchedule
 from core.trainer import OnlineSGDTrainer
 from core.utils import load_config
 from experiments.convex import ROOT, run_experiments, validate_config
 
 
 class ScheduleTests(unittest.TestCase):
+    """Doi chieu equations doc lap, bien so hoc va state cua schedule."""
+
     def test_original_threshold_formula(self):
         for L, D, v, B, g in [(0.25, 2, 0.5, 256, 0.01), (2, 3, 5, 7, 2), (1, .1, .5, 1, 0)]:
             with self.subTest(L=L, D=D, v=v, B=B, g=g):
@@ -127,6 +128,8 @@ class ScheduleTests(unittest.TestCase):
 
 
 class LogisticTests(unittest.TestCase):
+    """Kiem BCE, sampler va phan biet generating reference voi minimizer."""
+
     def test_gradient_finite_difference_and_shared_formula(self):
         rng=np.random.default_rng(12)
         w=np.array([.1,-.2,.3]); X=rng.normal(size=(10,3)); y=rng.uniform(size=10)
@@ -189,6 +192,8 @@ class LogisticTests(unittest.TestCase):
 
 
 class IntegrationTests(unittest.TestCase):
+    """Kiem shared trainer, tinh nhan qua, evaluation va export evidence."""
+
     def history(self,schedule=None,seed=3,oracle=False):
         ref,gamma=generate_spiral_trajectory(16,2,ell=4)
         trainer=OnlineSGDTrainer(2,schedule or ConvexSchedule(.25,2,.5),loss_type="logistic",
@@ -219,7 +224,7 @@ class IntegrationTests(unittest.TestCase):
         self.assertFalse(np.array_equal(h.gamma_used,gamma))
 
     def test_future_reference_does_not_change_prefix(self):
-        ref,gamma=generate_spiral_trajectory(20,2,ell=1)
+        ref,_=generate_spiral_trajectory(20,2,ell=1)
         altered=ref.copy(); altered[10:]*=-1
         def run(path):
             return OnlineSGDTrainer(2,ConvexSchedule(.25,2,.5),loss_type="logistic",batch_size=8,
@@ -229,7 +234,6 @@ class IntegrationTests(unittest.TestCase):
         np.testing.assert_array_equal(a.theta_path[:11],b.theta_path[:11])
 
     def test_same_seed_common_training_and_evaluation(self):
-        reference=np.array([1.,0.])
         common=[]
         def capture(self_tr,w,ref,rng):
             X,y=sample_logistic_batch(ref,self_tr.batch_size,self_tr.noise_std,rng)
@@ -296,6 +300,34 @@ class IntegrationTests(unittest.TestCase):
                     self.assertNotIn('inst_regret',data.files)
             aggregate=json.loads((Path(temp)/'summary.json').read_text())['aggregate']
             self.assertTrue(all(row['n_seeds']==2 for row in aggregate))
+
+    def test_runner_qa_preserves_logging_error_when_cleanup_fails(self):
+        cfg = load_config(ROOT/'configs/convex.yaml')
+        run = Mock(tags=['lab1'])
+        run.log.side_effect = RuntimeError('original logging failure')
+        run.finish.side_effect = OSError('cleanup failure')
+        with tempfile.TemporaryDirectory() as temp:
+            cfg.update(steps=1, dimensions=[2], batch_size=8, eval_batch_size=8,
+                       seeds=[0], methods=['constant'], output_dir=temp)
+            with patch('experiments.convex.init_run', return_value=run), patch('experiments.convex._plot'):
+                with self.assertRaisesRegex(RuntimeError, 'original logging failure'):
+                    run_experiments(cfg)
+            run.finish.assert_called_once_with(exit_code=1)
+
+    def test_runner_qa_refuses_existing_summary_before_training(self):
+        cfg = load_config(ROOT/'configs/convex.yaml')
+        with tempfile.TemporaryDirectory() as temp:
+            summary = Path(temp)/'summary.json'
+            original = b'{"previous_experiment": true}\n'
+            summary.write_bytes(original)
+            cfg.update(steps=1, dimensions=[2], batch_size=8, eval_batch_size=8,
+                       seeds=[99], methods=['constant'], output_dir=temp)
+            with patch.object(OnlineSGDTrainer, 'run', side_effect=AssertionError('training started before collision check')) as train:
+                with self.assertRaises(FileExistsError):
+                    run_experiments(cfg)
+                train.assert_not_called()
+            self.assertEqual(summary.read_bytes(), original)
+            self.assertFalse((Path(temp)/'d2').exists())
 
 
 if __name__ == '__main__':

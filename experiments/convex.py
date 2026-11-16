@@ -114,13 +114,16 @@ def _plot(path, history, metrics):
 def run_experiments(config):
     """Chay cac methods/seeds, export CSV/NPZ/JSON/PNG va summary mean/std.
 
-    Train seed duoc shared trainer su dung truc tiep; evaluation co SeedSequence
+    Train seed duoc shared trainer su dung truc tiep. Evaluation co SeedSequence
     rieng. Cung seed/d cho methods dung chung streams, khong cap state qua run.
+    Tu choi output da co summary de bao toan bang chung cua experiment truoc.
     """
     cfg = validate_config(config)
     output = Path(cfg["output_dir"])
     if not output.is_absolute():
         output = ROOT / output
+    if (output / "summary.json").exists():
+        raise FileExistsError("output already contains summary.json; choose a new output_dir")
     output.mkdir(parents=True, exist_ok=True)
     git_result = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"],
                                 capture_output=True, text=True, check=True)
@@ -200,7 +203,11 @@ def run_experiments(config):
                     tracking = dict(mode=cfg["mode"], run_id=run.id, tags=list(run.tags),
                                     uploaded=False, run_dir=run.dir)
                 except BaseException:
-                    run.finish(exit_code=1)
+                    try:
+                        run.finish(exit_code=1)
+                    except BaseException:
+                        # Loi cleanup khong duoc che loi logging ban dau.
+                        pass
                     raise
                 else:
                     run.finish()
@@ -225,7 +232,7 @@ def run_experiments(config):
 
 
 def main(argv=None):
-    """Doc YAML/CLI; online logging khong thuoc Sprint 1."""
+    """Doc YAML va CLI overrides. Online logging khong thuoc Sprint 1."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=ROOT/"configs/convex.yaml")
     for flag in ("steps", "batch-size", "eval-batch-size", "ell"):
