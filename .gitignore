@@ -9,11 +9,15 @@ venv/
 _netrc
 wandb/
 .cache/
+.mplconfig/
 .ipynb_checkpoints/
-data/
+/data/
 outputs/
 checkpoints/
 *.pt
 *.pth
 *.log
 *.zip
+Phan_cong_nhiem_vu_giua_ky.xlsx
+fahrbach23a.pdf
+tài liệu/
