@@ -4,6 +4,8 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import re
+import subprocess
 import sys
 import uuid
 
@@ -16,20 +18,52 @@ from core.utils import load_config
 from experiments.convex_official import build_plan
 
 
-def reconcile(directory,*,api=None,download_root=None):
+def scientific_artifact(artifacts,config,run_id):
+    """Select one immutable attempt payload; recognize only this run's history."""
+    scientific=[]
+    backend=[]
+    for artifact in artifacts:
+        if artifact.type=='convex-evidence':
+            scientific.append(artifact)
+        elif artifact.type=='wandb-history' and re.fullmatch(
+                re.escape('run-'+run_id+'-history')+r':v\d+',artifact.name):
+            backend.append(dict(name=artifact.name,state=artifact.state))
+        else:
+            raise ValueError('unexpected artifact type or backend history identity')
+    if len(scientific)!=1:
+        raise ValueError('expected exactly one scientific artifact, no implicit duplicates')
+    artifact=scientific[0]
+    expected=config['key']+'-'+config['attempt_id']+':v0'
+    if artifact.name!=expected or artifact.state!='COMMITTED':
+        raise ValueError('scientific artifact name/version or committed state mismatch')
+    for key in ('attempt_id','config_sha256','science_sha256'):
+        if artifact.metadata.get(key)!=config[key]:
+            raise ValueError('scientific artifact metadata mismatch: '+key)
+    return artifact,backend
+
+
+def reconcile(directory,*,api=None,download_root=None,read_only=False):
     """Verify server state and freshly downloaded SHA256 payload without uploads.
 
     Failed or unfinished observations remain explicit. An uncertain finish can
     be recovered only with complete local bytes and independently verified
     remote success. SDK-finished stays false if that call never returned.
+    read_only requires an external new download root and never writes proofs,
+    statuses or ledgers in the input batch. It still downloads bytes for checks.
     """
     directory=Path(directory)
+    if read_only and (download_root is None or
+            Path(download_root).resolve().is_relative_to(directory.parents[2].resolve())):
+        raise ValueError('read-only verification requires a new download root outside the input batch')
     status=validate_attempt(directory,allow_pending=True,metadata_only=True)
     config=json.loads((directory/'config.json').read_text())
     proof=dict(key=config['key'],attempt_id=config['attempt_id'],head=config['head'],config_sha256=config['config_sha256'],
         science_sha256=config['science_sha256'],run_id=status.get('run_id'),local_completed=status.get('local_completed',False),
         sdk_finished=status.get('sdk_finished',False),server_finished=False,artifact_uploaded=False,
         artifact_verified=False,publicly_accessible=None,remote_verified=False)
+    tool=subprocess.run(['git','-C',str(ROOT),'rev-parse','HEAD'],capture_output=True,text=True)
+    proof.update(training_source_sha=config['head'],verification_tool_sha=tool.stdout.strip() if tool.returncode==0 else None,
+        verification_tool_file_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),read_only=read_only)
     stage='api_run'
     try:
         if proof['local_completed']:
@@ -46,7 +80,8 @@ def reconcile(directory,*,api=None,download_root=None):
         proof.update(server_state=run.state,wandb_url=run.url)
         resolved=run.config['resolved']
         stage='remote_provenance'
-        for key in ('head','config_sha256','science_sha256','attempt_id','key','source_sha256'):
+        for key in ('head','config_sha256','science_sha256','attempt_id','key','source_sha256',
+                    'protocol_version','dimension','method','seed'):
             if resolved[key]!=config[key]:
                 raise ValueError('remote provenance mismatch: '+key)
         stage='server_state'
@@ -55,11 +90,8 @@ def reconcile(directory,*,api=None,download_root=None):
         proof['server_finished']=True
         artifacts=list(run.logged_artifacts())
         stage='artifact_state'
-        if len(artifacts)!=1 or artifacts[0].state!='COMMITTED':
-            raise ValueError('expected exactly one committed artifact, no implicit duplicate uploads')
-        artifact=artifacts[0]
-        if artifact.metadata.get('attempt_id')!=config['attempt_id']:
-            raise ValueError('artifact belongs to a different attempt')
+        artifact,backend=scientific_artifact(artifacts,config,run.id)
+        proof['backend_history_artifacts']=backend
         names={item.name for item in artifact.files()}
         if names!=set(PAYLOAD_FILES)|{'checksums.json'}:
             raise ValueError('remote artifact file set mismatch')
@@ -83,6 +115,8 @@ def reconcile(directory,*,api=None,download_root=None):
     except Exception as error:
         proof.update(remote_verified=False,error_type=type(error).__name__,error_stage=stage,
                      recovery_action='inspect proof; reconcile before retrying into a fresh root')
+    if read_only:
+        return proof
     atomic_json(directory/('verification-'+uuid.uuid4().hex+'.json'),proof)
     atomic_json(directory/'remote_verification.json',proof)
     append_event(directory,'remote_observation',**proof)
@@ -117,6 +151,7 @@ def main():
     verify=sub.add_parser('verify')
     verify.add_argument('cell',type=Path)
     verify.add_argument('--download-root',type=Path)
+    verify.add_argument('--read-only',action='store_true',help='Never write input proofs/status/ledger; requires external --download-root')
     merge=sub.add_parser('merge')
     merge.add_argument('--roots',nargs='+',type=Path,required=True)
     merge.add_argument('--config',type=Path,default=ROOT/'configs/convex_cp03.yaml')
@@ -126,7 +161,7 @@ def main():
     merge.add_argument('--selections',type=Path)
     args=parser.parse_args()
     if args.command=='verify':
-        proof=reconcile(args.cell,download_root=args.download_root)
+        proof=reconcile(args.cell,download_root=args.download_root,read_only=args.read_only)
         print(json.dumps(proof,indent=2))
         if not proof['remote_verified']:
             raise SystemExit(1)

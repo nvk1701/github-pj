@@ -87,12 +87,35 @@ python -B experiments/convex_reconcile.py merge --roots outputs/cp04-d2 outputs/
 ```
 
 Reconciliation creates no run and uploads nothing. It requires exactly one
-COMMITTED artifact for that attempt, downloads with skip_cache=True, calls SDK
+COMMITTED `convex-evidence` artifact named `KEY-ATTEMPT_ID:v0` with matching
+attempt/config/science metadata. A unique attempt is uploaded once; later
+versions or duplicate scientific artifacts are rejected. Only `wandb-history`
+artifacts named `run-RUN_ID-history:vN` are recognized as backend history;
+unknown types or another run's history fail explicitly. Backend history is
+reported separately and cannot replace scientific evidence. It downloads with skip_cache=True, calls SDK
 artifact.verify and independently checks SHA256 for every payload file. Source,
 config, logical key and attempt identity must match the server config.
 Remote proof history is preserved in verification-*.json and the ledger.
 Main merges require remote proof. `--local-only` is for pilot/testing only.
 Merged plots read original selected files without copying or retraining them.
+
+## CP05.7 maintenance: inspect frozen evidence without rewriting it
+
+The default `verify` command still records observations/status/ledger for
+recovery. To inspect an existing frozen batch, use the new read-only mode:
+
+```powershell
+python -B experiments/convex_reconcile.py verify PATH_TO_FROZEN_CELL --read-only --download-root NEW_EXTERNAL_DOWNLOAD_PATH
+```
+
+The download root must be new and outside the entire input batch root.
+Only that new directory receives downloads; the input payload, status,
+proofs and attempt ledger are never written, on success or failure.
+Capture stdout into a separate review folder if a persistent report is needed.
+No W&B run/artifact is created or changed. The original `head` and added
+`training_source_sha` describe the training release. `verification_tool_sha`
+and `verification_tool_file_sha256` describe this maintenance tool separately;
+they must not be substituted for the training SHA of the existing 60 runs.
 
 ## Limits and release
 
