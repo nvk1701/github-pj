@@ -1,12 +1,12 @@
 ## Bảng Ánh Xạ Thí Nghiệm (Experiments Mapping)
 
-Dưới đây là bảng tổng hợp các thí nghiệm tái hiện lại bài báo "Learning Rate Schedules in the Presence of Distribution Shift", mã nguồn tương ứng, liên kết theo dõi trên Weights & Biases (W&B) và kết luận chính.
+Dưới đây là bảng tổng hợp các thí nghiệm tái hiện lại bài báo *"Learning Rate Schedules in the Presence of Distribution Shift"* (Fahrbach et al., ICML 2023), mã nguồn tương ứng, liên kết theo dõi trên Weights & Biases (W&B) và kết luận thực nghiệm chính.
 
 | Thí nghiệm | Script/Notebook | W&B run | Kết luận 1 dòng |
 | :--- | :--- | :--- | :--- |
-| **1. Hồi quy tuyến tính** (Linear Regression) | `experiments/linear_regression.py` | [Tên_Run_Linear](Link_W&B_của_bạn_vào_đây) | *(Điền sau: ví dụ: Tốc độ học tăng vọt khi phân phối dịch chuyển, bám sát SDE)* |
-| **2. Hàm lồi tổng quát** (Convex Loss) | `experiments/convex.py` | [Tên_Run_Convex](Link_W&B_của_bạn_vào_đây) | *(Điền sau: ví dụ: Tốc độ học dạng ngưỡng hoạt động hiệu quả theo chặn trên của Regret)* |
-| **3. Hàm không lồi** (Non-convex / Neural Net) | `experiments/neural_net.py` | [Tên_Run_NN](Link_W&B_của_bạn_vào_đây) | *(Điền sau: ví dụ: Restart Adam giúp mạng nơ-ron thoát khỏi cực tiểu cục bộ cũ)* |
+| **1. Hồi quy tuyến tính — Fig 4 & Fig 5 (top)** (Linear Regression, $d \in \{2,8,32,128,512\}$, $\ell \in \{1,4,8,16\}$) | `experiments/linear_regression.py` (`configs/linear.yaml`) | [18 Verified Runs (`nkhoa8508`)](https://forge.coreweave.com/wandb/gr_ml_29_37_37/ml-distribution-shift) (Fig 4: [ell=1](https://forge.coreweave.com/wandb/gr_ml_29_37_37/ml-distribution-shift/runs/yaomsd9p), [ell=4](https://forge.coreweave.com/wandb/gr_ml_29_37_37/ml-distribution-shift/runs/id9my7jj), [ell=16](https://forge.coreweave.com/wandb/gr_ml_29_37_37/ml-distribution-shift/runs/zrhn9935); Fig 5-top: [d128-seed0](https://forge.coreweave.com/wandb/gr_ml_29_37_37/ml-distribution-shift/runs/hupxdej7), [d512-seed0](https://forge.coreweave.com/wandb/gr_ml_29_37_37/ml-distribution-shift/runs/c82qd3ou)) | `Algorithm 1` tự động tăng $\eta^*_t \to \eta_{\max}$ mỗi khi $\hat{\theta}^*_t$ dịch chuyển ($\ell \in \{1,4,16\}$) và đạt Cumulative Regret thấp vượt trội so với lịch trình suy giảm $1/t, 1/\sqrt{t}$ trên mọi số chiều $d$. |
+| **2. Hàm lồi tổng quát — Fig 5 (bottom) & Độ nhạy** (Logistic Regression, Prop. 4.3) | `experiments/convex.py`, `experiments/sensitivity.py` (`configs/convex.yaml`) | [60 Verified Runs (CP04/CP05)](https://forge.coreweave.com/wandb/gr_ml_29_37_37/ml-distribution-shift) (vd: [d128-seed0](https://forge.coreweave.com/wandb/gr_ml_29_37_37/ml-distribution-shift/runs/br6md2c7), [d2-seed0](https://forge.coreweave.com/wandb/gr_ml_29_37_37/ml-distribution-shift/runs/38easaio)) | Lịch trình 2 ngưỡng $[\tau_{1,t}, \tau_{2,t}]$ đạt rủi ro dư quần thể $B$ thấp nhất từ $d=2 \to 128$ (ví dụ $233.52 \pm 0.59$ so với $334.95$ của Constant ở $d=128$) và bền vững khi quét độ nhạy $\ell, \sigma$. |
+| **3. Hàm không lồi — Fig 6** (Flow Cytometry MLP 5 tầng) | `experiments/neural_net.py` | *(Đang chờ TV3 - Hòa cập nhật link run)* | Restart bộ tối ưu Adam tại các mốc dịch chuyển phân phối ($t \in \{100, 200, 400\}$) giúp mạng MLP thoát khỏi cực tiểu cục bộ cũ và giảm độ tiếc nuối tích lũy. |
 
 ## Cấu Trúc Thư Mục & Giải Thích Chức Năng Từng File (Dành Cho Cả Nhóm)
 
@@ -16,19 +16,29 @@ Dưới đây là sơ đồ tổ chức repository và hướng dẫn nhanh đ�
 PROJECT/
 ├── README.md                          # Tổng quan dự án, Bảng ánh xạ thí nghiệm, Hướng dẫn T2 & Cấu trúc repo
 ├── requirements.txt                   # Danh sách thư viện ghim phiên bản (CPython 3.12, PyTorch 2.11, W&B 0.31)
+├── configs/                           # [CẤU HÌNH SIÊU THAM SỐ CỐ ĐỊNH SEED]
+│   ├── linear.yaml                    # (T14 - Khoa) Cấu hình Figure 4 & Figure 5 (top) cho Linear Regression
+│   ├── convex.yaml                    # (T15 - Khôi) Cấu hình Figure 5 (bottom) cho Logistic Regression
+│   └── convex_cp03_sensitivity.yaml   # (T17 - Khôi) Cấu hình phân tích độ nhạy theo ell và sigma
 ├── core/                              # [KHUNG CODE DÙNG CHUNG CHO CẢ 3 BÀI TOÁN]
 │   ├── tracking.py                    # (T2 - Khôi) Khởi tạo & quản lý W&B run dùng chung (`init_run`)
 │   ├── utils.py                       # (T6 - Khoa) Cố định seed (`set_seed`), đọc/ghi YAML, phép chiếu Euclid `project_to_ball`
 │   ├── drift.py                       # (T6 - Khoa) Sinh quỹ đạo xoắn ốc Eq. 26 (`generate_spiral_trajectory`), tính shift `gamma_t` & `EMADriftEstimator`
-│   ├── schedules.py                   # (T6 - Khoa) Giao diện `BaseSchedule` & các lịch trình cơ sở (`Constant`, `1/t`, `1/sqrt(t)`)
+│   ├── schedules.py                   # (T6, T7, T9) `BaseSchedule`, Baselines, `LinearOptimalSchedule` (Alg. 1) & `ConvexSchedule` (Prop. 4.3)
 │   ├── trainer.py                     # (T6 - Khoa) Vòng lặp Never-Ending Online SGD (`OnlineSGDTrainer`) cho Linear & Logistic + log W&B
+│   ├── convex_eval.py                 # (T15 - Khôi) Hàm mất mát BCE ổn định dấu & đánh giá Monte Carlo
+│   ├── convex_population.py           # (T15 - Khôi) Tích phân cầu phương Gaussian 1D & nghiệm xấp xỉ Oracle
 │   └── data.py                        # (T11 - Hòa) Tải dữ liệu tế bào tụy `scvelo.datasets.pancreas()` & sinh luồng 4 pha P1->P4
 ├── docs/                              # [TÀI LIỆU ĐỌC HIỂU BÀI BÁO (MILESTONE 2) & BÀN GIAO]
 │   ├── 00_fastpass.md                 # (T0) Ghi chú đọc lướt (Fast Pass) nắm ý tưởng cốt lõi bài báo
 │   ├── motivation_example.md          # (T3) Thống nhất phạm vi Full Scope, phân công & Ví dụ thực tế (CTR thương mại điện tử)
 │   ├── 01_context.md                  # (T4 - Khoa) Bối cảnh, động lực thực tế & phân tích 3 phương pháp tiền nhiệm
 │   ├── notation.md                    # (T5 - Khoa) Bảng ký hiệu thống nhất, Bài toán hình thức & Giải thích 2 Pipeline (Inference + Training)
+│   ├── 03_linear.md                   # (T7 - Khoa) Lý thuyết xấp xỉ SDE, phương trình moment ODE, HJB & Algorithm 1
+│   ├── 04_convex.md                   # (T9 - Khôi) Lý thuyết hàm lồi tổng quát, Theorem 4.2, 4.7 & Proposition 4.3
+│   ├── 05_nonconvex_experiments.md    # (T11 - Hòa) Lý thuyết hàm không lồi & thiết lập thực nghiệm Flow Cytometry MLP
 │   ├── T2_handover.md                 # (T2 - Khôi) Tài liệu bàn giao môi trường, kiểm thử W&B và quy ước commit
+│   ├── T19_cross_check_report.md      # (T19 - Khoa) Biên bản kiểm tra chéo độc lập code & số liệu giữa TV1 và TV2
 │   └── references.md                  # (T10 - Khôi) Danh mục tài liệu tham khảo chuẩn IEEE
 ├── experiments/                       # [CÁC SCRIPT CHẠY THỰC NGHIỆM CHÍNH (LAB 1)]
 │   ├── smoke_test.py                  # (T5, T6 - Khoa) Kiểm thử nhanh (<1 phút) khung `core/`, tích hợp `init_run` & vẽ `figures/pipeline.png`
@@ -36,9 +46,23 @@ PROJECT/
 │   ├── convex.py                      # (T15 - Khôi) Thực nghiệm 2: Tái hiện Figure 5 (bottom) cho Logistic Regression
 │   ├── sensitivity.py                 # (T17 - Khôi) Phân tích mở rộng (Bonus): Quét độ nhạy theo tốc độ trôi `gamma` và nhiễu `sigma`
 │   └── neural_net.py                  # (T16 - Hòa) Thực nghiệm 3: Tái hiện Figure 6 (Flow Cytometry MLP 5 tầng với Adam Restart)
+├── results/                           # [BẢNG SỐ LIỆU CSV TÁI HIỆN THỰC NGHIỆM]
+│   ├── linear/                        # (T14 - Khoa) CSV kết quả Figure 4, Figure 5 (top) và đối chiếu Baselines
+│   ├── logistic/                      # (T15 - Khôi) CSV kết quả Figure 5 (bottom) trên 45 runs chính thức
+│   └── sensitivity/                   # (T17 - Khôi) CSV kết quả phân tích độ nhạy (15 runs CP05)
 ├── figures/                           # [HÌNH VẼ & ĐỒ THỊ TỰ TẠO ĐỂ ĐƯA VÀO SLIDE DECK]
 │   ├── pipeline.png                   # (T5 - Khoa) Sơ đồ Pipeline tổng thể tách rõ Stage A (Online Inference) & Stage B (Online Training)
-│   └── smoke_test.png                 # (T6 - Khoa) Đồ thị kiểm thử quỹ đạo xoắn ốc 2D, learning rate và Cumulative Regret
+│   ├── smoke_test.png                 # (T6 - Khoa) Đồ thị kiểm thử quỹ đạo xoắn ốc 2D, learning rate và Cumulative Regret
+│   ├── fig1_constant_lr_trajectories.png # (T14 - Khoa) Tái hiện Figure 1: Quỹ đạo SGD với 4 tốc độ học hằng số
+│   ├── fig2_alg1_schedules.png        # (T14 - Khoa) Tái hiện Figure 2: Lịch trình Algorithm 1 dưới Bursty & Smooth shifts
+│   ├── fig3_no_shift_asymptotics.png  # (T14 - Khoa) Tái hiện Figure 3: Quá trình v_tau & suy giảm O(1/t) khi không có shift
+│   ├── fig4_linear_trajectory_and_lr.png # (T14 - Khoa) Tái hiện Figure 4: Quỹ đạo 2D & dao động LR theo ell in {1, 4, 16}
+│   ├── fig5_top_linear_regret_and_path.png # (T14 - Khoa) Tái hiện Figure 5 (top): Cumulative Regret theo d & quỹ đạo d=128
+│   ├── fig5_top_baselines_comparison.png # (T14 - Khoa) Đối chiếu Algorithm 1 (Oracle & EMA) với các lịch trình Baseline
+│   ├── fig5_bottom_logistic_regret.png # (T15 - Khôi) Tái hiện Figure 5 (bottom-left): Regret hàm lồi theo chiều d
+│   ├── fig5_bottom_trajectory_d128.png # (T15 - Khôi) Tái hiện Figure 5 (bottom-right): Quỹ đạo 2D ở d=128
+│   ├── sensitivity_drift.png          # (T17 - Khôi) Độ nhạy theo tần suất dịch chuyển phân phối ell in {1, 8, 16}
+│   └── sensitivity_noise.png          # (T17 - Khôi) Độ nhạy theo độ lệch chuẩn nhiễu nhãn sigma in {0, sqrt(0.1), 1}
 ├── scripts/                           # [SCRIPT KIỂM TRA MÔI TRƯỜNG & TRACKING (T2)]
 │   ├── check_environment.py           # (T2 - Khôi) Kiểm tra phiên bản CPython 3.12, venv cô lập và các thư viện đã ghim
 │   └── smoke_tracking.py              # (T2 - Khôi) Kiểm tra kết nối W&B (`--mode offline` / `--mode online`) cho từng thành viên
@@ -46,7 +70,9 @@ PROJECT/
 │   └── T2_environment_wandb.ipynb     # (T2 - Khôi) Notebook kiểm tra môi trường và W&B trên Google Colab
 └── tests/                             # [UNIT TESTS & INTEGRATION TESTS]
     ├── test_tracking.py               # (T2 - Khôi) 31 unit tests kiểm tra logic `core/tracking.py`, `smoke_tracking.py` và giải nén ZIP
-    └── test_tracking_offline.py       # (T2 - Khôi) Integration test với W&B SDK ở chế độ offline
+    ├── test_tracking_offline.py       # (T2 - Khôi) Integration test với W&B SDK ở chế độ offline
+    ├── test_linear.py                 # (T7, T14 - Khoa) 6 unit tests kiểm tra `LinearOptimalSchedule`, Lemma 3.6 & Linear SGD
+    └── test_convex.py                 # (T9, T19 - Khôi & Khoa) Kiểm thử `ConvexSchedule`, Population Oracle & kiểm chứng chéo CP04
 ```
 
 ### Hướng dẫn nhanh cách ghép thuật toán vào `core/` (Dành cho T7, T9, T12)
@@ -54,14 +80,14 @@ PROJECT/
 2. **Cách chạy vòng lặp Online SGD và đẩy log lên W&B**:
    ```python
    from core.drift import generate_spiral_trajectory
-   from core.schedules import ConstantSchedule
+   from core.schedules import LinearOptimalSchedule
    from core.tracking import init_run
    from core.trainer import OnlineSGDTrainer
    from core.utils import set_seed
 
    set_seed(42)
    theta_star, gamma_seq = generate_spiral_trajectory(T=2000, d=128, ell=8)
-   schedule = ConstantSchedule(lr=0.05)
+   schedule = LinearOptimalSchedule(max_lr=1.0 / (128 ** 0.5), kappa=0.1)
 
    run = init_run({
        "experiment": "linear",

@@ -1,0 +1,30 @@
+# Cấu hình chuẩn cho Thực nghiệm 1: Hồi quy Tuyến tính (Task T14 - Khoa)
+# Bám sát Mục 3 và Mục 6.1 của bài báo Fahrbach et al. (ICML 2023)
+
+experiment: linear
+seeds: [0, 1, 2]
+
+# Thiết lập chung cho Mục 6.1 (High-dimensional Linear Regression)
+horizon_T: 2000
+batch_size: 256
+# Trong Mục 6.1: \varepsilon_i ~ N(0, 0.1) (phương sai nhiễu nhãn \sigma^2 = 0.1 => \sigma = sqrt(0.1))
+noise_variance: 0.1
+kappa: 0.1
+
+spiral:
+  a: 1.0
+  b: -1.0
+  k: 4.0
+
+figure4:
+  d: 2
+  max_lr: 0.5
+  ell_list: [1, 4, 16]
+
+figure5_top:
+  ell: 8
+  dimensions: [2, 8, 32, 128, 512]
+  trajectory_d: 128
+  baseline_lr0: 0.05
+  inv_time_decay: 0.02
+  ema_beta: 0.9

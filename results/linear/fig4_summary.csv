@@ -1,0 +1,4 @@
+ell,d,T,batch_size,max_lr,num_shift_events,lr_min,lr_max,lr_mean,lr_std,num_lr_restarts_to_max,final_regret_mean,final_regret_std,wandb_runs
+1,2,2000,256,0.5,1999,0.006842991684669451,0.5,0.2658873343513901,0.19187292319022856,0,0.9162506608612914,0.04482867171511721,https://forge.coreweave.com/wandb/gr_ml_29_37_37/ml-distribution-shift/runs/yaomsd9p;disabled;disabled
+4,2,2000,256,0.5,499,0.006772119728033865,0.5,0.23928768940358705,0.17759622915555587,215,0.9562388759184172,0.04556810539523635,https://forge.coreweave.com/wandb/gr_ml_29_37_37/ml-distribution-shift/runs/id9my7jj;disabled;disabled
+16,2,2000,256,0.5,124,0.006511356140053857,0.5,0.1557299020230946,0.15345528361712427,74,1.2183861400304232,0.05382117657168921,https://forge.coreweave.com/wandb/gr_ml_29_37_37/ml-distribution-shift/runs/zrhn9935;disabled;disabled
