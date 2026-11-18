@@ -152,3 +152,102 @@ class InverseSqrtSchedule(BaseSchedule):
         """Tính \\eta_t = \\eta_0 / sqrt(t) tại bước t >= 1."""
         t_eff = max(1, int(t))
         return self.lr0 / math.sqrt(float(t_eff))
+
+
+class ConvexSchedule(BaseSchedule):
+    """Tinh LR theo Prop. 4.3, Eq. (18)-(20). Variance la sigma binh phuong.
+
+    L, D_max va gradient_variance la tham so cua bound, tach khoi nhieu nhan.
+    eta_init nam trong (0, 1/L]. reset khoi phuc LR nay cho seed moi.
+    """
+
+    def __init__(self, L: float, D_max: float, gradient_variance: float,
+                 eta_init: float = 1.0) -> None:
+        super().__init__(name="convex")
+        self.L = self._number(L, "L", positive=True)
+        self.D_max = self._number(D_max, "D_max", positive=True)
+        self.gradient_variance = self._number(gradient_variance, "gradient_variance")
+        self.max_lr = 1.0 / self.L
+        if not math.isfinite(self.max_lr):
+            raise ValueError("1/L must be representable")
+        self.eta_init = self._number(eta_init, "eta_init", positive=True)
+        if self.eta_init > self.max_lr:
+            raise ValueError("eta_init must be <= 1/L")
+        self.reset()
+
+    @staticmethod
+    def _number(value, name, *, positive=False):
+        """Doc scalar huu han, tu choi bool va gia tri am."""
+        from numbers import Real
+        if isinstance(value, bool) or not isinstance(value, Real):
+            raise TypeError(f"{name} must be a real scalar")
+        result = float(value)
+        if not math.isfinite(result) or result < 0 or (positive and result == 0):
+            raise ValueError(f"{name} is outside its finite domain")
+        return result
+
+    @staticmethod
+    def _integer(value, name):
+        """Chi chap nhan so nguyen duong cho step va batch size."""
+        from numbers import Integral
+        if isinstance(value, bool) or not isinstance(value, Integral) or value < 1:
+            raise ValueError(f"{name} must be a positive integer")
+        return int(value)
+
+    @staticmethod
+    def _logadd(a, b):
+        """Tinh log(exp(a)+exp(b)) ma khong lam tran so."""
+        high, low = max(a, b), min(a, b)
+        return high + math.log1p(math.exp(low - high))
+
+    def _tau(self, log_b, batch_size):
+        """Rationalize Eq.18: tau=2/[L*(1+sqrt(1+4v/(B*b*L^2)))]."""
+        if log_b == -math.inf:
+            return 0.0
+        if self.gradient_variance == 0:
+            return self.max_lr
+        log_q = (math.log(4.0) + math.log(self.gradient_variance)
+                 - math.log(batch_size) - log_b - 2.0 * math.log(self.L))
+        log_sqrt = 0.5 * self._logadd(0.0, log_q)
+        log_tau = math.log(2.0) - math.log(self.L) - self._logadd(0.0, log_sqrt)
+        return min(self.max_lr, math.exp(log_tau))
+
+    def thresholds(self, gamma: float, batch_size: int) -> tuple[float, float]:
+        """Tra tau1,tau2 tu shift signal va B, khong thay doi state."""
+        g = self._number(gamma, "gamma")
+        batch_size = self._integer(batch_size, "batch_size")
+        log_d = math.log(self.D_max)
+        log_g = math.log(g) if g else -math.inf
+        log_b1 = (log_g + self._logadd(log_g, math.log(2.0) + log_d)
+                  if g else -math.inf)
+        log_b2 = 2.0 * self._logadd(log_g, log_d)
+        lower, upper = self._tau(log_b1, batch_size), self._tau(log_b2, batch_size)
+        if not (0.0 <= lower <= upper <= self.max_lr) or upper == 0.0:
+            raise ValueError("thresholds cannot be represented in the valid LR domain")
+        return lower, upper
+
+    def step(self, t: int, **kwargs: Any) -> float:
+        """Tra eta_t, nhan gamma hoac adapter gamma_prev cua shared trainer.
+
+        gamma_prev chi la signal dau vao: EMA hoac lagged reference do caller chon.
+        Khong coi gamma_(t-1) la true gamma_t. noise_std/loss_val khong duoc dung.
+        """
+        t = self._integer(t, "t")
+        if t != self.last_t + 1:
+            raise ValueError("steps must be consecutive; reset before a new run")
+        keys = [key for key in ("gamma", "gamma_prev") if key in kwargs]
+        if len(keys) != 1 or "batch_size" not in kwargs:
+            raise ValueError("supply exactly one shift signal and batch_size")
+        lower, upper = self.thresholds(kwargs[keys[0]], kwargs["batch_size"])
+        eta = min(upper, max(lower, self.eta_prev))
+        if not math.isfinite(eta) or eta <= 0:
+            raise ValueError("learning rate must remain positive and finite")
+        self.last_thresholds = (lower, upper)
+        self.eta_prev, self.last_t = eta, t
+        return float(eta)
+
+    def reset(self) -> None:
+        """Bo state cua run cu de LR seed truoc khong anh huong seed sau."""
+        self.eta_prev = self.eta_init
+        self.last_t = 0
+        self.last_thresholds = None

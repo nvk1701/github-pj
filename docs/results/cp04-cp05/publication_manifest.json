@@ -1,0 +1,198 @@
+{
+  "checkpoint": "CP05.6",
+  "scientific_source_head": "7e0499c450a3e503ab09d4c6c3d272e6576b4432",
+  "scope": "Documentation, derived CSV tables, immutable selected PNG copies only",
+  "observed_forge_utc": "2026-11-17T08:21:27.499710+00:00",
+  "excluded": "Raw NPZ, logs, credentials, workbook, scientific source and original output roots",
+  "files": [
+    {
+      "path": "RESULTS.md",
+      "sha256": "08541d38666514c8dc82223310d16bc2beac8800604351e5ccb477fc8c20f8a9",
+      "bytes": 10137,
+      "provenance": {
+        "sources": [
+          "CP04_SCIENTIFIC_RESULTS.md",
+          "CP05_T17_SENSITIVITY_RESULTS.md",
+          "CP05_D512_DIAGNOSTIC.md",
+          "existing CP04/CP05 numerical evidence"
+        ],
+        "transformation": "Portable summary; all declared results retained."
+      }
+    },
+    {
+      "path": "WANDB_TEAM_READINESS.md",
+      "sha256": "08ea8334d3dc5fd2b0fcd7cc4bb60666e7bc3c44be51e46fcb3ab2764df8dfbf",
+      "bytes": 12894,
+      "provenance": {
+        "source": "CP05.6 read-only Forge inventory, anonymous browser/API tests, T2 issue #6, frozen shared tracking API"
+      }
+    },
+    {
+      "path": "data/cp04_method_summary.csv",
+      "sha256": "2db79e06d8c5a6fb59d0709aaf5473c3488c757520c298f8d6662059a19482c8",
+      "bytes": 8079,
+      "provenance": {
+        "source": "_reports/cp04_evidence/results/method_summary.csv",
+        "source_sha256": "5361888ac49e9cdb4afa910079d5699b03e1bd15d1220ad1f51d805eb9c01b60",
+        "removed_columns": [
+          "local_outputs"
+        ]
+      }
+    },
+    {
+      "path": "data/cp04_per_seed.csv",
+      "sha256": "75aa6631bf748e5a5e7e5c7e377a59ab25b436c4c5c847b7bdc80d97c562fb59",
+      "bytes": 22457,
+      "provenance": {
+        "source": "_reports/cp04_evidence/results/per_seed_metrics.csv",
+        "source_sha256": "f89f826ad7f18d19ffa49aef3ff642dfcc0900d7ff4493834d13f8ac0afcb43f",
+        "removed_columns": [
+          "path"
+        ]
+      }
+    },
+    {
+      "path": "data/cp05_condition_summary.csv",
+      "sha256": "672ec2f9f578b7479d8bc089e875a79a42aed0c4639666205c595384627f18d1",
+      "bytes": 4020,
+      "provenance": {
+        "source": "_reports/cp05_evidence/t17_results/condition_summary.csv",
+        "source_sha256": "1ed278022755e53d3eb134d4db0c40a9ea571e64993e0e6e829ed5b09512c5ca",
+        "removed_columns": []
+      }
+    },
+    {
+      "path": "data/cp05_paired_differences.csv",
+      "sha256": "2eb87a4eb8a5af50c1239ae228d14314e121b61f81f58564fed87619a969a5bd",
+      "bytes": 880,
+      "provenance": {
+        "source": "_reports/cp05_evidence/t17_results/paired_differences.csv",
+        "source_sha256": "d4c19b7535b8fa88f9c6d3bbd00a44dc34031af9a29d8604ec683b85610a8e58",
+        "removed_columns": []
+      }
+    },
+    {
+      "path": "data/cp05_per_seed.csv",
+      "sha256": "7d4baa85b788e87f732d0467bc9ec06d380baf24d7562c5bf76d9d01a6020811",
+      "bytes": 7701,
+      "provenance": {
+        "source": "_reports/cp05_evidence/t17_results/per_seed_metrics.csv",
+        "source_sha256": "87cdbe5b2b505769eebd02ab396ce6666751fb4ac2dd33ef985045bf88178476",
+        "removed_columns": [
+          "local_output"
+        ]
+      }
+    },
+    {
+      "path": "data/d512_diagnostic_summary.csv",
+      "sha256": "4e54f765e12c0e029584eed5e69eb83e6b6f77851d19d558c15ae122c19bb113",
+      "bytes": 3576,
+      "provenance": {
+        "source": "_reports/cp05_evidence/d512_results/diagnostic_summary.csv",
+        "source_sha256": "7b90c8381e76f30b3fbad51199fa69b0a4f4e30283f1969e1276b795b9cf7d6b",
+        "removed_columns": []
+      }
+    },
+    {
+      "path": "data/forge_artifact_inventory.csv",
+      "sha256": "e34f052f0827080180ff54ae23ee8c9c7a5d29f06e5d6411590a3043a545cb2b",
+      "bytes": 8789,
+      "provenance": {
+        "source": "_reports/cp056_evidence/artifact_followup.json",
+        "note": "All 93 logged artifacts belonging to the same 65 runs; read-only metadata, no capability URLs."
+      }
+    },
+    {
+      "path": "data/forge_run_inventory.csv",
+      "sha256": "7e00cdc2ca3f37a85894ed8b527228d172cffbb8f019a1bbc5875678afcfa110",
+      "bytes": 30213,
+      "provenance": {
+        "source": "_reports/cp056_evidence/forge_runs.csv",
+        "source_sha256": "efc73cff031ad6cc4847abce43f273e07bdd9f44da7c53e3690d2e86bda73753",
+        "observed_utc": "2026-11-17T08:21:27.499710+00:00"
+      }
+    },
+    {
+      "path": "data/inventory_counts.csv",
+      "sha256": "6bec5a25b6dbea4103aa28b2a010048721254170ded95dc7fac6848f064ff8c5",
+      "bytes": 722,
+      "provenance": {
+        "source": "_reports/cp056_evidence/forge_inventory.json",
+        "note": "Tag memberships overlap; other count partitions sum to 65."
+      }
+    },
+    {
+      "path": "data/run_provenance.csv",
+      "sha256": "733fd65a77155402efe9b64efc552be52c9daf6e79eb9b489e3b735fc7b278e4",
+      "bytes": 40763,
+      "provenance": {
+        "sources": [
+          "CP04 official_matrix_coverage.json selected.proof",
+          "CP05 ofat_results.json runs.proof"
+        ],
+        "note": "Hashes of NPZ payloads are metadata only; NPZ payloads are excluded."
+      }
+    },
+    {
+      "path": "figures/cp04_all_dimension_baselines.png",
+      "sha256": "9e275cd0a9b8a8878aa67c441e90c14cbdf00c10a49c4813ece0ad66ffa5544d",
+      "bytes": 246884,
+      "provenance": {
+        "source": "_reports/cp04_evidence/results/all_dimension_baselines.png",
+        "source_sha256": "9e275cd0a9b8a8878aa67c441e90c14cbdf00c10a49c4813ece0ad66ffa5544d",
+        "transformation": "none; exact byte copy"
+      }
+    },
+    {
+      "path": "figures/cp04_figure5_left.png",
+      "sha256": "935306244a85a02085804066be37fea46567e07abac8cdae0298a1619caa9df9",
+      "bytes": 60520,
+      "provenance": {
+        "source": "_worktrees/convex-cp03/outputs/cp04-merged/figure5_left.png",
+        "source_sha256": "935306244a85a02085804066be37fea46567e07abac8cdae0298a1619caa9df9",
+        "transformation": "none; exact byte copy"
+      }
+    },
+    {
+      "path": "figures/cp04_trajectory_d128.png",
+      "sha256": "e73401a49d7e58ea0fca8fd2fc5043ce8bb3b81286edb72e250ba10931c4d189",
+      "bytes": 230978,
+      "provenance": {
+        "source": "_worktrees/convex-cp03/outputs/cp04-merged/figure5_right.png",
+        "source_sha256": "e73401a49d7e58ea0fca8fd2fc5043ce8bb3b81286edb72e250ba10931c4d189",
+        "transformation": "none; exact byte copy"
+      }
+    },
+    {
+      "path": "figures/cp05_d512_loss_dynamics.png",
+      "sha256": "ca29019803da844f058e1f419b8317ce7414d3e481d4562a92cd979a627808e6",
+      "bytes": 148657,
+      "provenance": {
+        "source": "_reports/cp05_evidence/d512_results/d512_loss_dynamics.png",
+        "source_sha256": "ca29019803da844f058e1f419b8317ce7414d3e481d4562a92cd979a627808e6",
+        "transformation": "none; exact byte copy"
+      }
+    },
+    {
+      "path": "figures/cp05_drift_sensitivity.png",
+      "sha256": "75eb16a9cf57262f728192511f4eef7b5097a077c7ac893c76a6cc1df792aad3",
+      "bytes": 71576,
+      "provenance": {
+        "source": "_reports/cp05_evidence/t17_results/drift_sensitivity.png",
+        "source_sha256": "75eb16a9cf57262f728192511f4eef7b5097a077c7ac893c76a6cc1df792aad3",
+        "transformation": "none; exact byte copy"
+      }
+    },
+    {
+      "path": "figures/cp05_noise_sensitivity.png",
+      "sha256": "539b059c8497e6da8bc0dc5d7bc7443ffabe61a83808a769045ab4e04db533d8",
+      "bytes": 68464,
+      "provenance": {
+        "source": "_reports/cp05_evidence/t17_results/noise_sensitivity.png",
+        "source_sha256": "539b059c8497e6da8bc0dc5d7bc7443ffabe61a83808a769045ab4e04db533d8",
+        "transformation": "none; exact byte copy"
+      }
+    }
+  ],
+  "self_hash_note": "This manifest excludes its own hash to avoid recursion."
+}
