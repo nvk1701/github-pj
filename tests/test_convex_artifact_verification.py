@@ -1,5 +1,6 @@
 """Scientific artifact identity and backend-history regressions; no online runs."""
 import copy
+from contextlib import chdir
 import hashlib
 import json
 from pathlib import Path
@@ -50,6 +51,14 @@ class ArtifactVerificationTests(unittest.TestCase):
         self.assertTrue(proof['remote_verified']);self.assertEqual(proof['backend_history_artifacts'],[])
         self.assertEqual(proof['head'],self.config['head']);self.assertEqual(proof['training_source_sha'],self.config['head'])
         self.assertEqual(len(proof['verification_tool_file_sha256']),64)
+        self.assertEqual(self.snapshot(),before)
+
+    def test_short_relative_cell_path_preserves_read_only_input(self):
+        before=self.snapshot()
+        with chdir(self.cell.parent):
+            proof=reconcile('seed0',api=self.api,read_only=True,
+                            download_root=self.base/'relative-downloads')
+        self.assertTrue(proof['remote_verified'])
         self.assertEqual(self.snapshot(),before)
 
     def test_one_or_multiple_backend_history_do_not_replace_scientific_checks(self):

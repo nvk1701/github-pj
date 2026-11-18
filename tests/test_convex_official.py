@@ -126,6 +126,13 @@ class OfficialTests(unittest.TestCase):
             with np.load(root/'d128/convex/seed0/history.npz') as data:
                 np.testing.assert_array_equal(curve['mean'],data['population_cum_B'])
             self.assertFalse(a[0]['remote_verified'])
+            import csv
+            with (root/'sheet4_mapping.csv').open(encoding='utf-8') as stream:
+                mapping=list(csv.DictReader(stream))
+            sensitivity=[r for r in mapping if r['figure_or_table']=='T17 sensitivity']
+            self.assertEqual(len(sensitivity),1)
+            self.assertEqual(sensitivity[0]['scientific_status'],'not-covered-by-this-export')
+            self.assertIn('CP05 sensitivity evidence',sensitivity[0]['notes'])
 
     def test_online_summary_api_requires_a_mapping(self):
         class SDKSummary(dict):

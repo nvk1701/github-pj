@@ -621,7 +621,7 @@ Tại từng bước:
 4. Trả mini-batch cho learner.
 5. Giữ thông tin oracle riêng để evaluator có thể sử dụng.
 
-Trong thí nghiệm Linear Regression, paper sinh các phần tử của $X$ từ phân phối Uniform trên $(-1,1)$.
+Trong thí nghiệm Linear Regression (§6.1), paper sinh các phần tử của $X$ độc lập từ phân phối Gaussian chuẩn $N(0,1)$. (Đính chính factual trong audit 18/11/2026; xem [chỉ mục hiện hành](convex_current.md).)
 
 Với Logistic Regression, tác giả sử dụng cách sinh covariates tương tự và mô tả response:
 

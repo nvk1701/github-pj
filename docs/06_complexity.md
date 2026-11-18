@@ -28,7 +28,7 @@ An online-only implementation can keep model/previous-vector state Theta(d) and 
 
 ## Evaluation and numerical oracle are separate work
 
-Sources [4]: core/convex_eval.py evaluate_history; core/convex_population.py gaussian_population_oracle, GaussianPopulationEvaluator, _integral, _moment. Evaluation replays the training stream and draws an independent evaluation stream. With a constant number of losses/comparators, replay/MC work is Theta(T(B+E)d); it does not update a new learner. Dashboard stride20 does not reduce full-resolution arrays or evaluation to T/20.
+Sources [4]: core/convex_eval.py evaluate_history; core/convex_population.py gaussian_population_oracle, PopulationEvaluator, _integral, _moment. Evaluation replays the training stream and draws an independent evaluation stream. With a constant number of losses/comparators, replay/MC work is Theta(T(B+E)d); it does not update a new learner. Dashboard stride20 does not reduce full-resolution arrays or evaluation to T/20.
 
 Let U<=T be the number of exact reference norms cached, I_o the root-solver iteration count, Q_o/Q_r quadrature integrand evaluation counts for root/reference calculations, and Q_theta,t the learner-risk integral work at t. These depend on tolerances and geometry; adaptive quadrature has no fixed tolerance-independent cost asserted here.
 

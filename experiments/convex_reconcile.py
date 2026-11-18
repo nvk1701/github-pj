@@ -1,4 +1,4 @@
-"""Read-only W&B reconciliation and strict multi-root Convex aggregation."""
+"""W&B reconciliation (optional read-only mode) and strict Convex aggregation."""
 
 import argparse
 import hashlib
@@ -51,7 +51,7 @@ def reconcile(directory,*,api=None,download_root=None,read_only=False):
     read_only requires an external new download root and never writes proofs,
     statuses or ledgers in the input batch. It still downloads bytes for checks.
     """
-    directory=Path(directory)
+    directory=Path(directory).resolve()
     if read_only and (download_root is None or
             Path(download_root).resolve().is_relative_to(directory.parents[2].resolve())):
         raise ValueError('read-only verification requires a new download root outside the input batch')

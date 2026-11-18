@@ -98,10 +98,10 @@ def export_figures(root, records, config):
             metric_name='two-coordinate trajectory',dimension=128,n_seeds=1,mean='N/A',sample_std='N/A',
             paper_value_source='Trajectory has no directly comparable scalar paper value',wandb_url=row['wandb_url'],
             local_artifact=str(root/'trajectory_d128.csv'),notes='Selected seed, not seed-averaged path.'))
-    mapping.append(dict(mapping[0],experiment_id='T17-planned',figure_or_table='T17 sensitivity',metric_name='cumulative population B',
-        mean='N/A',sample_std='N/A',paper_value_source='Exploratory one-factor analysis planned after main matrix',
+    mapping.append(dict(mapping[0],experiment_id='T17-outside-this-export',figure_or_table='T17 sensitivity',metric_name='cumulative population B',
+        mean='N/A',sample_std='N/A',paper_value_source='Separate CP05 exploratory one-factor results; not aggregated here',
         dimension=128,steps=2000,n_seeds=3,wandb_url='N/A',local_artifact='configs/convex_cp03_sensitivity.yaml',slide_number=28,
-        scientific_status='planned',notes='No sensitivity runs executed. Never retune main protocol.'))
+        scientific_status='not-covered-by-this-export',notes='See docs/results/cp04-cp05/RESULTS.md for CP05 sensitivity evidence. Never retune main protocol.'))
     for filename,rows in (('population_curves.csv',curves),('sheet4_mapping.csv',mapping)):
         with (root/filename).open('w',newline='',encoding='utf-8') as stream:
             writer=csv.DictWriter(stream,fieldnames=list(rows[0]))
