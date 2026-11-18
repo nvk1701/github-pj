@@ -1,117 +1,62 @@
-# Convex: current source, results and review boundaries
+# Convex: mã nguồn, kết quả và hướng dẫn hiện hành
 
-Audit dated 18 November 2026. Earlier checkpoint documents retain their historical
-scope. This index supplies current interpretation without relabelling old runs.
+Tài liệu cập nhật ngày 18/11/2026. Nhánh bàn giao là `feat/convex`; SHA chính xác nằm trong báo cáo công bố. Các ghi chú CP01–CP05.7 giữ nguyên phạm vi lịch sử.
 
-## Source and entry points
+## Bài toán và thuật toán
 
-All 60 CP04/CP05 scientific runs used frozen training source
-`7e0499c450a3e503ab09d4c6c3d272e6576b4432`.
-The [published results](results/cp04-cp05/RESULTS.md),
-[per-run URLs/hashes](results/cp04-cp05/data/run_provenance.csv) and
-[publication manifest](results/cp04-cp05/publication_manifest.json) were committed
-at `4d6bce54e68e559d77cb64bd5dab5eeb1cf7fac6`.
-CP05.7 maintenance commits `37e2492` and `1316573` repair verification and add
-analysis documents; they did not generate those results. Later maintenance must
-continue recording the training source separately from the verification tool.
+Mô hình logistic được cập nhật bằng mini-batch SGD trên luồng có response shift. Covariates có phân phối Gaussian N(0,I); nhãn mềm là sigmoid của tích vô hướng với generating reference cộng nhiễu Gaussian. Quỹ đạo Eq.26 dùng cubic radius và sample-and-hold. ConvexSchedule chọn hai ngưỡng theo Proposition4.3 và chiếu learning rate trước vào khoảng ngưỡng; shift thực tế của learner được ước lượng bằng EMA .9.
 
-From the repository root, with the tested CPython 3.12 environment:
+Giao thức frozen `convex-cp03-v1`: T=2000, B=256, E=512, seeds0/1/2, dimensions2/8/32/128/512; noise std=sqrt(.1), L=.25, variance profile=d/4, eta_init=1. Ball projection có radius=d/2 và diameter=d. Constant/inverse-sqrt dùng LR0=.1, không tuning. Shared legacy `inst_regret`/`cum_regret` có clipping; không dùng thay cho metric official.
+
+Primary B là tổng population risk trừ risk tại numerical approximate oracle. Secondary A dùng generating reference; khi có nhiễu, reference không mặc định là population minimizer. Signed Monte Carlo excess được giữ nguyên. Sample SD qua ba seeds, conditional MC SE và sai số số học là ba đại lượng khác nhau. Quadrature/oracle diagnostics không phải chứng chỉ sai số nghiêm ngặt.
+
+## Nguồn và kết quả đã xác minh
+
+| Nội dung | Mốc bất biến |
+|---|---|
+| Huấn luyện60 runs CP04/CP05 | `7e0499c450a3e503ab09d4c6c3d272e6576b4432` |
+| Publication19 files | `4d6bce54e68e559d77cb64bd5dab5eeb1cf7fac6` |
+| CP05.7 verifier/docs | `37e2492` và `1316573` |
+| Audit relative-path fix | `ccc269ce94d3bf2b5108a0452793472f694feea6` |
+
+[Kết quả frozen](results/cp04-cp05/RESULTS.md), [60 URLs và hashes](results/cp04-cp05/data/run_provenance.csv), [publication manifest](results/cp04-cp05/publication_manifest.json), [đối chiếu ba hình CP05](convex_figure_provenance.md).
+
+CP04 hoàn thành45 cells. Convex có mean B thấp nhất tại d2/8/32/128; constant thắng tại d512:504.8952 so với Convex1385.0089. Kết quả thua được giữ nguyên. CP05 thực hiện15 runs Convex-only d128, gồm năm điều kiện OFAT và ba seeds. [Bảng điều kiện](results/cp04-cp05/data/cp05_condition_summary.csv) mô tả đúng phạm vi; YAML sensitivity cũ là kế hoạch rộng hơn, không phải resolved configs của15 runs.
+
+Ell thay đổi đồng thời số lần chuyển, kích thước bước nhảy và path variation; không chỉ là tốc độ drift. Noise thay đổi cả target distribution và comparator. Ba seeds và OFAT không chứng minh ưu thế phổ quát, độ bền trên mọi bài toán hoặc nguyên nhân kết quả d512.
+
+## Entry points và kiểm tra không huấn luyện
+
+Chạy từ repository root bằng environment CPython3.12 đã cài requirements:
 
 ```powershell
 python -m pip check
 python -B -m scripts.check_environment --require-isolated
-python -B -m scripts.smoke_tracking --mode offline --member Khoi
-python -B -m unittest discover -s tests -v
+python -B -m scripts.smoke_tracking --mode offline --member Khoa
 python -B experiments/convex_official.py --config configs/convex_cp03.yaml --dry-run
 python -B experiments/convex_reconcile.py verify --help
+python -B experiments/sensitivity.py --help
 ```
 
-Offline smoke writes only local SDK files; choose external writable WANDB_DIR,
-WANDB_DATA_DIR, WANDB_CACHE_DIR and WANDB_CONFIG_DIR. It does not establish online
-upload or another person's permissions. `.venv/Scripts` contains environment
-executables; repository `scripts/` contains the Python modules above. Use `-m`
-for these modules. A member label is not an authenticated uploader identity.
+`.venv/Scripts` chứa executable environment, khác repo `scripts/`. Dùng `-m scripts.smoke_tracking`; member chỉ là nhãn, không phải uploader identity. Offline smoke không chứng minh quyền ghi online. SDK/cache nên dùng thư mục ngoài source checkout.
 
-`experiments/convex.py` is the older diagnostic runner in this branch.
-`convex_official.py` supplies the guarded official protocol; `--dry-run` plans
-45 cells without training. This page authorizes no experiment or online smoke.
-The [recovery guide](convex_recovery.md) describes optional read-only verification.
+| Script | Phạm vi |
+|---|---|
+| `experiments/convex_official.py` | Official plan, durable attempts, population/MC arrays và artifact provenance |
+| `experiments/convex.py` | Diagnostic runner cũ; giữ API mà official pipeline/tests sử dụng |
+| `experiments/convex_diagnostics.py` | Chẩn đoán reference và numerical population oracle |
+| `experiments/convex_cross_check.py` | Mã cross-check từ main8310, giữ nguyên nội dung; có replay khi chạy, không phải official uploader |
+| `experiments/convex_reconcile.py` | Verifier và strict aggregate; `--read-only` không ghi proof/status/ledger đầu vào |
+| `experiments/sensitivity.py` | Chỉ đọc CSV frozen và xuất hình/bảng mới; không train, không tạo W&B run |
 
-## Scientific interpretation
+Lệnh xuất derived figures khi cần: `python -B experiments/sensitivity.py --output-dir outputs/sensitivity-derived`. Root phải chưa tồn tại và nằm ngoài publication; trùng đường dẫn sẽ lỗi. Hình d512 mới là tổng kết cuối của đúng ba methods, không thay hình loss dynamics frozen. Provenance ghi SHA khoa học, publication, tool HEAD, script hash, source CSV hashes và output hashes.
 
-Features are Gaussian N(0,I), with soft logistic responses and noise standard
-deviation sqrt(.1) in CP04. Primary B uses deterministic Gaussian population risk
-against a numerical approximate oracle; secondary A uses the generating reference.
-Their cumulative values are sums. Signed Monte Carlo excess is preserved.
-Sample SD across three seeds, conditional Monte Carlo SE and quadrature/oracle
-error estimates describe different uncertainties; numerical errors are not formal
-certificates. Shared trainer `inst_regret`/`cum_regret` are legacy clipped fields
-and must not be substituted for official population or signed MC arrays.
+## Khả năng chạy lại và giới hạn
 
-Projection radius is d/2 and its ball has diameter d. The learner uses causal
-learner-motion EMA (.9), not privileged true reference shifts. L=.25, variance
-profile d/4 and initial LR1 define this project's declared schedule. These choices
-do not certify every uniform assumption of a regret theorem.
+[Hướng dẫn recovery/T19](convex_recovery.md) phân biệt training source và verification tool. Nhánh hiện hành đã nhận rename `configs/*.yaml` thành `configs/test.yaml` từ main5026; Windows checkout bình thường được hỗ trợ. Immutable frozen/CP057 SHAs vẫn cần no-checkout bootstrap.
 
-[Paper](https://proceedings.mlr.press/v202/fahrbach23a/fahrbach23a.pdf) §6.1 uses
-Gaussian features. The isolated factual correction in [R3 notes](04_convex.md)
-does not change the user's separate local copy. Compared with the
-[immutable author notebook](https://github.com/fahrbach/learning-rate-schedules/blob/1b3c0d456d70c9236190ac512bbf5168527fc837/src/regression/regression_experiments.ipynb),
-project noise, shift signal, comparator, first-step behavior and numeric/path
-implementation differ. Results are Figure-5-style project evidence; directly
-comparable paper scalars and relative deviations remain N/A.
+Kết quả chỉ là Figure-5-style của dự án. [Paper](https://proceedings.mlr.press/v202/fahrbach23a/fahrbach23a.pdf) dùng Gaussian; [author notebook bất biến](https://github.com/fahrbach/learning-rate-schedules/blob/1b3c0d456d70c9236190ac512bbf5168527fc837/src/regression/regression_experiments.ipynb) khác về noise std, true shift, comparator, first step, projection và numeric/RNG/path. Scalar paper và relative deviation giữ N/A. Không tuyên bố EMA+d/4 đã chứng minh mọi uniform assumption của theorem.
 
-## Completed scope and historical plans
+W&B read-only ngày18/11 ghi nhận85 runs:65 dangkhoi và20 nkhoa8508, gồm18 Linear reproduction và hai smoke-test jobs mới. 60 runs khoa học cũ giữ source/config/science hashes. [Báo cáo CP056](results/cp04-cp05/WANDB_TEAM_READINESS.md) là snapshot17/11, không phải live count hiện tại. Group đề xuất: linear/convex/nonconvex; job_type mô tả mục đích. Metadata cũ không được chỉnh lại.
 
-CP04 covers all 45 method/dimension/seed cells. Convex wins mean B at d2/8/32/128;
-constant wins at d512 (504.8952 versus Convex 1385.0089). Preserve that outcome.
-Baselines use declared untuned LR0=.1. Three seeds do not establish universal
-dominance or a causal explanation for the d512 result.
-
-CP05 executed 15 Convex-only d128 runs: five OFAT conditions × three seeds.
-The [five-condition table](results/cp04-cp05/data/cp05_condition_summary.csv) and
-[per-seed results](results/cp04-cp05/data/cp05_per_seed.csv) supersede interpreting
-the historical T17 plan as global nonexecution. The old sensitivity YAML planned
-a broader method matrix; it is not the actual resolved CP05 run configuration.
-Changing ell changes sample-and-hold transition counts, jump sizes and variation
-together. Noise also changes the label distribution and population comparator.
-Neither sweep demonstrates general robustness or a baseline sensitivity win.
-
-Current aggregate export marks T17 as outside that export and links CP05; it does
-not regenerate or overwrite any published checkpoint figure/table/proof.
-
-## Live main and team gates
-
-Remote main observed during this audit is `8310f5b1b7cd5b3c93b9775f082c4972f8bf7fb7`.
-It is a separate descendant of `ff3579a`, with copied Convex content, rewritten
-diagnostic/tests and Linear work; it does not contain the frozen/results/CP05.7
-commits as ancestors. A simple branch-ready conclusion requires renewed review.
-Do not replace its shared schedule or teammate implementation automatically.
-
-Main already renamed the invalid literal `configs/*.yaml` to `configs/test.yaml`
-at `5026dff`. Historical frozen/CP05.7 and this maintenance branch still require
-the documented no-checkout bootstrap on Windows. Do not apply a second repair
-or reintroduce the invalid filename when integrating. Main's three CP05 PNGs
-differ from the frozen publication manifest, which main currently omits. Review
-that provenance discrepancy and its sensitivity exporter before integration.
-
-[Team audit](results/cp04-cp05/WANDB_TEAM_READINESS.md) records observations on
-17 November, not a live count or present-day membership certificate. Main now
-declares Khoa's online runs and limited independent checks. Read-only SDK metadata
-on 18 November confirms 85 runs: the original 65 under dangkhoi plus 20 under
-nkhoa8508 (18 Linear reproduction runs and two smoke-test jobs). All original 60
-scientific runs retain their source/config/scientific hashes and metadata. This
-supports actual second-account logging; independently identify the account owner
-and obtain executor/command/source/coverage evidence before closing T2/T19. Hòa's
-membership, personal upload and runnable data/NN contract still require evidence.
-Public rendered access does not imply write permission. Stable proposed groups
-are linear/convex/nonconvex; job_type describes purpose. Existing runs stay intact.
-The wrapper accepts flat metadata, including group/job_type and list tags;
-tuple tags normalize to lists. Do not pass credentials or invented CLI flags.
-
-Khoa reviews shared modules, README mapping, current-main integration and T19
-acceptance; Khôi owns Convex science/provenance. Hòa owns the data/NN contract.
-[Contributions](02_contributions.md), [complexity](06_complexity.md) and
-[references](references.md) require whole-team review before issue acceptance.
-The older Full Scope declaration exists in motivation_example.md; it does not
-by itself attest implementation completion or a human acceptance meeting.
+Khoa xác nhận own-account identity, môi trường, command, source/tool SHA và coverage T19. Hòa còn cần evidence account/write/Colab, executable data/NN contract và cross-check độc lập. Full Scope declaration có trong motivation_example; không tự chứng minh nghiệm thu. README của Khoa, workbook và issue acceptance vẫn cần review người phụ trách. [T8](02_contributions.md), [T10](06_complexity.md) và [references](references.md) phân biệt đóng góp paper với công việc dự án.

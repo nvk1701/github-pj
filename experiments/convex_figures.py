@@ -1,4 +1,4 @@
-"""Scientific plots and Sheet 4 mappings from complete CP03 output arrays."""
+"""Ve hinh va mapping Sheet 4 tu cac mang CP03 da du coverage."""
 
 import csv
 import json
@@ -11,7 +11,7 @@ import numpy as np
 
 
 def plot_run(directory, history, metrics, oracle):
-    """Save population B and correctly labelled coordinate trajectories."""
+    """Luu population B va quy dao co nhan dung learner/reference/oracle."""
     fig,axes=plt.subplots(1,2,figsize=(10,3.5))
     axes[0].plot(metrics['step'],metrics['population_cum_B'])
     axes[0].set(xlabel='Pre-update step',ylabel='Cumulative population B',title='Numerical approximate-oracle comparator')
@@ -25,11 +25,11 @@ def plot_run(directory, history, metrics, oracle):
 
 
 def export_figures(root, records, config):
-    """Aggregate seed means/sample SD and export source CSV plus honest mapping.
+    """Gop mean/sample SD theo seed, xuat CSV va mapping dung pham vi.
 
-    Figure 5-style panels are project plots, not copied author results.
-    Trajectory panels select the lowest declared seed and label both comparators.
-    Paper values and relative deviations remain N/A without comparable evidence.
+    Hinh Figure-5-style thuoc giao thuc du an, khong phai ket qua goc tac gia.
+    Quy dao dung seed nho nhat da khai bao, ghi rieng hai comparator.
+    Paper scalar va relative deviation giu N/A khi chua the doi chieu.
     """
     root=Path(root)
     curves,mapping=[],[]

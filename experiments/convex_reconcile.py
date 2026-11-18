@@ -1,4 +1,4 @@
-"""W&B reconciliation (optional read-only mode) and strict Convex aggregation."""
+"""Doi chieu W&B voi tuy chon read-only va gop ket qua Convex theo guard chat."""
 
 import argparse
 import hashlib
@@ -19,7 +19,7 @@ from experiments.convex_official import build_plan
 
 
 def scientific_artifact(artifacts,config,run_id):
-    """Select one immutable attempt payload; recognize only this run's history."""
+    """Chon mot payload dung identity; chi nhan history cua cung run."""
     scientific=[]
     backend=[]
     for artifact in artifacts:
@@ -43,13 +43,13 @@ def scientific_artifact(artifacts,config,run_id):
 
 
 def reconcile(directory,*,api=None,download_root=None,read_only=False):
-    """Verify server state and freshly downloaded SHA256 payload without uploads.
+    """Doi chieu cell local voi server va payload download moi, khong upload.
 
-    Failed or unfinished observations remain explicit. An uncertain finish can
-    be recovered only with complete local bytes and independently verified
-    remote success. SDK-finished stays false if that call never returned.
-    read_only requires an external new download root and never writes proofs,
-    statuses or ledgers in the input batch. It still downloads bytes for checks.
+    directory nhan ca duong dan tuong doi va tuyet doi; api co the duoc truyen
+    de kiem thu. read_only bat buoc download_root moi nam ngoai batch va khong
+    ghi proof/status/ledger dau vao. Mac dinh co ghi cac quan sat nay.
+    Tra ve proof co remote_verified; loi remote duoc ghi lai de dieu tra.
+    Ket qua local thieu khong duoc phuc hoi chi bang thanh cong remote.
     """
     directory=Path(directory).resolve()
     if read_only and (download_root is None or
@@ -131,7 +131,7 @@ def reconcile(directory,*,api=None,download_root=None,read_only=False):
 
 
 def aggregate_roots(roots,plan,output,*,require_remote=True,selections=None):
-    """Merge exact coverage from fresh attempts, never retraining or uploading."""
+    """Gop dung coverage tu attempts da xac minh; khong training hay upload."""
     from experiments.convex_figures import export_figures
     records,excluded=select_attempts(roots,plan,require_remote=require_remote,selections=selections)
     output=Path(output)
@@ -145,7 +145,7 @@ def aggregate_roots(roots,plan,output,*,require_remote=True,selections=None):
 
 
 def main():
-    """Reconcile one cell or merge explicitly supplied batch roots."""
+    """Doi chieu mot cell hoac gop cac batch roots duoc chi dinh."""
     parser=argparse.ArgumentParser(description=__doc__)
     sub=parser.add_subparsers(dest='command',required=True)
     verify=sub.add_parser('verify')

@@ -1,26 +1,24 @@
-# T8 — Contributions and novelty
+# T8 — Đóng góp và tính mới của bài báo
 
-Review-ready for [Issue11](https://github.com/nvk1701/github-pj/issues/11). Numbering [1]–[5] follows the provisional shared [bibliography](references.md); whole-team numbering still needs consolidation. This document summarizes author contributions, not the group's engineering achievements.
+Bảng phục vụ [Issue11](https://github.com/nvk1701/github-pj/issues/11). Số[1]–[5] theo [references](references.md), còn chờ thống nhất thứ tự trích dẫn toàn nhóm. Đóng góp tác giả được tách khỏi phần triển khai của dự án.
 
-## Contribution table
+| Đóng góp | Loại | Điểm mới và nguồn | Giới hạn |
+|---|---|---|---|
+| Động lực SGD với mục tiêu Linear thay đổi | Lý thuyết/kỹ thuật | SDE có shift và phương trình moment; [1]§3, Proposition3.1, Theorem3.2 | Xấp xỉ dưới mô hình và scaling assumptions đã nêu |
+| Điều khiển scalar envelope | Thuật toán/lý thuyết | Chọn schedule bằng optimal control, triển khai Euler substeps; [1]Theorem3.3, Algorithm1, Eq12–13 | Tối ưu envelope không đồng nghĩa tối ưu mọi finite SGD |
+| Schedule hai ngưỡng cho Convex | Thuật toán/lý thuyết | Tối thiểu hóa bound tuần tự và chiếu LR trước; [1]Theorem4.2, Proposition4.3, Eq15–20 | Cần smoothness, variance/distance bounds và thông tin hợp lệ |
+| Lower bound bổ sung | Lý thuyết | Đánh giá độ chặt với giả thiết curvature thêm; [1]Assumption4.6, Theorem4.7, Eq21 | Strong convexity không mặc định đúng cho mọi logistic setting |
+| Tiêu chí non-convex | Lý thuyết/thuật toán | Bound theo gradient norm và rate tối thiểu hóa bound; [1]§5, Theorem5.1, Eq22–25 | Stationarity không bảo đảm global optimum |
+| Minh họa thực nghiệm có shift | Thực nghiệm | Regression và neural-network examples; [1]§6.1, Figures4–5, AppendixE/Figure6 | Không chứng minh ưu thế trên mọi dữ liệu |
 
-| Paper contribution | Classification | Previous limitation / relevant comparison | Novelty in this paper | Exact support | Boundary |
-|---|---|---|---|---|---|
-| SGD dynamics with a moving linear-regression target | Theoretical / technical | A fixed landscape does not describe a drifting target | A shift-dependent SDE and moment dynamics | [1] §3, Proposition3.1, Theorem3.2 | Approximation under stated model/scaling assumptions |
-| Rate control for a scalar envelope | Algorithmic / theoretical | Describing dynamics does not select a schedule | Optimal control of the specified envelope, implemented with Euler substeps | [1] Theorem3.3, Algorithm1, Eq12–13 | Envelope optimality does not imply universal finite-SGD optimality |
-| General convex shift-aware schedule | Algorithmic / theoretical | A global variation budget alone does not specify each local rate | Sequential bound minimization gives two thresholds and projection of previous LR | [1] Theorem4.2, Proposition4.3, Eq15–20 | Requires smoothness, variance/distance bounds and admissible information |
-| Complementary regret lower bound | Theoretical | An upper bound alone does not assess tightness | A lower expression under additional curvature assumptions | [1] Assumption4.6, Theorem4.7, Eq21 | Strong convexity is additional; not every convex logistic setting satisfies it |
-| Non-convex schedule criterion | Theoretical / algorithmic | Global-minimum comparison is generally unsuitable | Gradient-norm-based regret bound and a rate minimizing its stated bound | [1] §5, Theorem5.1, Eq22–25 | Stationarity criterion is not global-optimum recovery |
-| Empirical illustrations under shift | Empirical | Theory needs examples of resulting behavior | Regression trajectories and neural-network illustrations | [1] §6.1, Figure4–5; AppendixE, Figure6 | Examples, not proof of superiority on every dataset |
+## Đối chiếu với nghiên cứu trước
 
-## Relation to Khoa's T4
+[Bối cảnh T4](01_context.md), §3–4, so sánh static decay, dynamic OCO và continuous-time analysis. Không được hiểu rằng mọi nghiên cứu trước đều giả định phân phối tĩnh. Yang[2]§3.2 đã xét minimizer thay đổi với noisy gradients; Besbes[3]§3–4 đã dùng variation budgets và restarted optimization. Dynamic regret và thích nghi nonstationarity không phải khái niệm do[1] lần đầu đề xuất.
 
-The existing [context document](01_context.md), §3–4, compares static decay, dynamic online convex optimization and continuous-time analyses. It is useful context; it must not be read as claiming all prior work assumes a stationary distribution. Yang et al. [2], §3.2, already study changing minimizers with noisy gradients. Besbes et al. [3], §3–4, already use variation budgets and restarted optimization. Thus neither dynamic regret nor adaptation to nonstationarity was invented by [1].
+Điểm cần so sánh là local-rate thresholds và shift-aware control analysis dưới đúng assumptions. Feedback và variation model khác nhau nên không suy ra dominance hoặc xếp hạng regret rates vô điều kiện. Cách diễn đạt mạnh trong tài liệu T4 thuộc phần review của Khoa; không sửa tài liệu đó trong lượt consolidation.
 
-The local-rate thresholds and shift-aware control analysis are the relevant additions to compare, under their own assumptions. The predecessor papers use different feedback/variation models; no unconditional dominance or comparable numerical regret-rate ranking is asserted here. Khoa should review the strong wording in T4's predecessor/general-gap table before oral presentation; this checkpoint does not edit his document or attribute an unreviewed statement to him.
+## Phần công việc của dự án
 
-## What the project contributes separately
+Gaussian population evaluator float64, numerical oracle, A/B diagnostics, immutable attempts/checksums, verifier, CP04 và CP05 là triển khai/bằng chứng của dự án[4], không phải tính mới của tác giả. Đúng threshold algebra cũng không biến EMA/noise/comparator của dự án thành exact reproduction notebook[5].
 
-The group's float64 Gaussian population evaluator, numerical oracle, A/B comparator diagnostics, immutable attempts/checksums, verifier maintenance, CP04 matrix and CP05 sensitivity are project implementation/evidence work [4]. They are not author-paper novelty. Conversely, matching threshold algebra does not make the project's EMA/noise/comparator choices an exact reproduction of the author notebook [5].
-
-For oral defense: explain the optimization target before saying “optimal”; name the required assumptions; distinguish regret bounds from observed curves; retain d512's baseline win. The T8 contribution/novelty table is ready for review, while human acceptance and T4 alignment remain open. No slide positions or scientific claims are inferred from the existence of this file alone.
+Khi trình bày cần nêu mục tiêu tối ưu và assumptions, phân biệt bound với observed curves, đồng thời giữ kết quả baseline thắng tại d512. T8 sẵn sàng cho review; nghiệm thu và đồng bộ với T4 vẫn cần người phụ trách.

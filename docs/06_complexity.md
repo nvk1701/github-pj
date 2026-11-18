@@ -1,54 +1,50 @@
-# T10 — Computational complexity and implementation costs
+# T10 — Độ phức tạp tính toán và chi phí triển khai
 
-Review-ready for [Issue13](https://github.com/nvk1701/github-pj/issues/13). All operation counts below are derived here from the cited update/source, not quoted runtime theorems. Bibliography numbers are provisional in [references.md](references.md). Regret bounds and computational complexity are different quantities.
+Tài liệu phục vụ [Issue13](https://github.com/nvk1701/github-pj/issues/13). Các đếm phép toán được suy ra từ update/source, không phải định lý runtime được trích nguyên từ paper. Số nguồn theo [references](references.md). Regret bound khác computational complexity.
 
-## Model and assumptions
+## Mô hình chi phí
 
-T is horizon, d parameter dimension, B training batch and E evaluation batch. Dense floating-point arithmetic has constant scalar cost; a gradient oracle costs C_g and a generic projection C_Pi(d). Project ball projection costs Theta(d). Complexity does not include tuning, discovering bounds or estimating a general distribution oracle unless explicitly stated. K=ceil(1/kappa) counts Euler substeps in Algorithm1; keep K variable when comparing discretizations.
+T là horizon, d là số chiều, B là training batch và E là evaluation batch. Phép toán scalar fixed-precision có chi phí hằng; gradient oracle có chi phí C_g, projection tổng quát có C_Pi(d). Ball projection của dự án tốn Theta(d). K=ceil(1/kappa) là số Euler substeps; không cố định K khi so các mức rời rạc hóa. Chi phí tuning, tìm bound hoặc distribution oracle không được bao gồm nếu chưa nêu riêng.
 
-## Comparable per-step work
+| Thành phần | Tính rate | Update/chi phí thêm | State và nguồn |
+|---|---|---|---|
+| Constant/inverse-sqrt | Theta(1) | C_g+Theta(d)+C_Pi(d) | ModelTheta(d); [4]ConstantSchedule/InverseSqrtSchedule |
+| Convex hai ngưỡng | Theta(1), scalar exp/log/sqrt | Cùng gradient/projection, estimator tính riêng | SchedulerTheta(1); [1]Proposition4.3, [4]ConvexSchedule |
+| Learner-motion EMA | Không phải update học riêng | Theta(d) difference/norm | Previous learnerTheta(d); [4]EMADriftEstimator |
+| Linear Algorithm1 | Theta(K) | Gradient/gamma tính riêng | EnvelopeTheta(1); [1]Algorithm1, không phải chi phí giải HJB tổng quát |
+| Non-convex scalar rate | Theta(1) nếu đã có inputs | Không gồm loss/shift/variance estimation và DNN gradient | Rate stateTheta(1); [1]Eq25 |
+| Yang noisy-gradient update | Theta(1) | C_g+Theta(d)+C_Pi(d) | ModelTheta(d); [2]§3.2Eq13, không tính bandit/META variants |
+| Besbes restarted OGD | Theta(1), counter/rate | C_g+Theta(d)+C_Pi(d), resetTheta(d) | [3]§3–4; tối đaceil(T/Delta) resets |
 
-| Method / component | Rate computation | Update/oracle work | State beyond scalar controls | Evidence / assumptions |
-|---|---|---|---|---|
-| Constant and inverse-sqrt baselines | Theta(1) | C_g + Theta(d) + C_Pi(d) | Theta(d) model | [4] core/schedules.py ConstantSchedule/InverseSqrtSchedule; projected SGD |
-| Convex two thresholds | Theta(1) scalar exp/log/sqrt operations | Same gradient/projection; shift estimation separate | Theta(1) scheduler; model Theta(d) | [1] Proposition4.3; [4] ConvexSchedule.thresholds/step |
-| Learner-displacement EMA | Not a separate learning rule | Theta(d) difference/norm, scalar EMA | Theta(d) previous learner | [4] core/drift.py EMADriftEstimator; vector input assumed available |
-| Linear envelope Algorithm1 | Theta(K) scalar Euler work | Gradient/gamma cost separate | Theta(1) envelope plus model/estimator | [1] Algorithm1; not the cost of solving a general HJB PDE |
-| Non-convex closed-form scalar rate | Theta(1) if scalar loss/shift/variance supplied | Computing those inputs and DNN gradient excluded | Theta(1) rate state | [1] Eq25; not a full neural-network training bound |
-| Yang noisy-gradient projected update | Theta(1) scalar rate | C_g + Theta(d) + C_Pi(d) | Theta(d) model | [2] §3.2 Eq13; only this update, not bandit/META variants |
-| Besbes restarted OGD | Theta(1) rate/counter | C_g + Theta(d) + C_Pi(d); reset Theta(d) | Theta(d) OGD state | [3] restart principle §3 and OGD instantiation §4 |
+Convex schedule-only có overhead hằng, nhưng vector estimator và gradient/projection vẫn có chi phí. Restart OGD thêm O(d ceil(T/Delta)), không nhân mỗi gradient call với Delta. Các phương pháp không mặc định có cùng assumptions, variation metric hoặc tốc độ thực nghiệm.
 
-The schedule-only Convex overhead is constant under the fixed-precision scalar model. The practical estimator has vector cost, and general online oracle/projection work may dominate. For restarted OGD with epochs of Delta steps, at most ceil(T/Delta) vector resets add O(d ceil(T/Delta)), not an extra multiplier Delta on every gradient call. This is a comparison of computational steps, not a claim that the methods share identical regret assumptions, variation measures or empirical speed.
+## Dense logistic training và lưu trữ
 
-## Dense logistic training
+[4] `core/convex_eval.py:logistic_loss_gradient` tính Xtheta và X-transpose residual với Theta(Bd), loss scalar Theta(B); Gaussian sampling Theta(Bd). Update, ball projection và EMA thêm Theta(d). Tổng training là Theta(TBd), không có d-by-d Hessian. O(1) scalar schedule không biến toàn SGD thành O(T).
 
-In [4], core/convex_eval.py logistic_loss_gradient computes X theta and X-transpose residual: Theta(Bd), plus Theta(B) scalar loss operations. Sampling a Gaussian batch also costs Theta(Bd). Learner update, ball projection and EMA add Theta(d). Therefore one T-step dense training is Theta(TBd), with fixed numbers of passes and no d-by-d Hessian. Constant scalar schedule cost does not make dense SGD O(T).
+Online-only cần model/previous vectorTheta(d), active batchTheta(Bd). Frozen runner lưu đầy đủ theta/reference/oracle paths nên trajectory storageTheta(Td), không chỉTheta(d). Không lưu mọi training batch nên không có claim data storageTheta(TBd).
 
-An online-only implementation can keep model/previous-vector state Theta(d) and active batch Theta(Bd). The actual frozen runner stores full theta/reference/oracle paths, so its trajectory storage is Theta(Td), not just Theta(d). It does not store every training batch; no Theta(TBd) data-storage claim follows.
+## Evaluation và numerical oracle
 
-## Evaluation and numerical oracle are separate work
+[4] `evaluate_history`, `gaussian_population_oracle`, `PopulationEvaluator`, `_integral`, `_moment` tách replay/independent MC khỏi training. Với số loss/comparator cố định, replay/MC tốnTheta(T(B+E)d). Dashboard stride20 không giảm full-resolution evaluation xuốngT/20.
 
-Sources [4]: core/convex_eval.py evaluate_history; core/convex_population.py gaussian_population_oracle, PopulationEvaluator, _integral, _moment. Evaluation replays the training stream and draws an independent evaluation stream. With a constant number of losses/comparators, replay/MC work is Theta(T(B+E)d); it does not update a new learner. Dashboard stride20 does not reduce full-resolution arrays or evaluation to T/20.
+Gọi U<=T là số exact reference norms trong cache, I_o là số root iterations; Q_o/Q_r và Q_theta,t là số integrand evaluations. Chúng phụ thuộc tolerance và geometry; adaptive quadrature không có chi phí cố định độc lập tolerance.
 
-Let U<=T be the number of exact reference norms cached, I_o the root-solver iteration count, Q_o/Q_r quadrature integrand evaluation counts for root/reference calculations, and Q_theta,t the learner-risk integral work at t. These depend on tolerances and geometry; adaptive quadrature has no fixed tolerance-independent cost asserted here.
-
-| Evaluation component | Work under this model | Memory/storage |
+| Thành phần | Chi phí | Bộ nhớ/lưu trữ |
 |---|---|---|
-| Reference path / radial embedding | O(Td) | Theta(Td) |
-| Oracle/cache preparation | O(Td + U(I_o Q_o + Q_r)) | O(Td+U) |
-| Learner population risk | O(Td + sum_t Q_theta,t) | O(T) scalar metric arrays beyond paths |
-| Training replay and independent MC | Theta(T(B+E)d) | O(max(B,E)d) active batches |
-| Fixed-count scalar metrics / CSV | Theta(T) values | Theta(T) |
-| Stored trajectories | Theta(Td) values | Theta(Td); NPZ compression ratio is data dependent |
+| Reference path/radial embedding | O(Td) | Theta(Td) |
+| Chuẩn bị oracle/cache | O(Td+U(I_o Q_o+Q_r)) | O(Td+U) |
+| Learner population risk | O(Td+sum_t Q_theta,t) | O(T) scalar arrays ngoài paths |
+| Replay và independent MC | Theta(T(B+E)d) | O(max(B,E)d) active batches |
+| Scalar metrics/CSV | Theta(T) | Theta(T) |
+| Stored trajectories | Theta(Td) | NPZ compression phụ thuộc dữ liệu |
 
-Gaussian rotational symmetry reduces integrals to scalar quadrature, but vector norms/dot products still cost O(d). The evaluator is not dimension-free O(1). A useful algorithm-level memory bound for this runner is O(Td + max(B,E)d + T + U), excluding Python/SDK/plot allocator overhead and temporary library buffers. Measured RSS is not an exact count of these arrays.
+Rotational symmetry giảm integral về1D nhưng norms/dot products vẫnO(d). Evaluator không dimension-free. Bound bộ nhớ hữu ích: O(Td+max(B,E)d+T+U), chưa gồm Python/SDK/plot overhead và temporary library buffers. RSS đo được không phải số byte chính xác của các mảng này.
 
-## Matrix totals and measured time
+## Quy mô và thời gian đã đo
 
-For CP04, nine runs per dimension give a dense training feature-visit proxy 9*T*B*sum(d)=3,142,656,000, sum(d)=682. CP05's15 d128 runs give983,040,000. Replay/MC proxies replacing B by B+E are9,427,968,000 and2,949,120,000. These proxies are not FLOP counts, number of oracle calls or time predictions; the integrals, multiple passes, nonlinear functions and I/O remain separate.
+CP04 có9 runs mỗi dimension, sum(d)=682: proxy9*T*B*sum(d)=3.142.656.000 feature visits. CP05 có15 runs d128:983.040.000. Replay/MC dùngB+E cho proxy9.427.968.000 và2.949.120.000. Đây không phải FLOPs, oracle-call count hoặc dự báo runtime; nonlinear functions, integrals, nhiều passes và I/O còn tách riêng.
 
-The frozen result package [4], [RESULTS](results/cp04-cp05/RESULTS.md), reports actual scientific outputs. Local execution records measured CP04 runner24.03min, verifier14.12min, end-to-end gate/results44.51min, sampled process-tree peak501.6MiB; CP05 runner7.86min and verifier4.36min, peak428.9MiB. Timing provenance is the local CP04_EXECUTION_REPORT.md and CP05_NIGHT_EXECUTION_REPORT.md under the workspace's external _reports folder, not an author-paper runtime claim; reviewers need those local records to audit the measurements. They depend on this CPU/software/network and are not a benchmark against [2]/[3], a cost theorem or a GPU speedup claim. Backend artifacts/upload/download/plotting may affect wall time independently of SGD complexity.
+[Kết quả frozen](results/cp04-cp05/RESULTS.md) và báo cáo local CP04_EXECUTION_REPORT/CP05_NIGHT_EXECUTION_REPORT ghi: CP04 runner24,03 phút, verifier14,12 phút, toàn gate/results44,51 phút, sampled process-tree peak501,6MiB; CP05 runner7,86 phút, verifier4,36 phút, peak428,9MiB. Báo cáo nằm ở workspace `_reports`, cần cung cấp riêng khi review số đo. Không phải author runtime, benchmark với[2]/[3], cost theorem hoặc GPU speedup. Network/artifacts/plotting có thể chi phối wall time độc lập SGD.
 
-## Defense and acceptance boundaries
-
-“O(1) schedule” means scalar rate selection after inputs exist. “EMA O(d)” includes computing learner displacement. “Theta(TBd) training” assumes dense logistic data; a DNN needs its own forward/backward cost model. No universal runtime speedup over predecessors is established. Team review must consolidate IEEE numbering and align T4's comparison language; no Khoa/Hòa file or original workbook was edited.
+Tóm tắt: scalar scheduleO(1), EMAO(d), dense trainingTheta(TBd). DNN cần cost model forward/backward riêng. Không có bằng chứng runtime speedup phổ quát. IEEE numbering và diễn đạt T4 còn cần whole-team review; không sửa workbook hoặc code Khoa/Hòa.
