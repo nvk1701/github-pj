@@ -1,0 +1,6 @@
+dimension,archived_notebook_M0,colab_native_M0,independent_MT19937_M0,matched_native_replay_M0,matched_native_curve_max_error,matched_diagnostic_M0,matched_replay_M0,matched_absolute_final_deviation,matched_relative_final_deviation,matched_curve_max_error,fidelity_status,evidence
+2,0.98582214,,0.9858224391937256,,,,,,,,UNVERIFIED,immutable notebook cell 23
+8,3.7352686,,3.7352828979492188,,,,,,,,UNVERIFIED,immutable notebook cell 23
+32,48.065575,,48.065574645996094,,,,,,,,UNVERIFIED,immutable notebook cell 23
+128,,,,,,,,,,,UNVERIFIED,immutable notebook cell 23
+512,,,,,,,,,,,UNVERIFIED,immutable notebook cell 23

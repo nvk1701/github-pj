@@ -1,0 +1,164 @@
+{
+  "status": "COMPLETED_WITH_LIMITATIONS",
+  "families": [
+    {
+      "family": "P",
+      "expected": 60,
+      "validated": 60,
+      "failed": 0,
+      "blocked": 0,
+      "status": "VERIFIED",
+      "evidence": "historical freeze",
+      "wandb_remote_verified": 60
+    },
+    {
+      "family": "R",
+      "expected": 5,
+      "validated": 0,
+      "failed": 0,
+      "blocked": 5,
+      "status": "BLOCKED_EXTERNAL_EXECUTION",
+      "evidence": "Colab exports",
+      "wandb_remote_verified": 0
+    },
+    {
+      "family": "I",
+      "expected": 45,
+      "validated": 0,
+      "failed": 0,
+      "blocked": 45,
+      "status": "BLOCKED_EXTERNAL_EXECUTION",
+      "evidence": "SHA-256 sealed local histories",
+      "wandb_remote_verified": 0
+    },
+    {
+      "family": "A",
+      "expected": 36,
+      "validated": 0,
+      "failed": 0,
+      "blocked": 36,
+      "status": "BLOCKED_EXTERNAL_EXECUTION",
+      "evidence": "SHA-256 sealed local histories",
+      "wandb_remote_verified": 0
+    },
+    {
+      "family": "pilot",
+      "expected": 7,
+      "validated": 7,
+      "failed": 0,
+      "blocked": 0,
+      "status": "VERIFIED",
+      "evidence": "SHA-256 sealed local histories",
+      "wandb_remote_verified": 0
+    },
+    {
+      "family": "rng diagnostic",
+      "expected": 3,
+      "validated": 3,
+      "failed": 0,
+      "blocked": 0,
+      "status": "VERIFIED",
+      "evidence": "SHA-256 sealed local histories",
+      "wandb_remote_verified": 0
+    }
+  ],
+  "gates": {
+    "F0_source": "VERIFIED",
+    "F1_unit": "VERIFIED",
+    "F2_fixture": "UNVERIFIED",
+    "F3_full_replay": "UNVERIFIED",
+    "F4_high_dimension": "VERIFIED",
+    "F5_regression": "VERIFIED"
+  },
+  "parity": {
+    "2": {
+      "status": "UNVERIFIED"
+    },
+    "8": {
+      "status": "UNVERIFIED"
+    },
+    "32": {
+      "status": "UNVERIFIED"
+    }
+  },
+  "native": {},
+  "failed_cases": [],
+  "wandb": {
+    "convex-author-pilot-v1-d2-s0-convex-none": {
+      "offline": {
+        "mode": "offline",
+        "state": "SDK_FINISHED",
+        "endpoint": "api.forge.coreweave.com",
+        "id": "z2a8xh6k"
+      }
+    },
+    "convex-author-pilot-v1-d8-s0-convex-none": {
+      "offline": {
+        "mode": "offline",
+        "state": "SDK_FINISHED",
+        "endpoint": "api.forge.coreweave.com",
+        "id": "6nfbmmbp"
+      }
+    },
+    "convex-author-pilot-v1-d32-s0-convex-none": {
+      "offline": {
+        "mode": "offline",
+        "state": "SDK_FINISHED",
+        "endpoint": "api.forge.coreweave.com",
+        "id": "rtcedcga"
+      }
+    },
+    "convex-author-pilot-v1-d128-s0-convex-none": {
+      "offline": {
+        "mode": "offline",
+        "state": "SDK_FINISHED",
+        "endpoint": "api.forge.coreweave.com",
+        "id": "002xypnf"
+      }
+    },
+    "convex-author-pilot-v1-d512-s0-convex-none": {
+      "offline": {
+        "mode": "offline",
+        "state": "SDK_FINISHED",
+        "endpoint": "api.forge.coreweave.com",
+        "id": "4otmjkml"
+      }
+    },
+    "convex-author-pilot-v1-d512-s0-constant-none": {
+      "offline": {
+        "mode": "offline",
+        "state": "SDK_FINISHED",
+        "endpoint": "api.forge.coreweave.com",
+        "id": "9mrsibun"
+      }
+    },
+    "convex-author-pilot-v1-d512-s0-inverse_sqrt-none": {
+      "offline": {
+        "mode": "offline",
+        "state": "SDK_FINISHED",
+        "endpoint": "api.forge.coreweave.com",
+        "id": "7f9r2kdg"
+      }
+    },
+    "convex-author-rng-diagnostic-v1-d2-s0-convex-none": {},
+    "convex-author-rng-diagnostic-v1-d8-s0-convex-none": {},
+    "convex-author-rng-diagnostic-v1-d32-s0-convex-none": {}
+  },
+  "files": {
+    "data/ablation_pairs.csv": "8a11734f32bfa302c58e486933dc8c1e616fd3a08f2049c34f2cd33bda127341",
+    "data/ablation_summary.csv": "bd1f423d8bb6a5f7d4056753bdb0fef4d8280f5c7fb2d1e151fa63affc5a0cad",
+    "data/fidelity.csv": "460816b85cd13e925589dbe8656e540ef2128b6deba6ffdc18a76ddbf53e0ea9",
+    "data/inventory.csv": "5558fdd7384c733fac4cbb951387c9f12b81276a13efa7ea01f14b1a338242b9",
+    "data/method_summary.csv": "a6b167ce15c60bf2b77befef66a4a8908e7d078143665dfc8eea3ad6ebd0bedb",
+    "data/per_run.csv": "09ade3a1dca737a2ddbeb4d1801c35ece96832f5a0abc2b535f9323f8c33f563",
+    "figures/adaptive_m0.png": "a58be0aac335467aab2cb83f5925516e3ce068f526cde54e876e787e46690eff",
+    "figures/d512_diagnostics.png": "723714fddb4ee5b4a520df09bd2764de9b6fce7a723c4b1c7c8fb772a91385b7",
+    "figures/learning_rates.png": "d33c1657dd9aa23feb4f02d83b7937c1802e3a8a81aa7ac85c18324cc268e2ce",
+    "figures/matched_methods.png": "711f680ecb3d2af8ca719da73b42df39221a199251945bbdbe6b1720ad384ed4",
+    "figures/project_context_m2.png": "54592fbce3cae6c809a2d0fcde1e777db8a34b8153c6ec2147fbd77cb70a2a7c",
+    "figures/trajectory_d128.png": "6e5da4d9e531364855e6052b6de28fbb088bbdb774654d503aa223b1fcba273f",
+    "provenance.json": "151ab34b1d40fb0f506afbbe04d21e84a58af85efb995d656a29ed01cdfa1fc9",
+    "PROTOCOL.md": "a02bc0e21f6c9a538a4a7f572eb5b60355c6b8a65a1611144576fd43f047d9b1",
+    "RESULTS.md": "e8a560a1728646ed6bc0e5ae488ad38afd901c1c20a84e35a26adf9097996869"
+  }
+}

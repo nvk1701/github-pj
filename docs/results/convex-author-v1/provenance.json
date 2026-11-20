@@ -1,0 +1,60 @@
+{
+  "git_commit": "8f156eb7129f5cc2dc9d45f9e75bd3dbcb43b20f",
+  "config_sha256": "f9aceb100c769eb382650a450420d592e5326961adecd17b54c9857de7bddc5d",
+  "science_sha256": "bbc68aa1d54d14d4f9f1904863c91b74b84b93db0ee95d612b6cbdc8cd2fcea3",
+  "source_sha256": {
+    "configs/convex_author_v1.yaml": "f9aceb100c769eb382650a450420d592e5326961adecd17b54c9857de7bddc5d",
+    "docs/convex_author_v1/SOURCE_AUDIT.md": "fe2423c98bc68c4cebe7cd45aaf150757f0f917f7bb136f0c1512c5ced8409ab",
+    "requirements.txt": "625b6d6a1c93d0ce8b5203d9fada389434e310cf23479d8b14c98ef88fe5e5d3",
+    "scripts/run_convex_author_full.py": "3b6fc1d091ae08ee0f976bd0be3c32eee21c436d072d54775b0211da0233a28e",
+    "experiments/convex_author_aligned.py": "88050c1a9ce34aa125a29d88404b9f5ef73a2e12ab2e59d3b2ba4e43c2e42633",
+    "experiments/convex_author_evidence.py": "52010910011816d6b57e9364ff560e7429e020bc9faea04c52cb2df281667a70",
+    "experiments/convex_author_analysis.py": "b6439f68dd475f9177c9227e294df24445674f482a2052962535247b47b0e035",
+    "tests/test_convex_author_alignment.py": "b87d1246398fd5b4c397b3a6c5996c1179b8d9c564fe159f21b25b042ddc9973",
+    "core/convex_population.py": "4a368ab20e136a980517ad1081da3cfe97c2c367679a0e5c20ae0bc4dc81abd4",
+    "core/drift.py": "feee2c94fe815023aec0b9cf6745ee1258bb7383ccab4091ce34311d7f54b1d4",
+    "core/schedules.py": "348ade73ebe3417da37a96c63fa2e1053f80edf17c61ca11de41aae644c30813",
+    "core/utils.py": "b318ab1c40f3e288ee7ca8b9a2ee9fa2a78ceb46ef9c7a7a688bd40212d8b12e",
+    "core/tracking.py": "da720f9342c6be30c59fecedf7d99bcb8e1954b3fa6fb578c3ec4ed2e2e778fb",
+    "core/convex_recovery.py": "1eafb6b3f6bfc03db7e73f32f721f604bceba4797ed4dbd949c6b538573f9fa9"
+  },
+  "environment": {
+    "python": "3.12.2 (tags/v3.12.2:6abddd9, Feb  6 2024, 21:26:36) [MSC v.1937 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26100-SP0",
+    "packages": {
+      "numpy": "1.26.4",
+      "scipy": "1.15.3",
+      "matplotlib": "3.10.3",
+      "PyYAML": "6.0.3",
+      "wandb": "0.31.0"
+    },
+    "threads": {
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  "author_commit": "32ae9da816fc26e6a728b27fcd20255536b2fc41",
+  "author_blob": "0932fa3227867cd835cf67728bef3e96b0230cfd",
+  "frozen_sha256": {
+    "docs/results/cp04-cp05/RESULTS.md": "b745c90a4229e2c80c90688ccddace31cb7f083600e225b62d1d1518910d7130",
+    "docs/results/cp04-cp05/WANDB_TEAM_READINESS.md": "76e8659053abf1a742e40c5035fa47b35f7f3aee214065e7864894eba884ec4c",
+    "docs/results/cp04-cp05/data/cp04_method_summary.csv": "442460dee1698c76034a11b881e9dceb69bdfa654c8ee3a20fb88b0abaa2fc3c",
+    "docs/results/cp04-cp05/data/cp04_per_seed.csv": "f924a03be5721d54d7d888f787eddc0ab7e0804ac491f28ede6a829dca081bdd",
+    "docs/results/cp04-cp05/data/cp05_condition_summary.csv": "1ed278022755e53d3eb134d4db0c40a9ea571e64993e0e6e829ed5b09512c5ca",
+    "docs/results/cp04-cp05/data/cp05_paired_differences.csv": "d4c19b7535b8fa88f9c6d3bbd00a44dc34031af9a29d8604ec683b85610a8e58",
+    "docs/results/cp04-cp05/data/cp05_per_seed.csv": "7a36a4946d1ba6b5b8839c5dd0c3f301e7b8c7a20dc6ac4595ce347b6f3b8f14",
+    "docs/results/cp04-cp05/data/d512_diagnostic_summary.csv": "7b90c8381e76f30b3fbad51199fa69b0a4f4e30283f1969e1276b795b9cf7d6b",
+    "docs/results/cp04-cp05/data/forge_artifact_inventory.csv": "005413b3d2136a478f07e24303ae3ecc996f10dee90e01a5c08cb0aaf27187a2",
+    "docs/results/cp04-cp05/data/forge_run_inventory.csv": "efc73cff031ad6cc4847abce43f273e07bdd9f44da7c53e3690d2e86bda73753",
+    "docs/results/cp04-cp05/data/inventory_counts.csv": "137c9ceebe8b5ec789bd7bb93ef680acacc46d640ccdf76e61cf0ac2dfc6cfb0",
+    "docs/results/cp04-cp05/data/run_provenance.csv": "b8fa65bcf3c84ef81d6bbfdc63b39813ef201c18b4c25e5d962408bc6db179da",
+    "docs/results/cp04-cp05/figures/cp04_all_dimension_baselines.png": "9e275cd0a9b8a8878aa67c441e90c14cbdf00c10a49c4813ece0ad66ffa5544d",
+    "docs/results/cp04-cp05/figures/cp04_figure5_left.png": "935306244a85a02085804066be37fea46567e07abac8cdae0298a1619caa9df9",
+    "docs/results/cp04-cp05/figures/cp04_trajectory_d128.png": "e73401a49d7e58ea0fca8fd2fc5043ce8bb3b81286edb72e250ba10931c4d189",
+    "docs/results/cp04-cp05/figures/cp05_d512_loss_dynamics.png": "ca29019803da844f058e1f419b8317ce7414d3e481d4562a92cd979a627808e6",
+    "docs/results/cp04-cp05/figures/cp05_drift_sensitivity.png": "75eb16a9cf57262f728192511f4eef7b5097a077c7ac893c76a6cc1df792aad3",
+    "docs/results/cp04-cp05/figures/cp05_noise_sensitivity.png": "539b059c8497e6da8bc0dc5d7bc7443ffabe61a83808a769045ab4e04db533d8",
+    "docs/results/cp04-cp05/publication_manifest.json": "190b89d5ec4ecdf9e7d3d71c3990bdb9cc7d6e424b37e329d3252f986ecf7ee6"
+  }
+}
