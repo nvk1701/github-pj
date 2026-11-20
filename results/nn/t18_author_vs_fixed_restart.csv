@@ -1,0 +1,5 @@
+method,restart_rule,description,final_regret_mean,final_regret_std
+adam-restart:0.01,paper,"Paper Spec: Restart on shift boundaries t in {100, 200, 400} (dist[p] != dist[p-1])",131.59220319023976,5.065103486625678
+adam-restart:0.01,author_code,"Author main.py Line 144: Restart when dist[p] == dist[p-1] (t in {300, 500})",146.52644441385442,11.017286259542546
+adam-restart:0.03,paper,"Paper Spec: Restart on shift boundaries t in {100, 200, 400} (dist[p] != dist[p-1])",180.2977198775237,26.489814133857045
+adam-restart:0.03,author_code,"Author main.py Line 144: Restart when dist[p] == dist[p-1] (t in {300, 500})",302.3279674574733,92.09044743195054

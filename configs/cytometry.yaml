@@ -1,0 +1,25 @@
+# Cấu hình chuẩn cho Thực nghiệm 3: Flow Cytometry MLP 5 Tầng (Task T12 & T16)
+# Bám sát Mục 5, Phụ lục E (trang 22-23) của Fahrbach et al. (ICML 2023)
+
+experiment: nonconvex
+seeds: [0, 1, 2]
+
+stream:
+  batch_size: 64
+  perturb_eps: 0.1
+  steps_per_block: 100
+  block_types: [0, 1, 2, 2, 3, 3]  # T = 600 bước qua 4 pha P1 -> P2 -> P3 -> P4
+
+model:
+  input_dim: 10
+  hidden_dims: [64, 32, 16, 8]
+  output_dim: 4
+  l2_reg: 0.0001
+
+figure6_methods:
+  - "adam:0.01"
+  - "adam-restart:0.01"
+  - "adam:0.03"
+  - "adam-restart:0.03"
+
+lr_sweep: [0.001, 0.003, 0.01, 0.03, 0.1]

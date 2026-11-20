@@ -404,3 +404,105 @@ class ConvexSchedule(BaseSchedule):
         self.eta_prev = self.eta_init
         self.last_t = 0
         self.last_thresholds = None
+
+
+class NonConvexSchedule(BaseSchedule):
+    """Lịch trình tốc độ học tối ưu cho Hàm Không lồi theo Theorem 5.1 (Công thức 25, trang 8).
+
+    Cực tiểu hóa cận trên kỳ vọng của tổng bình phương chuẩn gradient (Eq. 24) theo
+    từng bước thời gian t >= 1 với nghiệm đóng:
+        b_t = L * (gamma_t + loss_val)
+        eta^*_t = (B_t / (L * sigma^2)) * (sqrt(b_t^2 + (2 * sigma^2 / B_t) * b_t) - b_t)
+                = 2 * b_t / (L * (b_t * B_t * L / B_t ...))
+                = 2 / (L * (1 + sqrt(1 + 2 * sigma^2 / (B_t * b_t))))  khi b_t > 0.
+    Giá trị eta^*_t luôn nằm trong miền ổn định [0, 1 / L] và đồng biến nghiêm ngặt
+    theo cả độ dịch chuyển phân phối `gamma_t` lẫn giá trị hàm mất mát `loss_val`.
+    """
+
+    def __init__(
+        self,
+        L: float = 1.0,
+        gradient_variance: float = 1.0,
+        default_batch_size: int = 64,
+        name: str = "nonconvex-optimal",
+    ) -> None:
+        """Khởi tạo `NonConvexSchedule` (Task T12).
+
+        Parameters
+        ----------
+        L : float, optional
+            Hằng số trơn Lipschitz của gradient L > 0 (mặc định: 1.0).
+        gradient_variance : float, optional
+            Cận trên phương sai gradient \\sigma^2 >= 0 (mặc định: 1.0).
+        default_batch_size : int, optional
+            Kích thước mini-batch B_t mặc định nếu không truyền vào `.step(...)` (mặc định: 64).
+        name : str, optional
+            Tên định danh lịch trình cho W&B (mặc định: `"nonconvex-optimal"`).
+        """
+        super().__init__(name=name)
+        if isinstance(L, bool) or not isinstance(L, Real) or not math.isfinite(float(L)) or float(L) <= 0.0:
+            raise ValueError(f"Hằng số trơn L phải là số thực dương hữu hạn, nhận được {L}.")
+        if (
+            isinstance(gradient_variance, bool)
+            or not isinstance(gradient_variance, Real)
+            or not math.isfinite(float(gradient_variance))
+            or float(gradient_variance) < 0.0
+        ):
+            raise ValueError(f"gradient_variance (sigma^2) phải >= 0 và hữu hạn, nhận được {gradient_variance}.")
+        if isinstance(default_batch_size, bool) or not isinstance(default_batch_size, Integral) or int(default_batch_size) < 1:
+            raise ValueError(f"default_batch_size phải là số nguyên dương, nhận được {default_batch_size}.")
+
+        self.L = float(L)
+        self.gradient_variance = float(gradient_variance)
+        self.max_lr = 1.0 / self.L
+        self.default_batch_size = int(default_batch_size)
+        self.last_lr: Optional[float] = None
+
+    def step(self, t: int, **kwargs: Any) -> float:
+        """Tính tốc độ học tối ưu \\eta^*_t tại bước t >= 1 theo Công thức (25).
+
+        Parameters
+        ----------
+        t : int
+            Chỉ số bước thời gian hiện tại (t >= 1).
+        **kwargs : Any
+            - `gamma_prev` hoặc `gamma` (float): Độ dịch chuyển phân phối \\gamma_t >= 0 (mặc định: 0.0).
+            - `loss_val` (float): Giá trị hàm mất mát trung bình trên mini-batch hiện tại \\ell^B_t(\\theta_t) >= 0.
+            - `batch_size` (int, optional): Kích thước mini-batch B_t.
+
+        Returns
+        -------
+        float
+            Bước nhảy tối ưu \\eta^*_t \\in [0, 1 / L].
+        """
+        if isinstance(t, bool) or not isinstance(t, Integral) or int(t) < 1:
+            raise ValueError(f"Bước thời gian t phải là số nguyên dương >= 1, nhận được {t}.")
+
+        gamma_val = float(kwargs.get("gamma_prev", kwargs.get("gamma", 0.0)))
+        loss_val = float(kwargs.get("loss_val", 0.0))
+        batch_size = int(kwargs.get("batch_size", self.default_batch_size))
+
+        if not math.isfinite(gamma_val) or gamma_val < 0.0:
+            raise ValueError(f"gamma phải không âm và hữu hạn, nhận được {gamma_val}.")
+        if not math.isfinite(loss_val) or loss_val < 0.0:
+            raise ValueError(f"loss_val phải không âm và hữu hạn, nhận được {loss_val}.")
+        if batch_size < 1:
+            raise ValueError(f"batch_size phải >= 1, nhận được {batch_size}.")
+
+        b_t = self.L * (gamma_val + loss_val)
+        if b_t <= 0.0:
+            eta_t = 0.0
+        elif self.gradient_variance == 0.0:
+            eta_t = self.max_lr
+        else:
+            # Dạng hữu tỷ hóa tương đương Eq. (25) giúp tránh mất chữ số có nghĩa khi b_t lớn
+            ratio = (2.0 * self.gradient_variance) / (float(batch_size) * b_t)
+            eta_t = min(self.max_lr, 2.0 / (self.L * (1.0 + math.sqrt(1.0 + ratio))))
+
+        self.last_lr = float(eta_t)
+        return float(eta_t)
+
+    def reset(self) -> None:
+        """Đặt lại trạng thái lịch trình trước mỗi seed mới."""
+        self.last_lr = None
+
