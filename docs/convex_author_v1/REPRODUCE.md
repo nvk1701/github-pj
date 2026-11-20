@@ -23,3 +23,5 @@ Dùng `--evidence-root` để import export Colab. [Contract T18](AUTHOR_NATIVE_
 ## Đối chiếu chéo
 
 T19 yêu cầu tự thực thi từ clone sạch với danh tính thành viên phụ trách, ghi SHA, môi trường, manifests và delta trong cùng distribution/stream. Repo ghi các kiểm tra tự động và quy trình của nhóm. Phiên này không có xác nhận mới từ teammate. Đề nghị dùng `per_run.csv` theo case key, M0 và M2 cùng SHA logic, tránh so exact bytes qua nền tảng khác. [Issue T19](https://github.com/nvk1701/github-pj/issues/23)
+
+Đã xác minh tự động từ clone Git sạch của commit công bố `50b3bbf9066b6a4def736aa23715d01cb84ddccf` bằng cùng môi trường Python đã pin. `--smoke` dựng lại 10 ca, khớp chính xác cả metrics, hash X/y và 10 hash NPZ. Kiểm đủ 15 SHA-256 của manifest publication trong clone. Đây là self-check tự động tại cùng máy.

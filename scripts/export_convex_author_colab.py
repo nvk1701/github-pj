@@ -15,6 +15,7 @@ from urllib.request import urlopen
 
 COMMIT = "32ae9da816fc26e6a728b27fcd20255536b2fc41"
 BLOB = "0932fa3227867cd835cf67728bef3e96b0230cfd"
+SNAPSHOT_SHA256 = "c1493733e42d3226146458625431491585f0babffb8db109defdb235f13ac874"
 URL = (f"https://raw.githubusercontent.com/fahrbach/learning-rate-schedules/{COMMIT}"
        "/src/regression/regression_experiments.ipynb")
 DIMENSIONS = (2, 8, 32, 128, 512)
@@ -109,6 +110,8 @@ def main():
     if git_blob != BLOB:
         raise ValueError(f"unexpected upstream blob: {git_blob}")
     content_hash = hashlib.sha256(snapshot).hexdigest()
+    if content_hash != SNAPSHOT_SHA256:
+        raise ValueError("snapshot SHA-256 mismatch")
     notebook = json.loads(snapshot)
     sources = {}
     for index, id_ in CELLS.items():

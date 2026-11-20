@@ -32,3 +32,5 @@ python scripts/run_convex_author_full.py --resume --wandb-mode offline --evidenc
 ```
 
 Importer kiểm commit/blob, metadata, checksum, dtype/shape/finite, dữ liệu đúng thứ tự stream và toàn bộ replay. F2 và F3 cần cả ba fixture đầy đủ. Full matrix được mở cổng chỉ sau các kiểm tra đó, F1, F4, F5. Lưu bộ notebook/log gốc ngoài Git.
+
+SHA-256 của 4.539.968 byte notebook gốc đã được kiểm bằng lần tải chỉ đọc: `c1493733e42d3226146458625431491585f0babffb8db109defdb235f13ac874`.

@@ -17,3 +17,5 @@
 Đã thử `--full --wandb-mode offline`. Full chạy suite và pilot rồi trả mã 2 vì thiếu fixture. Các history raw khoảng 41.1 MiB, ở `outputs/convex-author-v1/runs`. Quan sát peak working set của process chính sau ba pilot d512 là 336896000 bytes (321.3 MiB). Đây là phép đọc trong lúc chạy, gồm imports trước bước tạo hình báo cáo, không phải đo peak của process W&B con.
 
 Forge endpoint `https://api.forge.coreweave.com` được kiểm tra chỉ đọc bằng SDK, có viewer xác thực và đọc được frozen run `38easaio` ở trạng thái finished. Bộ duyệt tự động từ chối yêu cầu đồng bộ 7 SDK artifacts vì chưa có ủy quyền rõ cho payload và đích. Không thử đồng bộ qua đường khác. Không có URL remote mới được xác minh. [Run manifest](../results/convex-author-v1/manifest.json) · [Handoff tái lập](REPRODUCE.md)
+
+Clean-clone smoke đã dựng lại 10/10 history NPZ khớp SHA-256 và kiểm 15/15 publication hashes. Import checksum/replay chạy thử bằng fixture tổng hợp nội bộ riêng, gồm trường hợp payload bị sửa, không dùng làm bằng chứng F2/F3. Script Colab helper được kiểm tra cú pháp; thực thi ở Colab vẫn chờ runtime.
