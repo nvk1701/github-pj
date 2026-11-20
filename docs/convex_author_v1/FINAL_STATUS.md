@@ -56,3 +56,11 @@ Người dùng cần chọn Google Cloud project được phép sử dụng, b�
 Sau OAuth, kiểm tra `list_runtimes` có xác thực. Dùng phiên Jupyter riêng trên runtime CPU phù hợp, hoặc tạo một runtime đúng quota nếu chưa có. Smoke test sẽ chạy Python trả một nonce mới, rồi dùng `get_runtime` và HTTP proxy của Google để đưa một tệp thử từ worktree lên runtime, biến đổi tệp bằng Python và tải kết quả về thư mục output cục bộ. Kiểm SHA-256 hai chiều và giữ token proxy trong bộ nhớ của client truyền file. Chỉ mở cổng `COLAB_EXECUTION_READY` sau khi đủ bằng chứng. R → parity → I → A tiếp tục theo protocol hiện hành.
 
 Quyền ghi Forge đã được server báo qua metadata; upload thực tế vẫn cần phê duyệt riêng. [Manifest của 7 bundle](../results/convex-author-v1/data/wandb_offline_sync.csv)
+
+## Khôi phục OAuth · V5
+
+Codex CLI `0.169.0-alpha.11.1` trong VS Code hỗ trợ dùng Desktop client đăng ký trước qua override per-process. Entry `google-colab` toàn cục chỉ cấu hình endpoint. Kiểm tra URL do cùng lệnh login tạo ở chế độ không mở trình duyệt xác nhận client ID khớp file Desktop hiện có, scope đúng Colab, callback loopback HTTP `127.0.0.1` có cổng và PKCE S256. Không lưu giá trị OAuth trong repo. Tên `RemoteControlApp` trên màn hình Google có thể là tên branding trong project. Không có bằng chứng cần đổi client hoặc dùng lại dynamic registration.
+
+Browser lần trước báo `403 access_denied` và nêu tài khoản không thuộc Test users của ứng dụng ở chế độ Testing. Tiến trình Codex kết thúc vì hết thời gian chờ callback. Chưa có phiên OAuth xác thực. Không có Google Cloud admin connector hoặc gcloud/ADC cục bộ phù hợp để đọc hay sửa Audience. Đã mở trang Audience của đúng project chứa Desktop client. Người có quyền cần thêm đúng tài khoản đã chọn ở màn hình 403 vào **Test users**, bấm **Save**, rồi xác nhận để mở lại consent. API enablement và trạng thái phiên Colab sẽ được kiểm tiếp sau khi nhận callback. [Audience](https://support.google.com/cloud/answer/15549945?hl=en) · [Branding](https://support.google.com/cloud/answer/15549049?hl=en)
+
+R 0/5, F2/F3 UNVERIFIED, I 0/45, A 0/36 và Forge mới 0/88. Đã kiểm lại đủ 19 checksum frozen, 20 checksum publication và 7 checksum pilot SDK. Giữ kiểm thử 137/137 đã ghi ở bản pre-push làm baseline. Chạy lại suite sau khi có thay đổi mã/thực thi các cổng phụ thuộc. Không có upload, push hay merge trong vòng xác minh này.
