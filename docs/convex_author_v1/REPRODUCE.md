@@ -25,3 +25,35 @@ Dùng `--evidence-root` để import export Colab. [Contract T18](AUTHOR_NATIVE_
 T19 yêu cầu tự thực thi từ clone sạch với danh tính thành viên phụ trách, ghi SHA, môi trường, manifests và delta trong cùng distribution/stream. Repo ghi các kiểm tra tự động và quy trình của nhóm. Phiên này không có xác nhận mới từ teammate. Đề nghị dùng `per_run.csv` theo case key, M0 và M2 cùng SHA logic, tránh so exact bytes qua nền tảng khác. [Issue T19](https://github.com/nvk1701/github-pj/issues/23)
 
 Đã xác minh tự động từ clone Git sạch của commit công bố `50b3bbf9066b6a4def736aa23715d01cb84ddccf` bằng cùng môi trường Python đã pin. `--smoke` dựng lại 10 ca, khớp chính xác cả metrics, hash X/y và 10 hash NPZ. Kiểm đủ 15 SHA-256 của manifest publication trong clone. Đây là self-check tự động tại cùng máy.
+
+## Kiểm toán bản pre-push
+
+Lần kiểm toán dùng `--output-root outputs/convex-author-release-audit` với `--wandb-mode disabled`. Giữ `outputs/convex-author-v1` làm nguồn chứng cứ của lần chạy trước. `--resume` kiểm metadata, source/config hash, checksum NPZ, shape, dtype, finiteness, nối trajectory và cả ba cumulative metric identities. Record đã seal có checksum lệch hoặc NPZ thiếu record đều dừng kiểm chứng và giữ payload. Chọn output root mới khi cần chạy lại ca đó. Báo cáo xác minh hash X/y trước khi gộp theo method hoặc tính chênh lệch ablation.
+
+### W&B chỉ đồng bộ sau khi được ủy quyền
+
+[Manifest đồng bộ](../results/convex-author-v1/data/wandb_offline_sync.csv) liệt kê đúng bảy SDK bundle ban đầu cùng run ID, SHA-256 file và digest history. Paths tương đối với worktree gốc. Clone chỉ có manifest và kết quả tổng hợp. Khi có ủy quyền rõ cho đích và nội dung, đối soát trước từng ID ở project Forge, kiểm checksum, rồi đồng bộ **thư mục offline của ID đó**. Ví dụ cho một run:
+
+```powershell
+$env:WANDB_BASE_URL = 'https://api.forge.coreweave.com'
+$Row = Import-Csv docs/results/convex-author-v1/data/wandb_offline_sync.csv | Where-Object run_id -eq '4otmjkml'
+if ((Get-FileHash -Algorithm SHA256 -LiteralPath $Row.bundle).Hash.ToLowerInvariant() -ne $Row.bundle_sha256) { throw 'Bundle checksum mismatch' }
+python -m wandb sync --yes (Split-Path -Parent $Row.bundle)
+```
+
+Đối chiếu lại ID, trạng thái `finished`, group và `validated_history_sha256` trên Forge. Nếu lần sync bị gián đoạn hoặc ID đã hiện diện, đối soát trước mọi lần thử tiếp theo. Chứng cứ hiện tại dừng ở `SDK_FINISHED` offline và Forge API read-only.
+
+### Push khi đã có ủy quyền riêng
+
+Chạy từ research worktree. Dừng nếu worktree chưa sạch, tên nhánh khác, origin khác, hoặc ref nghiên cứu đã tồn tại trên remote.
+
+```powershell
+if ((git branch --show-current) -ne 'research/convex-author-v1') { throw 'Wrong branch' }
+if (git status --porcelain) { throw 'Working tree is dirty' }
+if ((git remote get-url --push origin) -ne 'https://github.com/nvk1701/github-pj.git') { throw 'Wrong origin' }
+git diff --check 8686740adca5f6879775e52a500b28cb203123d0 HEAD
+if ($LASTEXITCODE -ne 0) { throw 'Diff check failed' }
+$ResearchRef = git ls-remote --heads origin refs/heads/research/convex-author-v1
+if ($LASTEXITCODE -ne 0 -or $ResearchRef) { throw 'Remote was not checked or branch already exists' }
+git push -u origin refs/heads/research/convex-author-v1:refs/heads/research/convex-author-v1
+```

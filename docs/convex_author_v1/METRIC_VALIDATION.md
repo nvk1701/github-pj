@@ -14,6 +14,8 @@ M0 giữ dấu và có nhiễu theo batch. Với đường đi đã lưu, tích 
 
 Kiểm hiệu tức thời giữa hai metric population bằng $F_t(v_t)-F_t(w_t^{\star,\mathrm{approx}})$ với dung sai số học 3e−15. Test tích phân lồng hai Gaussian kiểm riêng loss, gradient radial và tính co lại của oracle. File per-run lưu ngân sách quadrature M1/M2, max ước lượng lỗi tham số oracle và tổng ước lượng suboptimality. Các ngân sách là ước lượng số, chưa có bảo đảm interval. Không dùng Monte Carlo trong evaluator mới, nên không báo MC SE. SD giữa seed chỉ hợp lệ khi có ít nhất hai seed, và không dùng ngân sách tích phân thay cho SD. [Kiểm thử](../../tests/test_convex_author_alignment.py)
 
+Trên 10 history đã kiểm toán, residual tuyệt đối lớn nhất của identity là 4.44e−16 ở từng batch và 2.73e−12 ở mọi prefix cumulative. Residual cumulative bao gồm sai số khi tích lũy riêng M1 và M2 rồi lấy hiệu. Budget quadrature, residual oracle số và biến thiên giữa seed vẫn là các đại lượng riêng.
+
 ## Theorem 4.2 và Proposition 4.3
 
 Theorem 4.2 đưa cận trên kỳ vọng dynamic regret theo population oracle, với lịch LR thích nghi theo lịch sử, $a_t=2\eta_t-L\eta_t^2>0$, LR ≤ 1/L, phương sai gradient hữu hạn theo cận và điều kiện miền cho projected SGD. Eq. 15 được nới thành Eq. 16 qua diameter và drift. Eq. 17 tối ưu từng bước phần cận Eq. 16 theo LR và LR trước đó. Eq. 18–20 giải bài toán bằng hai threshold. Objective của Proposition 4.3 là biểu thức cận trên, nên các bảng thực nghiệm không kiểm chứng độ chặt của cận. [Fahrbach và cộng sự, §4.1](https://proceedings.mlr.press/v202/fahrbach23a/fahrbach23a.pdf#page=7)

@@ -18,6 +18,8 @@ Các ca d512 dùng cùng hash X và y, cùng weights zero. Convex có M2 cao hơ
 
 P có cùng thứ hạng mô tả ở d512 theo population-oracle metric B, với Convex 1385.009, constant 504.895, inverse-sqrt 520.381 qua ba seed. P khác phase grid, std, signal và projection. Đồ thị đặt các giá trị M2/B cạnh nhau với phân phối ghi rõ. Tính phần trăm cải thiện qua hai protocol sẽ trộn các khác biệt này. [P frozen](../cp04-cp05/RESULTS.md) · [Đối chiếu mô tả](figures/project_context_m2.png)
 
+Trong pilot d512, Convex bắt đầu cập nhật ở batch 10 và mọi phương pháp thấy cùng 199 lần nhảy reference. Ở batch 901–1100, độ lớn forward shift trung bình là 0.000594. Convex giữ LR trung bình 3.9986, có norm gradient trung bình 0.5176, norm cập nhật trung bình 2.0697 và cộng thêm 65.4663 vào M2. Constant có norm gradient 0.03619, norm cập nhật 0.00362 và cộng thêm 0.00774 vào M2 trong cùng cửa sổ. Gradient ở đây được đo tại learner path của từng phương pháp, nên chênh lệch gradient bao gồm trạng thái learner và nhiễu batch. Projection không được bật trong pilot và không có lần chiếu nào. Cửa sổ ít drift cho thấy rate cao vẫn đi cùng cập nhật lớn. Nó chưa xác định nguyên nhân của chênh lệch trong CP04. [Cửa sổ d512](data/d512_windows.csv) · [Gradient, update, drift và M2 mỗi bước](figures/d512_gradient_drift.png)
+
 ## Figure 5-bottom và kiểm tra parity
 
 | d | M0 lưu trong snapshot notebook | M0 NumPy MT19937 độc lập | Sai khác tuyệt đối của số cuối đã in |
@@ -34,7 +36,7 @@ Ba đối chiếu trên dùng đúng cấu hình seed theo phase trong source v�
 
 Hiệu M2−M1 ở d512 là khoảng 0.000369 cho cả ba phương pháp. Nó chỉ phụ thuộc comparator và phân phối nên không giải thích chênh lệch học ở pilot. Ngân sách quadrature M2 lớn nhất trong 10 ca đo là 3.98e−8, và max oracle parameter error ước lượng là 1.90e−8. Không dùng các số này làm SD giữa seed. [Metric validation](../../convex_author_v1/METRIC_VALIDATION.md)
 
-A1 có hệ quả được kiểm bằng unit test. Khi giữ native init bằng 0 và thay tín hiệu bằng EMA khởi tạo bằng 0, mọi LR, shift và weights giữ nguyên 0. Chưa có kết quả ma trận A1–A4. CSV pairs và summary hiện chỉ có header, đúng với gate chưa mở. Bổ sung warm start hoặc giải thích tương tác giữa các yếu tố cần thiết kế thêm. [Protocol A](../../convex_author_v1/PROTOCOL.md) · [Paired data](data/ablation_pairs.csv)
+A1 có trạng thái hấp thụ. Khi drift và LR đều bằng 0, $\\tau_1(0)=0$ và kẹp LR trước bằng 0 giữ nguyên LR. SGD giữ nguyên weights, nên learner EMA tiếp tục bằng 0 ở bước kế. Quy nạp áp dụng cho toàn horizon. Test ở d512 chạy 100 batch với gradient khác 0 tại mọi bước và xác nhận LR, shift, weights trước/sau đều bằng 0. Chưa có kết quả ma trận A1–A4. CSV pairs và summary chỉ có header vì gate chưa mở. Warm start sẽ đổi cả initialization lẫn tín hiệu drift so với I, nên chỉ phù hợp với một đối chứng bổ sung riêng. Kết quả zero-start không khái quát cho mọi causal EMA. [Protocol A](../../convex_author_v1/PROTOCOL.md) · [Paired data](data/ablation_pairs.csv)
 
 ## Hình đã đo
 
@@ -44,5 +46,7 @@ A1 có hệ quả được kiểm bằng unit test. Khi giữ native init bằng
 - [Trajectory hai tọa độ d128](figures/trajectory_d128.png)
 - [Learning rate theo d](figures/learning_rates.png)
 - [Diagnostics d512](figures/d512_diagnostics.png)
+- [Gradient và reference drift d512](figures/d512_gradient_drift.png)
+- [Hiệu chỉnh comparator M2−M1](figures/comparator_correction.png)
 
 Chưa có đường cong R ghép cặp và đồ thị A. Toàn bộ đường pilot là một seed trên mỗi ca, không hiển thị SD.

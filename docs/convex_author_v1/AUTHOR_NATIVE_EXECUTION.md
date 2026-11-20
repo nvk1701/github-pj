@@ -27,10 +27,10 @@ Chế độ này giới hạn loop ở d=2,8,32 và thêm tracing chỉ đọc t
 Import các cặp JSON/NPZ vào một thư mục ngoài kho, sau đó chạy:
 
 ```powershell
-python scripts/run_convex_author_full.py --report-only --evidence-root path/to/colab-evidence
-python scripts/run_convex_author_full.py --resume --wandb-mode offline --evidence-root path/to/colab-evidence
+python scripts/run_convex_author_full.py --report-only --output-root outputs/convex-author-release-audit --evidence-root path/to/colab-evidence
+python scripts/run_convex_author_full.py --resume --wandb-mode disabled --output-root outputs/convex-author-release-audit --evidence-root path/to/colab-evidence
 ```
 
-Importer kiểm commit/blob, metadata, checksum, dtype/shape/finite, dữ liệu đúng thứ tự stream và toàn bộ replay. F2 và F3 cần cả ba fixture đầy đủ. Full matrix được mở cổng chỉ sau các kiểm tra đó, F1, F4, F5. Lưu bộ notebook/log gốc ngoài Git.
+Importer kiểm URL nguồn, commit/blob, SHA-256 notebook, runtime Google Colab, thời gian UTC, phiên bản, checksum payload, dtype/shape/finite, thứ tự dữ liệu và replay. Cần đủ cặp JSON/NPZ cho từng ca. Sidecar là metadata do exporter ghi. Người duyệt vẫn cần log hoặc notebook output của lần thực thi để truy chứng runtime. F2 và F3 cần cả ba fixture đầy đủ. Full matrix được mở cổng sau khi F1, F2/F3, F4 và F5 đều có bằng chứng. Lưu bộ notebook/log gốc ngoài Git.
 
 SHA-256 của 4.539.968 byte notebook gốc đã được kiểm bằng lần tải chỉ đọc: `c1493733e42d3226146458625431491585f0babffb8db109defdb235f13ac874`.

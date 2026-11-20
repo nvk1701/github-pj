@@ -84,62 +84,13 @@
   "native": {},
   "failed_cases": [],
   "wandb": {
-    "convex-author-pilot-v1-d2-s0-convex-none": {
-      "offline": {
-        "mode": "offline",
-        "state": "SDK_FINISHED",
-        "endpoint": "api.forge.coreweave.com",
-        "id": "z2a8xh6k"
-      }
-    },
-    "convex-author-pilot-v1-d8-s0-convex-none": {
-      "offline": {
-        "mode": "offline",
-        "state": "SDK_FINISHED",
-        "endpoint": "api.forge.coreweave.com",
-        "id": "6nfbmmbp"
-      }
-    },
-    "convex-author-pilot-v1-d32-s0-convex-none": {
-      "offline": {
-        "mode": "offline",
-        "state": "SDK_FINISHED",
-        "endpoint": "api.forge.coreweave.com",
-        "id": "rtcedcga"
-      }
-    },
-    "convex-author-pilot-v1-d128-s0-convex-none": {
-      "offline": {
-        "mode": "offline",
-        "state": "SDK_FINISHED",
-        "endpoint": "api.forge.coreweave.com",
-        "id": "002xypnf"
-      }
-    },
-    "convex-author-pilot-v1-d512-s0-convex-none": {
-      "offline": {
-        "mode": "offline",
-        "state": "SDK_FINISHED",
-        "endpoint": "api.forge.coreweave.com",
-        "id": "4otmjkml"
-      }
-    },
-    "convex-author-pilot-v1-d512-s0-constant-none": {
-      "offline": {
-        "mode": "offline",
-        "state": "SDK_FINISHED",
-        "endpoint": "api.forge.coreweave.com",
-        "id": "9mrsibun"
-      }
-    },
-    "convex-author-pilot-v1-d512-s0-inverse_sqrt-none": {
-      "offline": {
-        "mode": "offline",
-        "state": "SDK_FINISHED",
-        "endpoint": "api.forge.coreweave.com",
-        "id": "7f9r2kdg"
-      }
-    },
+    "convex-author-pilot-v1-d2-s0-convex-none": {},
+    "convex-author-pilot-v1-d8-s0-convex-none": {},
+    "convex-author-pilot-v1-d32-s0-convex-none": {},
+    "convex-author-pilot-v1-d128-s0-convex-none": {},
+    "convex-author-pilot-v1-d512-s0-convex-none": {},
+    "convex-author-pilot-v1-d512-s0-constant-none": {},
+    "convex-author-pilot-v1-d512-s0-inverse_sqrt-none": {},
     "convex-author-rng-diagnostic-v1-d2-s0-convex-none": {},
     "convex-author-rng-diagnostic-v1-d8-s0-convex-none": {},
     "convex-author-rng-diagnostic-v1-d32-s0-convex-none": {}
@@ -147,18 +98,39 @@
   "files": {
     "data/ablation_pairs.csv": "8a11734f32bfa302c58e486933dc8c1e616fd3a08f2049c34f2cd33bda127341",
     "data/ablation_summary.csv": "bd1f423d8bb6a5f7d4056753bdb0fef4d8280f5c7fb2d1e151fa63affc5a0cad",
+    "data/comparator_correction.csv": "5bd3cedd00b8683515c66e6b7aada5702e66439eb27c5cceea69a881a7eb23d7",
+    "data/d512_windows.csv": "daafe7b897b6817cb2c7acd392375bbdffb9252d6596714c3f5c749573f6a566",
     "data/fidelity.csv": "460816b85cd13e925589dbe8656e540ef2128b6deba6ffdc18a76ddbf53e0ea9",
     "data/inventory.csv": "5558fdd7384c733fac4cbb951387c9f12b81276a13efa7ea01f14b1a338242b9",
     "data/method_summary.csv": "a6b167ce15c60bf2b77befef66a4a8908e7d078143665dfc8eea3ad6ebd0bedb",
-    "data/per_run.csv": "09ade3a1dca737a2ddbeb4d1801c35ece96832f5a0abc2b535f9323f8c33f563",
+    "data/per_run.csv": "2125a11b4715f97be2ccdced04a5a97a1db2dc616478f01fba0963c165adee5e",
     "figures/adaptive_m0.png": "a58be0aac335467aab2cb83f5925516e3ce068f526cde54e876e787e46690eff",
+    "figures/comparator_correction.png": "84080bd07a0ebd383799eb7fbfce61eac22946542072ba8bc518f865795c7d91",
     "figures/d512_diagnostics.png": "723714fddb4ee5b4a520df09bd2764de9b6fce7a723c4b1c7c8fb772a91385b7",
+    "figures/d512_gradient_drift.png": "24cb96afee6f29299263931a03e3e474977ddae8bb08ce1c1d5ef181f19a85eb",
     "figures/learning_rates.png": "d33c1657dd9aa23feb4f02d83b7937c1802e3a8a81aa7ac85c18324cc268e2ce",
     "figures/matched_methods.png": "711f680ecb3d2af8ca719da73b42df39221a199251945bbdbe6b1720ad384ed4",
     "figures/project_context_m2.png": "54592fbce3cae6c809a2d0fcde1e777db8a34b8153c6ec2147fbd77cb70a2a7c",
     "figures/trajectory_d128.png": "6e5da4d9e531364855e6052b6de28fbb088bbdb774654d503aa223b1fcba273f",
-    "provenance.json": "151ab34b1d40fb0f506afbbe04d21e84a58af85efb995d656a29ed01cdfa1fc9",
+    "provenance.json": "c4d81e9645e1f9a27bffd4a91a740e86c980f9eff6f42aeb070133727759e618",
+    "RESULTS.md": "de50aaeb88fd582f418e8c6270121226bb5a94ae94fbba76b6f65bf32f803ad1",
     "PROTOCOL.md": "a02bc0e21f6c9a538a4a7f572eb5b60355c6b8a65a1611144576fd43f047d9b1",
-    "RESULTS.md": "e8a560a1728646ed6bc0e5ae488ad38afd901c1c20a84e35a26adf9097996869"
+    "data/wandb_offline_sync.csv": "929b9a0b93dbd7f9165a6941dd0ac328e95b56b46eeec5482e341a25d593c160"
+  },
+  "release_audit": {
+    "status": "READY_TO_PUSH_WITH_DISCLOSED_LIMITATIONS",
+    "local_test_count": 137,
+    "fresh_clone_payload_matches": 10,
+    "fresh_clone_png_matches": 8,
+    "frozen_files_unchanged": 19,
+    "wandb_offline_sdk_finished": 7,
+    "wandb_uploaded_this_turn": 0,
+    "wandb_remote_verified": 0,
+    "wandb_offline_manifest": "data/wandb_offline_sync.csv",
+    "native_execution": "BLOCKED_EXTERNAL_EXECUTION",
+    "resume_records_reused": 10,
+    "report_only_artifact_matches": 17,
+    "max_comparator_step_residual": 4.440892098500626e-16,
+    "max_comparator_cumulative_residual": 2.731592729787735e-12
   }
 }

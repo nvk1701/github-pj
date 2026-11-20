@@ -37,7 +37,7 @@ Tài liệu bổ sung sau freeze, gửi lead duyệt trước khi nhập deck ch
 - M1 dùng population risk tại reference. M2 dùng population oracle số.
 - M2−M1 là hiệu chỉnh do comparator.
 
-**Bảng/hình.** [Bảng M0/M1/M2](METRIC_VALIDATION.md) và ví dụ correction d512 trong [kết quả](../results/convex-author-v1/RESULTS.md). Footnote [1, §4.1], [2], [3].
+**Bảng/hình.** [Bảng M0/M1/M2](METRIC_VALIDATION.md) và [đường hiệu chỉnh comparator](../results/convex-author-v1/figures/comparator_correction.png). Footnote [1, §4.1], [2], [3].
 
 **Speaker notes.** Điều kiện kỳ vọng trong paper khác câu hỏi thực nghiệm “batch hiện tại có loss cao hơn reference bao nhiêu”. Nhiễu nhãn đi qua sigmoid làm oracle population co lại so với reference. So cùng trajectory và distribution thì có thể quy phần chênh M2–M1 cho comparator. Không dùng M0 của tác giả để tính phần trăm chênh với M2 của nhóm.
 
@@ -81,7 +81,7 @@ Tài liệu bổ sung sau freeze, gửi lead duyệt trước khi nhập deck ch
 - Unit test chứng minh hệ quả của EMA khởi đầu zero với native init.
 - d512 pilot cho thấy tình trạng vẫn xuất hiện khi có forward shift.
 
-**Bảng/hình.** [CP05 noise](../results/cp04-cp05/figures/cp05_noise_sensitivity.png) và [bảng A1–A4](PROTOCOL.md). Footnote [1, Remark 4.4], [3], [4].
+**Bảng/hình.** [CP05 noise](../results/cp04-cp05/figures/cp05_noise_sensitivity.png), [bảng A1–A4](PROTOCOL.md) và [gradient/drift pilot d512](../results/convex-author-v1/figures/d512_gradient_drift.png). Footnote [1, Remark 4.4], [3], [4].
 
 **Speaker notes.** CP05 dùng ba seed nhưng chỉ trong P, nên không gộp vào ma trận A. A1 giữ mọi yếu tố khác và có thể đóng băng learner. Warm start có thể tránh trạng thái đó, nhưng đưa vào đồng thời sẽ đổi thiết kế. A2 đổi cả data-generating distribution. Đợi A trước khi nói yếu tố nào giải thích mức chênh của P.
 

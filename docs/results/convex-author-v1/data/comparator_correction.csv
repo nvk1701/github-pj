@@ -1,0 +1,6 @@
+protocol,dimension,seed,method,intervention,final_correction
+convex-author-pilot-v1,2,0,convex,none,0.00014040745585308656
+convex-author-pilot-v1,8,0,convex,none,0.0002773937549516159
+convex-author-pilot-v1,32,0,convex,none,0.0003758332395142894
+convex-author-pilot-v1,128,0,convex,none,0.0003975690761537365
+convex-author-pilot-v1,512,0,convex,none,0.00036891371474334633
