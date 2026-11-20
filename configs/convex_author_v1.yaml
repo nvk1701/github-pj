@@ -1,0 +1,36 @@
+author_commit: 32ae9da816fc26e6a728b27fcd20255536b2fc41
+author_blob: 0932fa3227867cd835cf67728bef3e96b0230cfd
+steps: 2000
+batch_size: 256
+phase_length: 10
+revolutions: 4
+dimensions: [2, 8, 32, 128, 512]
+seeds: [0, 1, 2]
+methods: [convex, constant, inverse_sqrt]
+ablation_dimensions: [8, 128, 512]
+interventions: [ema, noise, initial_lr, projection]
+label_noise_std: 0.1
+ablation_noise_std: 0.31622776601683794
+ema_beta: 0.9
+ablation_initial_lr: 1.0
+projection_radius_per_dimension: 0.5
+L: 0.25
+variance_per_dimension: 0.25
+diameter_per_dimension: 1.0
+baseline_lr0: 0.1
+population_tolerance: 1.0e-11
+parity_dimensions: [2, 8, 32]
+parity_tolerances:
+  X: [0.0, 0.0]
+  initial: [0.0, 0.0]
+  reference: [1.0e-7, 1.0e-6]
+  y: [1.0e-7, 1.0e-6]
+  gamma: [2.0e-6, 2.0e-6]
+  thresholds: [2.0e-8, 2.0e-6]
+  lr: [2.0e-8, 2.0e-6]
+  loss: [3.0e-6, 4.0e-5]
+  reference_loss: [3.0e-6, 4.0e-5]
+  gradient: [2.0e-6, 4.0e-5]
+  theta: [5.0e-5, 1.0e-4]
+  post_theta: [5.0e-5, 1.0e-4]
+  M0: [2.0e-3, 5.0e-5]

@@ -1,0 +1,30 @@
+# Kiểm toán nguồn Figure 5-bottom
+
+Nguồn chính: [Fahrbach và cộng sự, ICML 2023, PDF](https://proceedings.mlr.press/v202/fahrbach23a/fahrbach23a.pdf), §2, §4, §6.1. Đã đọc notebook qua GitHub Git Blob API ở [commit 32ae9da816fc26e6a728b27fcd20255536b2fc41](https://github.com/fahrbach/learning-rate-schedules/blob/32ae9da816fc26e6a728b27fcd20255536b2fc41/src/regression/regression_experiments.ipynb), blob Git SHA-1 `0932fa3227867cd835cf67728bef3e96b0230cfd`. Chỉ số cell tính từ 0. Cell 0 `dnZz5YnDr_z3` nhập TensorFlow, NumPy, Matplotlib và Seaborn. Cell 23 `TaJuBJa1OMW4` là vòng Figure 5-bottom. Cell 15 là thí nghiệm v4 riêng với horizon ngắn hơn.
+
+| Yếu tố | Paper | Notebook bất biến | I / A | P: convex-cp03-v1 | Nguồn quyết định | Tác động |
+|---|---|---|---|---|---|---|
+| Kích thước | Fig. 5 | Cell 23: 2, 8, 32, 128, 512 | Giữ nguyên | Giữ nguyên | AUTHOR_CODE_EXPLICIT | Train/eval |
+| Batch/horizon | §6.1, Fig. 5 | Cell 23: B=256, T=2000 | Giữ nguyên | Giữ nguyên | AUTHOR_CODE_EXPLICIT | Train/eval |
+| Spiral | §6.1, Eq. 26 | Cell 23: bán kính 1 đến −1 lập phương, cặp cos/sin theo harmonic, 4 vòng cơ sở | Giữ nguyên | Cùng phương trình | PAPER_EXPLICIT, AUTHOR_CODE_EXPLICIT | Train/eval |
+| Rời rạc | §6.1 nêu ell=8 trong đoạn **linear** | Cell 23: linspace 200 điểm có cả hai đầu, lặp mỗi điểm 10 batch | Giữ nguyên | Linspace 2000 điểm rồi lấy cuối mỗi khối 8 | AUTHOR_CODE_EXPLICIT, PROJECT_PREEXISTING | Train/eval |
+| X và dtype | §6.1 Gaussian chuẩn | Cell 2 `bNK7yUS2swoc`: normal float64 rồi cast float32 | Float32 train; chẩn đoán RNG native riêng | Float64 | AUTHOR_CODE_EXPLICIT | Train/eval |
+| Nhãn và nhiễu | §6.1 sigmoid của logit có nhiễu; đoạn linear ghi N(0,0.1) | Cell 2: std=.1, variance=.01; logit sinh nhãn float64, sigmoid rồi cast float32, binary_label=False | Std=.1; A2 dùng sqrt(.1) trên cùng draws | Std=sqrt(.1) | AUTHOR_CODE_EXPLICIT, PROJECT_PREEXISTING | Train/eval |
+| RNG | Không chốt thứ tự | Cells 2/3 `0yiEN799Q7JN`: MT19937, seed pha 0..199, toàn bộ X trước toàn bộ noise trong pha, không shuffle | Chẩn đoán dùng đúng thứ tự; I/A dùng PCG64 SeedSequence độc lập cho X/noise, tái lập theo d/seed | Seeds 0/1/2; RNG của trainer CP03 | AUTHOR_CODE_EXPLICIT, NEW_CONTROLLED_DESIGN | Train/eval |
+| Khởi tạo | §6.1 zero cho linear | Cell 6 `oUiIV7TPssCN`: zero float32, không intercept | Giữ nguyên | Zero | AUTHOR_CODE_EXPLICIT | Train/eval |
+| BCE và gradient | §6.1 BCE | Cells 6/8 `bZENdZi25_0I`: BCE logits float32, mean batch, GradientTape | NumPy ổn định, cùng reduction và gradient giải tích | BCE float64 | AUTHOR_CODE_EXPLICIT, MATHEMATICALLY_DERIVED | Train/eval |
+| Thời điểm và SGD | §2 dự báo rồi cập nhật | Cell 8: learner và reference đều pre-update; assign_sub | Giữ thứ tự | Pre-update, projected SGD | AUTHOR_CODE_EXPLICIT | Train/eval |
+| Shift | Def. 2.1 dùng optimizer population; Remark 4.4 nêu EMA | Cell 8: norm float32 của v[t+1]−v[t], cuối bằng 0 | Giữ nguyên; A1 EMA beta=.9 từ learner history | EMA learner beta=.9 | AUTHOR_CODE_EXPLICIT, PROJECT_PREEXISTING | Train |
+| L, sigma², Dmax | §6.1: .25, d/4, d | Cells 8/23: .25, sqrt(d/4) rồi bình phương, d | Giữ giá trị toán học | Giữ giá trị | PAPER_EXPLICIT, AUTHOR_CODE_EXPLICIT | Train |
+| Threshold và LR | Eq. 18–20 | Cell 8: căn trừ trực tiếp; bước 0 dùng tau1; scalar step_size cấu hình được đọc nhưng bỏ qua | Tái sử dụng threshold ổn định cùng công thức; kẹp LR trước vào [tau1,tau2] từ bước 1 | Threshold ổn định; kẹp eta_init=1 ngay bước đầu | AUTHOR_CODE_EXPLICIT, MATHEMATICALLY_DERIVED | Train |
+| Projection | §4 giả định miền lồi bị chặn và SGD chiếu | Cell 8: assign_sub, không chiếu | Không chiếu; A4 bán kính d/2 | Bán kính d/2 | AUTHOR_CODE_EXPLICIT, PROJECT_PREEXISTING | Train; kiểm miền oracle A4 |
+| Comparator | §2 risk tại population minimizer | Cells 8/23: loss batch tại generating reference | M0 batch; M1/M2 deterministic population bổ sung | A/B population và MC diagnostics | AUTHOR_CODE_EXPLICIT, NEW_CONTROLLED_DESIGN | Eval |
+| Tổng và đồ thị | Fig. 5 | Cell 23: cumsum của hiệu float32, trục log, trajectories tọa độ 0 và 1 | Lưu signed float32 cumsum M0; M1/M2 float64 | Tổng population A/B float64 | AUTHOR_CODE_EXPLICIT, PROJECT_PREEXISTING | Eval |
+| Baselines | Chú thích Fig. 5-bottom nêu Proposition 4.3 | Cell 23: constant comment; chỉ một vòng Convex/d | I bổ sung constant .1, .1/sqrt(t+1) | Cùng chính sách baseline | AUTHOR_CODE_EXPLICIT, PROJECT_PREEXISTING | Train |
+| Kernel/version | §6 ghi TensorFlow/Keras | Cell 0 và metadata thiếu pin runtime tái lập đầy đủ | Ghi phiên bản; parity cần tensors Colab | NumPy/SciPy đã pin | UNKNOWN_OR_UNVERIFIED | Train/eval |
+
+Shift tham chiếu nhìn trước một bước và khác drift của population minimizer khi nhãn có nhiễu. Bước 0 có gamma=0 nên LR=0, bước đầu tiên được phép đổi weights là chỉ số 9. Với A1, zero LR và zero EMA tạo trạng thái hấp thụ. Việc đưa warm start vào A1 sẽ là can thiệp thứ hai.
+
+Output đã lưu ở cell 23 ghi M0 cuối 0.98582214, 3.7352686 và 48.065575 ở d=2,8,32. Log d=128 chỉ đến dòng bắt đầu thuật toán, d=512 chưa có output. Không có lỗi cụ thể được ghi trong cell. Đây là output lịch sử của snapshot, không xác nhận runtime hiện tại và không dùng làm test truth.
+
+Đã đọc production schedules/trainer/drift/convex_eval/convex_population/convex_recovery/tracking, runners convex/official/sensitivity và freeze manifest. Lịch sử CP04 dùng [45 dòng per-seed](../results/cp04-cp05/data/cp04_per_seed.csv), CP05 dùng [15 dòng](../results/cp04-cp05/data/cp05_per_seed.csv). [T9](https://github.com/nvk1701/github-pj/issues/12), [T11](https://github.com/nvk1701/github-pj/issues/14), [T15](https://github.com/nvk1701/github-pj/issues/18), [T18](https://github.com/nvk1701/github-pj/issues/22), [T19](https://github.com/nvk1701/github-pj/issues/23) và [T22](https://github.com/nvk1701/github-pj/issues/26) đã đọc qua GitHub connector. T18 yêu cầu chạy code gốc ở Colab riêng, T19 yêu cầu teammate cross-run, T22 yêu cầu Sheet 3. Không tìm thấy workbook hoặc deck trong workspace.
