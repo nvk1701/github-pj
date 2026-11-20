@@ -1,52 +1,54 @@
-# Kết quả Convex sau đóng băng
+# Kết quả thực nghiệm Convex V5
 
-**COMPLETED_WITH_LIMITATIONS.** Hoàn thành 7 pilot và 3 RNG diagnostic, mỗi ca 2.000 bước. Colab R còn 5 ca. I và A đang chờ fixture parity ở d=2/8/32. [Inventory theo họ](data/inventory.csv) · [Cổng kiểm chứng và W&B](manifest.json)
+Bộ này tách ba lớp chứng cứ. R chạy nguyên notebook TensorFlow trong Colab. I và A dùng triển khai NumPy của nhóm và dữ liệu được ghép cặp. P là kết quả CP04/CP05 bất biến, dùng một phân phối và lưới thời gian khác. [Protocol](PROTOCOL.md) · [Inventory](data/inventory.csv) · [Manifest](manifest.json)
 
-## Pilot, seed 0
+## R và parity F2/F3
 
-| d | Method | M0 | M1 | M2 |
-|---:|---|---:|---:|---:|
-| 2 | Convex | 1.035101 | 1.007194 | 1.007335 |
-| 8 | Convex | 3.763831 | 3.774716 | 3.774993 |
-| 32 | Convex | 47.809792 | 47.881472 | 47.881848 |
-| 128 | Convex | 180.454391 | 181.604014 | 181.604411 |
-| 512 | Convex | 1212.026001 | 1205.753149 | 1205.753518 |
-| 512 | Constant | 504.170685 | 503.880314 | 503.880683 |
-| 512 | Inverse-square-root | 527.088989 | 527.193086 | 527.193455 |
+| d | R native M0 cuối | Sai số M0 tích lũy lớn nhất ở fixture chung |
+|---:|---:|---:|
+| 2 | 0.9858183861 | 4.709e−6 |
+| 8 | 3.7352774143 | 8.345e−6 |
+| 32 | 48.0655975342 | 2.480e−5 |
+| 128 | 180.8743438721 | N/A |
+| 512 | 1207.9738769531 | N/A |
 
-Các ca d512 dùng cùng hash X và y, cùng weights zero. Convex có M2 cao hơn constant 701.873 và LR ≥3.96 trong 99.55% bước. Norm post-update lớn nhất 7.817, dưới bán kính 256 của A4. Pilot d128 cũng ở vùng LR ≥3.96 trong 99.55% bước. Quan sát này giúp nhận diện độ nhạy cần kiểm tra ở d512. Mức LR cao có thể đi cùng sai số SGD/tracking lớn ở d/B=2, và cần can thiệp để tách cơ chế. [Per-run CSV](data/per_run.csv) · [Phương pháp và thống kê](data/method_summary.csv) · [Hình d512](figures/d512_diagnostics.png)
+Ở d2/8/32, cả 2.000 batch khớp chính xác về X, y, reference, gamma, ngưỡng và LR. Sai khác tuyệt đối lớn nhất của loss, gradient và weights lần lượt là 1.19e−7, 5.96e−8 và 2.38e−7. R đánh giá M0 trên batch của MT19937 theo notebook. I dùng PCG64 độc lập ghép giữa phương pháp, nên giá trị R và mean I minh họa hai giao thức chạy, còn đối chiếu từng bước dùng các fixture. [Fidelity](data/fidelity.csv) · [Native và replay M0](figures/colab_m0.png) · [Native trajectories](data/native_curves.csv)
 
-P có cùng thứ hạng mô tả ở d512 theo population-oracle metric B, với Convex 1385.009, constant 504.895, inverse-sqrt 520.381 qua ba seed. P khác phase grid, std, signal và projection. Đồ thị đặt các giá trị M2/B cạnh nhau với phân phối ghi rõ. Tính phần trăm cải thiện qua hai protocol sẽ trộn các khác biệt này. [P frozen](../cp04-cp05/RESULTS.md) · [Đối chiếu mô tả](figures/project_context_m2.png)
+## I · Mean ± SD mẫu của M2
 
-Trong pilot d512, Convex bắt đầu cập nhật ở batch 10 và mọi phương pháp thấy cùng 199 lần nhảy reference. Ở batch 901–1100, độ lớn forward shift trung bình là 0.000594. Convex giữ LR trung bình 3.9986, có norm gradient trung bình 0.5176, norm cập nhật trung bình 2.0697 và cộng thêm 65.4663 vào M2. Constant có norm gradient 0.03619, norm cập nhật 0.00362 và cộng thêm 0.00774 vào M2 trong cùng cửa sổ. Gradient ở đây được đo tại learner path của từng phương pháp, nên chênh lệch gradient bao gồm trạng thái learner và nhiễu batch. Projection không được bật trong pilot và không có lần chiếu nào. Cửa sổ ít drift cho thấy rate cao vẫn đi cùng cập nhật lớn. Nó chưa xác định nguyên nhân của chênh lệch trong CP04. [Cửa sổ d512](data/d512_windows.csv) · [Gradient, update, drift và M2 mỗi bước](figures/d512_gradient_drift.png)
+Mỗi ô có ba seed. Giá trị nhỏ hơn nghĩa là cumulative population gap nhỏ hơn trên cùng phân phối.
 
-## Figure 5-bottom và kiểm tra parity
-
-| d | M0 lưu trong snapshot notebook | M0 NumPy MT19937 độc lập | Sai khác tuyệt đối của số cuối đã in |
+| d | Convex | Constant | Inverse-sqrt |
 |---:|---:|---:|---:|
-| 2 | 0.98582214 | 0.985822439 | 2.99e−7 |
-| 8 | 3.7352686 | 3.735282898 | 1.43e−5 |
-| 32 | 48.065575 | 48.065574646 | 3.54e−7 |
-| 128 | N/A | N/A | N/A |
-| 512 | N/A | N/A | N/A |
+| 2 | 1.0073 ± 0.0014 | 7.7864 ± 0.0218 | 31.3175 ± 0.0325 |
+| 8 | 3.7636 ± 0.0116 | 56.2355 ± 0.3687 | 92.4544 ± 0.0531 |
+| 32 | 47.8951 ± 0.0253 | 186.3040 ± 0.0882 | 207.3436 ± 0.0959 |
+| 128 | 181.2661 ± 0.9833 | 336.9341 ± 0.2204 | 361.7788 ± 0.1190 |
+| 512 | 1205.4913 ± 2.1730 | 504.0267 ± 0.1265 | 527.0837 ± 0.1081 |
 
-Ba đối chiếu trên dùng đúng cấu hình seed theo phase trong source và so với số cuối đã in trong snapshot. Chưa có tensor hoặc đường đi Colab mới để tính sai số tại từng bước. Table fidelity giữ trống các trường chỉ áp dụng khi replay đã ghép cặp. Không dùng số lịch sử làm test truth. [Fidelity table](data/fidelity.csv) · [Source audit](../../convex_author_v1/SOURCE_AUDIT.md)
+Cùng d512, mean M0 của Convex, constant, inverse-sqrt lần lượt là 1208.6551, 504.2291 và 527.1986. Mean M1 tương ứng là 1205.4909, 504.0263 và 527.0834. Trong mỗi cặp dimension/seed, X và y khớp hash giữa ba method. Mean, SD và giá trị từng run được lưu cho cả M0, M1 và M2. [Bảng đủ ba metric](data/method_summary.csv) · [Theo seed](data/per_run.csv) · [Đối chiếu matched methods](figures/matched_methods.png)
 
-## Comparator và ablation
+M2 hiệu chỉnh điểm tối ưu quần thể trong chính phân phối của ca. M2−M1 ở d512 xấp xỉ 0.000369 và giống giữa các method. Khi phân phối thay đổi, như ablation label noise, reference correction cũng thay đổi. [Comparator correction](figures/comparator_correction.png) · [Định nghĩa và sai số tích phân](../../convex_author_v1/METRIC_VALIDATION.md)
 
-Hiệu M2−M1 ở d512 là khoảng 0.000369 cho cả ba phương pháp. Nó chỉ phụ thuộc comparator và phân phối nên không giải thích chênh lệch học ở pilot. Ngân sách quadrature M2 lớn nhất trong 10 ca đo là 3.98e−8, và max oracle parameter error ước lượng là 1.90e−8. Không dùng các số này làm SD giữa seed. [Metric validation](../../convex_author_v1/METRIC_VALIDATION.md)
+## A · Paired ΔM2 so với Convex của I
 
-A1 có trạng thái hấp thụ. Khi drift và LR đều bằng 0, $\\tau_1(0)=0$ và kẹp LR trước bằng 0 giữ nguyên LR. SGD giữ nguyên weights, nên learner EMA tiếp tục bằng 0 ở bước kế. Quy nạp áp dụng cho toàn horizon. Test ở d512 chạy 100 batch với gradient khác 0 tại mọi bước và xác nhận LR, shift, weights trước/sau đều bằng 0. Chưa có kết quả ma trận A1–A4. CSV pairs và summary chỉ có header vì gate chưa mở. Warm start sẽ đổi cả initialization lẫn tín hiệu drift so với I, nên chỉ phù hợp với một đối chứng bổ sung riêng. Kết quả zero-start không khái quát cho mọi causal EMA. [Protocol A](../../convex_author_v1/PROTOCOL.md) · [Paired data](data/ablation_pairs.csv)
+Mỗi ô là mean ± SD mẫu trên ba chênh lệch cùng seed. Dấu âm là gap thấp hơn control.
 
-## Hình đã đo
+| Can thiệp | d8 | d128 | d512 |
+|---|---:|---:|---:|
+| EMA nhân quả | +87.632 ± 0.012 | +179.806 ± 0.983 | −679.547 ± 2.173 |
+| Label-noise std tăng lên sqrt(0.1) | +0.452 ± 0.021 | +8.808 ± 0.073 | +36.982 ± 0.421 |
+| LR đầu 1.0 | −1.558 ± 0.015 | −2.491 ± 0.022 | −3.588 ± 1.833 |
+| Chiếu lên ball bán kính d/2 | 0 ± 0 | 0 ± 0 | 0 ± 0 |
 
-- [Đường M0 theo mẫu Figure 5-bottom](figures/adaptive_m0.png)
-- [Convex và matched baselines ở d512](figures/matched_methods.png)
-- [P và pilot theo M2, hai phân phối riêng](figures/project_context_m2.png)
-- [Trajectory hai tọa độ d128](figures/trajectory_d128.png)
-- [Learning rate theo d](figures/learning_rates.png)
-- [Diagnostics d512](figures/d512_diagnostics.png)
-- [Gradient và reference drift d512](figures/d512_gradient_drift.png)
-- [Hiệu chỉnh comparator M2−M1](figures/comparator_correction.png)
+EMA khởi đầu 0 giữ LR và weights bằng 0 ở toàn bộ chín ca, kể cả khi gradient tồn tại. Trạng thái hấp thụ khiến d8 và d128 xấu đi. Ở d512, zero-update có M2 525.944 thấp hơn adaptive Convex nhưng cao hơn constant 504.027; đây là hành vi cold-start của tổ hợp thay đổi đã khai báo. Với noise, X và base noise được ghép, nhưng y và phân phối đánh giá đổi theo can thiệp. LR đầu 1 giúp giảm M2 theo cả ba nhóm trong mẫu này. Phép chiếu không tác động lên update nào tại các seed và dimension đã chạy. [Chênh lệch từng seed](data/ablation_pairs.csv) · [Tổng hợp ba metric](data/ablation_summary.csv) · [EMA](figures/ablation_ema.png) · [Noise](figures/ablation_noise.png) · [LR đầu](figures/ablation_initial_lr.png) · [Chiếu](figures/ablation_projection.png)
 
-Chưa có đường cong R ghép cặp và đồ thị A. Toàn bộ đường pilot là một seed trên mỗi ca, không hiển thị SD.
+## d512 và giới hạn so với P
+
+Ở batch 901–1100, forward reference shift trung bình chỉ khoảng 0.000594. Convex duy trì LR gần 4 trên cả ba seed. Norm update trung bình trong cửa sổ là 2.06–2.09 và mỗi seed cộng thêm khoảng 64.86–65.85 M2. Đây là bằng chứng định lượng về động học ở vùng ít drift, đi cùng khoảng cách Convex–constant trong I. Thay LR đầu hoặc thêm phép chiếu theo A không lấp khoảng cách. A1 thay đổi tín hiệu drift trong trường hợp learner rơi vào điểm hấp thụ, và A2 đổi phân phối. Các kết quả này giới hạn cách giải thích, chưa tách được nguyên nhân của CP04. [Cửa sổ d512](data/d512_windows.csv) · [Gradient, drift và M2](figures/d512_gradient_drift.png) · [Đối chiếu P/I theo phân phối](figures/project_context_m2.png)
+
+P báo M2-style B với phase grid, std và cơ chế drift riêng. R báo M0 thực nghiệm. Chỉ so sánh trong các cặp chung đại lượng và dữ liệu đã nêu. Các pilot dùng threshold float64 ổn định từ preflight giữ nguyên record cũ và nằm riêng với pilot validation dùng mixed precision. [CP04/CP05 frozen](../cp04-cp05/RESULTS.md)
+
+## Phát hành Forge
+
+Đã seal 88 bundle offline gồm 7 pilot gốc, 45 I và 36 A. Đối soát chỉ đọc Forge chưa thấy ID tương ứng. Upload trong lượt này bị bộ duyệt chặn vì cần ủy quyền trực tiếp cho payload và đích. Trạng thái hiện tại được ghi theo từng ID. [Sổ đối soát Forge](data/forge_release_verification.csv)

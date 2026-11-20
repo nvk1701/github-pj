@@ -1,0 +1,16 @@
+# DIMENSION: 2
+running algorithm v4...
+regret: 0.9858184
+# DIMENSION: 8
+running algorithm v4...
+regret: 3.7352774
+# DIMENSION: 32
+running algorithm v4...
+regret: 48.065598
+# DIMENSION: 128
+running algorithm v4...
+regret: 180.87434
+# DIMENSION: 512
+running algorithm v4...
+regret: 1207.9739
+# final plot

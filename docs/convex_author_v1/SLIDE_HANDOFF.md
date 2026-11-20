@@ -66,32 +66,32 @@ Tài liệu bổ sung sau freeze, gửi lead duyệt trước khi nhập deck ch
 ## Slide 26 · Kết quả Convex và góc nhìn d512
 
 - P có Convex thấp nhất ở d2–128 và constant thấp nhất ở d512.
-- Pilot d512 seed 0 cùng X/y: M2 Convex 1205.754, constant 503.881.
-- M0 cũng cho cùng thứ hạng tại d512 pilot.
-- P và pilot dùng phase grid và label-noise std khác.
+- I d512, ba seed ghép cặp: M2 Convex 1205.491 ± 2.173, constant 504.027 ± 0.127.
+- M0 và M1 cũng cho cùng thứ hạng tại d512 trong I.
+- P và I dùng phase grid và label-noise std khác.
 
-**Bảng/hình.** [P frozen Figure 3](../results/cp04-cp05/figures/cp04_all_dimension_baselines.png) và [pilot d512](../results/convex-author-v1/figures/d512_diagnostics.png). Footnote [3], [4].
+**Bảng/hình.** [P frozen Figure 3](../results/cp04-cp05/figures/cp04_all_dimension_baselines.png), [mean và SD của I](../results/convex-author-v1/data/method_summary.csv) và [diagnostic d512 seed 0](../results/convex-author-v1/figures/d512_diagnostics.png). Footnote [3], [4].
 
-**Speaker notes.** Giữ nguyên figure chính của P. Nếu trình bày phụ lục pilot, nói rõ mỗi phương pháp dùng chính xác cùng input ở seed 0. Chênh lệch trong pilot d512 lớn hơn rất nhiều comparator correction, và không kèm SD giữa seed. Cần ba seed để chuyển từ kiểm tra initial sang bảng I chính thức.
+**Speaker notes.** Giữ nguyên figure chính của P. Bảng I báo mean và SD mẫu qua ba seed. Trong mỗi seed, ba method cùng X và y. Các đồ thị dynamics ở d512 chỉ dùng seed 0. Cùng thứ hạng giữa P và I cho thấy d512 là tín hiệu đáng kiểm tra, trong khi phase grid, label-noise std và cách chạy khác nhau giới hạn kết luận nhân quả về CP04.
 
-## Slide 29 · Sensitivity sẵn có và ablation đang chờ
+## Slide 29 · Sensitivity và ablation có đối chứng
 
 - CP05 đã đo ell và noise trong protocol P.
-- A định trước bốn can thiệp lên control author-aligned.
-- Unit test chứng minh hệ quả của EMA khởi đầu zero với native init.
-- d512 pilot cho thấy tình trạng vẫn xuất hiện khi có forward shift.
+- A kiểm bốn can thiệp trên ba seed và ba dimension.
+- EMA giữ zero-update ở chín ca. Ở d512, M2 giảm 679.547 so với adaptive Convex, còn cao hơn constant.
+- Thay LR đầu ở d512 giảm M2 khoảng 3.588; phép chiếu không được kích hoạt.
 
-**Bảng/hình.** [CP05 noise](../results/cp04-cp05/figures/cp05_noise_sensitivity.png), [bảng A1–A4](PROTOCOL.md) và [gradient/drift pilot d512](../results/convex-author-v1/figures/d512_gradient_drift.png). Footnote [1, Remark 4.4], [3], [4].
+**Bảng/hình.** [CP05 noise](../results/cp04-cp05/figures/cp05_noise_sensitivity.png), [bảng A1–A4](../results/convex-author-v1/data/ablation_summary.csv) và [gradient/drift d512](../results/convex-author-v1/figures/d512_gradient_drift.png). Footnote [1, Remark 4.4], [3], [4].
 
-**Speaker notes.** CP05 dùng ba seed nhưng chỉ trong P, nên không gộp vào ma trận A. A1 giữ mọi yếu tố khác và có thể đóng băng learner. Warm start có thể tránh trạng thái đó, nhưng đưa vào đồng thời sẽ đổi thiết kế. A2 đổi cả data-generating distribution. Đợi A trước khi nói yếu tố nào giải thích mức chênh của P.
+**Speaker notes.** CP05 dùng ba seed trong P. A1 giữ mọi yếu tố khác và đóng băng learner trong thiết kế zero-start. Warm start sẽ là thiết kế riêng. A2 đổi cả data-generating distribution, vì vậy so sánh với control cần giữ rõ comparator tương ứng. Các can thiệp của A giới hạn nhận định về I và không tách được nguyên nhân của P.
 
 ## Slide 30 · Đối chiếu code tác giả và code nhóm
 
 - Cell 23 chọn một run v4 mỗi d, không chạy baseline.
 - Notebook dùng 200 phase points, lặp 10 bước, noise std=.1.
 - P dùng ell=8, std=sqrt(.1), EMA, initial LR=1, projection.
-- NumPy MT19937 diagnostic khớp gần số M0 lịch sử ở d2/8/32.
+- Colab native hoàn tất cả năm dimension. Replay d2/8/32 khớp LR từng bước và sai khác M0 tối đa 2.48e−5.
 
 **Bảng/hình.** [Source audit matrix](SOURCE_AUDIT.md) và [Fidelity table](../results/convex-author-v1/data/fidelity.csv). Footnote [1, §6.1], [2]–[4].
 
-**Speaker notes.** Nêu rõ hai codebase phục vụ hai câu hỏi. Nhóm giữ notebook source ngoài repo. Snapshot ghi được ba số cuối nhỏ và d128 bắt đầu chạy. Sai số giữa các số đã in nhỏ, nhưng còn thiếu Colab parity và dữ liệu d128/d512 native. Hòa kiểm lại source-audit và phần Colab trước khi nhập vào tài liệu T18.
+**Speaker notes.** Nhóm giữ notebook source ngoài repo. Lần chạy Colab cho M0 d128 bằng 180.8743 và d512 bằng 1207.9739. Fixture từ replica instrumented kiểm chứng replay 2.000 bước ở ba dimension nhỏ hơn. So sánh này dùng M0 trên cùng batch và reference. Hòa kiểm lại source-audit và bằng chứng Colab trước khi nhập vào tài liệu T18.

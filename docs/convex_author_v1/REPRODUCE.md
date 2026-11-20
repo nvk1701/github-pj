@@ -30,6 +30,18 @@ T19 yêu cầu tự thực thi từ clone sạch với danh tính thành viên p
 
 Lần kiểm toán dùng `--output-root outputs/convex-author-release-audit` với `--wandb-mode disabled`. Giữ `outputs/convex-author-v1` làm nguồn chứng cứ của lần chạy trước. `--resume` kiểm metadata, source/config hash, checksum NPZ, shape, dtype, finiteness, nối trajectory và cả ba cumulative metric identities. Record đã seal có checksum lệch hoặc NPZ thiếu record đều dừng kiểm chứng và giữ payload. Chọn output root mới khi cần chạy lại ca đó. Báo cáo xác minh hash X/y trước khi gộp theo method hoặc tính chênh lệch ablation.
 
+### Chạy lại bản đã khớp Colab
+
+Giữ `outputs/convex-author-release-audit` làm archive preflight. Với mã đã ép kiểu theo ngưỡng Colab, dùng thư mục mới và import bộ export gốc kèm SHA-256:
+
+```powershell
+$env:OPENBLAS_NUM_THREADS = '1'
+python scripts/run_convex_author_full.py --resume --wandb-mode disabled --output-root outputs/convex-author-verified --evidence-root outputs/colab-author-external
+python scripts/run_convex_author_full.py --report-only --output-root outputs/convex-author-verified --evidence-root outputs/colab-author-external
+```
+
+Môi trường Colab và SHA-256 của native artifact ở publication manifest. Pipeline chỉ chạy I và A sau khi validate thành công fixture F2/F3. Việc xuất 7 pilot và 3 chẩn đoán cho mã mới phục vụ validation, còn các bundle W&B pilot cũ tiếp tục dùng ID và provenance đã seal. Clone sạch của commit mã tính toán `94c5bd9` tái tạo cả 10 history validation trùng SHA-256 với run chính.
+
 ### W&B chỉ đồng bộ sau khi được ủy quyền
 
 [Manifest đồng bộ](../results/convex-author-v1/data/wandb_offline_sync.csv) liệt kê đúng bảy SDK bundle ban đầu cùng run ID, SHA-256 file và digest history. Paths tương đối với worktree gốc. Clone chỉ có manifest và kết quả tổng hợp. Khi có ủy quyền rõ cho đích và nội dung, đối soát trước từng ID ở project Forge, kiểm checksum, rồi đồng bộ **thư mục offline của ID đó**. Ví dụ cho một run:

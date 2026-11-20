@@ -1,1 +1,109 @@
 intervention,control,dimension,seed,metric,delta,evaluation
+ema,convex-author-aligned-v1-d8-s0-convex-none,8,0,M0,88.11861300468445,same distribution
+ema,convex-author-aligned-v1-d8-s0-convex-none,8,0,M1,87.62044748668606,same distribution
+ema,convex-author-aligned-v1-d8-s0-convex-none,8,0,M2,87.62044748668606,same distribution
+noise,convex-author-aligned-v1-d8-s0-convex-none,8,0,M0,0.3968346118927002,own distributions (std changes)
+noise,convex-author-aligned-v1-d8-s0-convex-none,8,0,M1,0.4172482604186287,own distributions (std changes)
+noise,convex-author-aligned-v1-d8-s0-convex-none,8,0,M2,0.4433859853804978,own distributions (std changes)
+initial_lr,convex-author-aligned-v1-d8-s0-convex-none,8,0,M0,-1.5742063522338867,same distribution
+initial_lr,convex-author-aligned-v1-d8-s0-convex-none,8,0,M1,-1.5648771735467983,same distribution
+initial_lr,convex-author-aligned-v1-d8-s0-convex-none,8,0,M2,-1.564877173546801,same distribution
+projection,convex-author-aligned-v1-d8-s0-convex-none,8,0,M0,0.0,same distribution
+projection,convex-author-aligned-v1-d8-s0-convex-none,8,0,M1,0.0,same distribution
+projection,convex-author-aligned-v1-d8-s0-convex-none,8,0,M2,0.0,same distribution
+ema,convex-author-aligned-v1-d8-s1-convex-none,8,1,M0,87.57445454597473,same distribution
+ema,convex-author-aligned-v1-d8-s1-convex-none,8,1,M1,87.64365848243474,same distribution
+ema,convex-author-aligned-v1-d8-s1-convex-none,8,1,M2,87.64365848243477,same distribution
+noise,convex-author-aligned-v1-d8-s1-convex-none,8,1,M0,0.41116833686828613,own distributions (std changes)
+noise,convex-author-aligned-v1-d8-s1-convex-none,8,1,M1,0.4113402076908095,own distributions (std changes)
+noise,convex-author-aligned-v1-d8-s1-convex-none,8,1,M2,0.4374779326526932,own distributions (std changes)
+initial_lr,convex-author-aligned-v1-d8-s1-convex-none,8,1,M0,-1.5706491470336914,same distribution
+initial_lr,convex-author-aligned-v1-d8-s1-convex-none,8,1,M1,-1.569295817359306,same distribution
+initial_lr,convex-author-aligned-v1-d8-s1-convex-none,8,1,M2,-1.5692958173593032,same distribution
+projection,convex-author-aligned-v1-d8-s1-convex-none,8,1,M0,0.0,same distribution
+projection,convex-author-aligned-v1-d8-s1-convex-none,8,1,M1,0.0,same distribution
+projection,convex-author-aligned-v1-d8-s1-convex-none,8,1,M2,0.0,same distribution
+ema,convex-author-aligned-v1-d8-s2-convex-none,8,2,M0,87.44422006607056,same distribution
+ema,convex-author-aligned-v1-d8-s2-convex-none,8,2,M1,87.63130672699766,same distribution
+ema,convex-author-aligned-v1-d8-s2-convex-none,8,2,M2,87.63130672699769,same distribution
+noise,convex-author-aligned-v1-d8-s2-convex-none,8,2,M0,0.4508070945739746,own distributions (std changes)
+noise,convex-author-aligned-v1-d8-s2-convex-none,8,2,M1,0.44945297963442865,own distributions (std changes)
+noise,convex-author-aligned-v1-d8-s2-convex-none,8,2,M2,0.4755907045963248,own distributions (std changes)
+initial_lr,convex-author-aligned-v1-d8-s2-convex-none,8,2,M0,-1.5275230407714844,same distribution
+initial_lr,convex-author-aligned-v1-d8-s2-convex-none,8,2,M1,-1.540528262764072,same distribution
+initial_lr,convex-author-aligned-v1-d8-s2-convex-none,8,2,M2,-1.5405282627640746,same distribution
+projection,convex-author-aligned-v1-d8-s2-convex-none,8,2,M0,0.0,same distribution
+projection,convex-author-aligned-v1-d8-s2-convex-none,8,2,M1,0.0,same distribution
+projection,convex-author-aligned-v1-d8-s2-convex-none,8,2,M2,0.0,same distribution
+ema,convex-author-aligned-v1-d128-s0-convex-none,128,0,M0,181.66737365722656,same distribution
+ema,convex-author-aligned-v1-d128-s0-convex-none,128,0,M1,179.46740955783514,same distribution
+ema,convex-author-aligned-v1-d128-s0-convex-none,128,0,M2,179.46740955783338,same distribution
+noise,convex-author-aligned-v1-d128-s0-convex-none,128,0,M0,8.680694580078125,own distributions (std changes)
+noise,convex-author-aligned-v1-d128-s0-convex-none,128,0,M1,8.742100163652907,own distributions (std changes)
+noise,convex-author-aligned-v1-d128-s0-convex-none,128,0,M2,8.780173361947305,own distributions (std changes)
+initial_lr,convex-author-aligned-v1-d128-s0-convex-none,128,0,M0,-2.568115234375,same distribution
+initial_lr,convex-author-aligned-v1-d128-s0-convex-none,128,0,M1,-2.514541062463337,same distribution
+initial_lr,convex-author-aligned-v1-d128-s0-convex-none,128,0,M2,-2.5145410624629676,same distribution
+projection,convex-author-aligned-v1-d128-s0-convex-none,128,0,M0,0.0,same distribution
+projection,convex-author-aligned-v1-d128-s0-convex-none,128,0,M1,0.0,same distribution
+projection,convex-author-aligned-v1-d128-s0-convex-none,128,0,M2,0.0,same distribution
+ema,convex-author-aligned-v1-d128-s1-convex-none,128,1,M0,179.5143280029297,same distribution
+ema,convex-author-aligned-v1-d128-s1-convex-none,128,1,M1,179.0365505537165,same distribution
+ema,convex-author-aligned-v1-d128-s1-convex-none,128,1,M2,179.03655055371476,same distribution
+noise,convex-author-aligned-v1-d128-s1-convex-none,128,1,M0,8.577239990234375,own distributions (std changes)
+noise,convex-author-aligned-v1-d128-s1-convex-none,128,1,M1,8.714385500402244,own distributions (std changes)
+noise,convex-author-aligned-v1-d128-s1-convex-none,128,1,M2,8.752458698697154,own distributions (std changes)
+initial_lr,convex-author-aligned-v1-d128-s1-convex-none,128,1,M0,-2.5186920166015625,same distribution
+initial_lr,convex-author-aligned-v1-d128-s1-convex-none,128,1,M1,-2.4864218654003025,same distribution
+initial_lr,convex-author-aligned-v1-d128-s1-convex-none,128,1,M2,-2.4864218654002457,same distribution
+projection,convex-author-aligned-v1-d128-s1-convex-none,128,1,M0,0.0,same distribution
+projection,convex-author-aligned-v1-d128-s1-convex-none,128,1,M1,0.0,same distribution
+projection,convex-author-aligned-v1-d128-s1-convex-none,128,1,M2,0.0,same distribution
+ema,convex-author-aligned-v1-d128-s2-convex-none,128,2,M0,180.5206298828125,same distribution
+ema,convex-author-aligned-v1-d128-s2-convex-none,128,2,M1,180.91367002076453,same distribution
+ema,convex-author-aligned-v1-d128-s2-convex-none,128,2,M2,180.91367002076345,same distribution
+noise,convex-author-aligned-v1-d128-s2-convex-none,128,2,M0,8.85162353515625,own distributions (std changes)
+noise,convex-author-aligned-v1-d128-s2-convex-none,128,2,M1,8.852141675998041,own distributions (std changes)
+noise,convex-author-aligned-v1-d128-s2-convex-none,128,2,M2,8.890214874293122,own distributions (std changes)
+initial_lr,convex-author-aligned-v1-d128-s2-convex-none,128,2,M0,-2.4135284423828125,same distribution
+initial_lr,convex-author-aligned-v1-d128-s2-convex-none,128,2,M1,-2.471104963310154,same distribution
+initial_lr,convex-author-aligned-v1-d128-s2-convex-none,128,2,M2,-2.471104963309614,same distribution
+projection,convex-author-aligned-v1-d128-s2-convex-none,128,2,M0,0.0,same distribution
+projection,convex-author-aligned-v1-d128-s2-convex-none,128,2,M1,0.0,same distribution
+projection,convex-author-aligned-v1-d128-s2-convex-none,128,2,M2,0.0,same distribution
+ema,convex-author-aligned-v1-d512-s0-convex-none,512,0,M0,-687.8952026367188,same distribution
+ema,convex-author-aligned-v1-d512-s0-convex-none,512,0,M1,-681.0439721475431,same distribution
+ema,convex-author-aligned-v1-d512-s0-convex-none,512,0,M2,-681.0439721475441,same distribution
+noise,convex-author-aligned-v1-d512-s0-convex-none,512,0,M0,37.116943359375,own distributions (std changes)
+noise,convex-author-aligned-v1-d512-s0-convex-none,512,0,M1,37.0001147604637,own distributions (std changes)
+noise,convex-author-aligned-v1-d512-s0-convex-none,512,0,M2,37.03554042795622,own distributions (std changes)
+initial_lr,convex-author-aligned-v1-d512-s0-convex-none,512,0,M0,-3.7572021484375,same distribution
+initial_lr,convex-author-aligned-v1-d512-s0-convex-none,512,0,M1,-3.705298627436605,same distribution
+initial_lr,convex-author-aligned-v1-d512-s0-convex-none,512,0,M2,-3.7052986274377417,same distribution
+projection,convex-author-aligned-v1-d512-s0-convex-none,512,0,M0,0.0,same distribution
+projection,convex-author-aligned-v1-d512-s0-convex-none,512,0,M1,0.0,same distribution
+projection,convex-author-aligned-v1-d512-s0-convex-none,512,0,M2,0.0,same distribution
+ema,convex-author-aligned-v1-d512-s1-convex-none,512,1,M0,-684.03955078125,same distribution
+ema,convex-author-aligned-v1-d512-s1-convex-none,512,1,M1,-677.0546003485766,same distribution
+ema,convex-author-aligned-v1-d512-s1-convex-none,512,1,M2,-677.0546003485765,same distribution
+noise,convex-author-aligned-v1-d512-s1-convex-none,512,1,M0,35.691650390625,own distributions (std changes)
+noise,convex-author-aligned-v1-d512-s1-convex-none,512,1,M1,37.33803838207996,own distributions (std changes)
+noise,convex-author-aligned-v1-d512-s1-convex-none,512,1,M2,37.37346404957043,own distributions (std changes)
+initial_lr,convex-author-aligned-v1-d512-s1-convex-none,512,1,M0,-6.12109375,same distribution
+initial_lr,convex-author-aligned-v1-d512-s1-convex-none,512,1,M1,-5.3601069536221075,same distribution
+initial_lr,convex-author-aligned-v1-d512-s1-convex-none,512,1,M2,-5.360106953622335,same distribution
+projection,convex-author-aligned-v1-d512-s1-convex-none,512,1,M0,0.0,same distribution
+projection,convex-author-aligned-v1-d512-s1-convex-none,512,1,M1,0.0,same distribution
+projection,convex-author-aligned-v1-d512-s1-convex-none,512,1,M2,0.0,same distribution
+ema,convex-author-aligned-v1-d512-s2-convex-none,512,2,M0,-675.6774291992188,same distribution
+ema,convex-author-aligned-v1-d512-s2-convex-none,512,2,M1,-680.542367993524,same distribution
+ema,convex-author-aligned-v1-d512-s2-convex-none,512,2,M2,-680.5423679935245,same distribution
+noise,convex-author-aligned-v1-d512-s2-convex-none,512,2,M0,36.5230712890625,own distributions (std changes)
+noise,convex-author-aligned-v1-d512-s2-convex-none,512,2,M1,36.501217535250134,own distributions (std changes)
+noise,convex-author-aligned-v1-d512-s2-convex-none,512,2,M2,36.53664320274015,own distributions (std changes)
+initial_lr,convex-author-aligned-v1-d512-s2-convex-none,512,2,M0,-1.7470703125,same distribution
+initial_lr,convex-author-aligned-v1-d512-s2-convex-none,512,2,M1,-1.6988721416460066,same distribution
+initial_lr,convex-author-aligned-v1-d512-s2-convex-none,512,2,M2,-1.6988721416487351,same distribution
+projection,convex-author-aligned-v1-d512-s2-convex-none,512,2,M0,0.0,same distribution
+projection,convex-author-aligned-v1-d512-s2-convex-none,512,2,M1,0.0,same distribution
+projection,convex-author-aligned-v1-d512-s2-convex-none,512,2,M2,0.0,same distribution
