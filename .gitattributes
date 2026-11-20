@@ -1,0 +1,9 @@
+# Preserve the source bytes sealed by the Convex V5 execution provenance.
+/configs/convex_author_v1.yaml -text
+/docs/convex_author_v1/SOURCE_AUDIT.md -text
+/experiments/convex_author_aligned.py -text
+/experiments/convex_author_analysis.py -text
+/experiments/convex_author_evidence.py -text
+/scripts/export_convex_author_colab.py -text
+/scripts/run_convex_author_full.py -text
+/tests/test_convex_author_alignment.py -text

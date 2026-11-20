@@ -42,6 +42,8 @@ python scripts/run_convex_author_full.py --report-only --output-root outputs/con
 
 Môi trường Colab và SHA-256 của native artifact ở publication manifest. Pipeline chỉ chạy I và A sau khi validate thành công fixture F2/F3. Việc xuất 7 pilot và 3 chẩn đoán cho mã mới phục vụ validation, còn các bundle W&B pilot cũ tiếp tục dùng ID và provenance đã seal. Clone sạch của commit mã tính toán `94c5bd9` tái tạo cả 10 history validation trùng SHA-256 với run chính.
 
+Để đọc lại history đã niêm phong từ bản tích hợp, dùng checkout đầy đủ trên Windows với `core.autocrlf=true` và cùng môi trường đã ghi trong provenance. Git giữ byte gốc của các tệp V5 được khai báo trong `.gitattributes`. Quy tắc xuống dòng sẵn có của repo tiếp tục áp dụng cho các module dùng chung.
+
 ### W&B chỉ đồng bộ sau khi được ủy quyền
 
 [Manifest đồng bộ](../results/convex-author-v1/data/wandb_offline_sync.csv) liệt kê đúng bảy SDK bundle ban đầu cùng run ID, SHA-256 file và digest history. Paths tương đối với worktree gốc. Clone chỉ có manifest và kết quả tổng hợp. Khi có ủy quyền rõ cho đích và nội dung, đối soát trước từng ID ở project Forge, kiểm checksum, rồi đồng bộ **thư mục offline của ID đó**. Ví dụ cho một run:
