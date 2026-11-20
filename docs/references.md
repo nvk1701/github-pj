@@ -1,1 +1,13 @@
+# Tài liệu tham khảo — số IEEE tạm thời
 
+Các nguồn publisher/author được đối chiếu ngày17/11/2026. Số[1]–[5] dùng nhất quán cho T8/T10, còn chờ nhóm khử trùng lặp và sắp theo lần trích dẫn đầu. Không tự đổi author-year citations trong tài liệu Khoa/Hòa.
+
+[1] M. Fahrbach, A. Javanmard, V. Mirrokni, and P. Worah, “Learning Rate Schedules in the Presence of Distribution Shift,” in *Proc. 40th Int. Conf. Machine Learning*, PMLR, vol.202, pp.9523–9546,2023. [Publisher and BibTeX](https://proceedings.mlr.press/v202/fahrbach23a.html), [paper PDF](https://proceedings.mlr.press/v202/fahrbach23a/fahrbach23a.pdf). Phạm vi: §3 control/SDE, §4 convex, §5 non-convex, §6.1 and AppendixE experiments.
+
+[2] T. Yang, L. Zhang, R. Jin, and J. Yi, “Tracking Slowly Moving Clairvoyant: Optimal Dynamic Regret of Online Learning with True and Noisy Gradient,” in *Proc. 33rd Int. Conf. Machine Learning*, PMLR, vol.48, pp.449–457,2016. [Publisher](https://proceedings.mlr.press/v48/yangb16.html), [paper PDF](https://proceedings.mlr.press/v48/yangb16.pdf). So sánh tính toán chỉ suy ra từ bounded stochastic-gradient update, §3.2 Eq13.
+
+[3] O. Besbes, Y. Gur, and A. Zeevi, “Non-Stationary Stochastic Optimization,” *Operations Research*, vol.63, no.5, pp.1227–1244,2015, doi:10.1287/opre.2015.1408. [Publisher](https://pubsonline.informs.org/doi/10.1287/opre.2015.1408). Mô tả thuật toán tham khảo tại [bản preprint tác giả v2](https://arxiv.org/html/1307.5449v2), §3–4; preprint sửa năm2014, khác journal publication2015. Không khẳng định tương đương theorem-rate giữa các phiên bản khi chưa đối chiếu.
+
+[4] Khoa–Khôi–Hòa project group, “Frozen Convex implementation and results,” *github-pj*, source commit7e0499c450a3e503ab09d4c6c3d272e6576b4432,2026. [Immutable source](https://github.com/nvk1701/github-pj/tree/7e0499c450a3e503ab09d4c6c3d272e6576b4432); [results commit4d6bce5](https://github.com/nvk1701/github-pj/tree/4d6bce54e68e559d77cb64bd5dab5eeb1cf7fac6/docs/results/cp04-cp05). Đây là bằng chứng dự án và nguồn suy ra operation counts, không phải tính mới của paper.
+
+[5] M. Fahrbach et al., “Learning rate schedules: regression experiment notebook,” author source repository. [Immutable regression notebook](https://github.com/fahrbach/learning-rate-schedules/blob/1b3c0d456d70c9236190ac512bbf5168527fc837/src/regression/regression_experiments.ipynb), commit đã đọc1b3c0d456d70c9236190ac512bbf5168527fc837, Git blob0932fa3227867cd835cf67728bef3e96b0230cfd, raw SHA256c1493733e42d3226146458625431491585f0babffb8db109defdb235f13ac874. Cell indices tính từ0. Nhận định fidelity áp dụng snapshot này, không cho mọi revision hoặc exact Figure5 provenance.

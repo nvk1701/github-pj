@@ -1,0 +1,12 @@
+{
+  "input_sha256": "08b82e94629cb7e9cd896aea2dacc819fc8a2372da992e3e12d13cf8f26163a4",
+  "python": "3.13.18",
+  "system": "Linux",
+  "packages": {
+    "google-colab": "1.0.0",
+    "tensorflow": "2.21.0",
+    "numpy": "1.26.4"
+  },
+  "diagnostic_value": 285,
+  "downloaded_sha256": "c2cabedef7784f636f1e042e9932fceee8514fce98100e99cc9f77aa8a32e5e7"
+}

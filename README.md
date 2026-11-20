@@ -8,6 +8,8 @@ Dưới đây là bảng tổng hợp các thí nghiệm tái hiện lại bài 
 | **2. Hàm lồi tổng quát — Fig 5 (bottom) & Độ nhạy** (Logistic Regression, Prop. 4.3) | `experiments/convex.py`, `experiments/sensitivity.py` (`configs/convex.yaml`) | [60 Verified Runs (CP04/CP05)](https://forge.coreweave.com/wandb/gr_ml_29_37_37/ml-distribution-shift) (vd: [d128-seed0](https://forge.coreweave.com/wandb/gr_ml_29_37_37/ml-distribution-shift/runs/br6md2c7), [d2-seed0](https://forge.coreweave.com/wandb/gr_ml_29_37_37/ml-distribution-shift/runs/38easaio)) | Lịch trình 2 ngưỡng $[\tau_{1,t}, \tau_{2,t}]$ đạt rủi ro dư quần thể $B$ thấp nhất từ $d=2 \to 128$ (ví dụ $233.52 \pm 0.59$ so với $334.95$ của Constant ở $d=128$) và bền vững khi quét độ nhạy $\ell, \sigma$. |
 | **3. Hàm không lồi — Fig 6** (Flow Cytometry MLP 5 tầng) | `experiments/neural_net.py` | *(Đang chờ TV3 - Hòa cập nhật link run)* | Restart bộ tối ưu Adam tại các mốc dịch chuyển phân phối ($t \in \{100, 200, 400\}$) giúp mạng MLP thoát khỏi cực tiểu cục bộ cũ và giảm độ tiếc nuối tích lũy. |
 
+Nghiên cứu Convex bổ sung sau mốc đóng băng 18/11/2026 có [báo cáo V5](docs/results/convex-author-v1/RESULTS.md) và [trạng thái tái lập](docs/convex_author_v1/FINAL_STATUS.md). Bảng trên tiếp tục dùng chứng cứ CP04/CP05 đã đóng băng.
+
 ## Cấu Trúc Thư Mục & Giải Thích Chức Năng Từng File (Dành Cho Cả Nhóm)
 
 Dưới đây là sơ đồ tổ chức repository và hướng dẫn nhanh để các thành viên (**TV1: Khoa**, **TV2: Khôi**, **TV3: Hòa**) tra cứu chức năng của từng thư mục/file:

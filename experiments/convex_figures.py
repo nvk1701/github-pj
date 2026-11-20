@@ -1,4 +1,4 @@
-"""Scientific plots and Sheet 4 mappings from complete CP03 output arrays."""
+"""Ve hinh va mapping Sheet 4 tu cac mang CP03 da du coverage."""
 
 import csv
 import json
@@ -11,7 +11,7 @@ import numpy as np
 
 
 def plot_run(directory, history, metrics, oracle):
-    """Save population B and correctly labelled coordinate trajectories."""
+    """Luu population B va quy dao co nhan dung learner/reference/oracle."""
     fig,axes=plt.subplots(1,2,figsize=(10,3.5))
     axes[0].plot(metrics['step'],metrics['population_cum_B'])
     axes[0].set(xlabel='Pre-update step',ylabel='Cumulative population B',title='Numerical approximate-oracle comparator')
@@ -25,11 +25,11 @@ def plot_run(directory, history, metrics, oracle):
 
 
 def export_figures(root, records, config):
-    """Aggregate seed means/sample SD and export source CSV plus honest mapping.
+    """Gop mean/sample SD theo seed, xuat CSV va mapping dung pham vi.
 
-    Figure 5-style panels are project plots, not copied author results.
-    Trajectory panels select the lowest declared seed and label both comparators.
-    Paper values and relative deviations remain N/A without comparable evidence.
+    Hinh Figure-5-style thuoc giao thuc du an, khong phai ket qua goc tac gia.
+    Quy dao dung seed nho nhat da khai bao, ghi rieng hai comparator.
+    Paper scalar va relative deviation giu N/A khi chua the doi chieu.
     """
     root=Path(root)
     curves,mapping=[],[]
@@ -98,10 +98,10 @@ def export_figures(root, records, config):
             metric_name='two-coordinate trajectory',dimension=128,n_seeds=1,mean='N/A',sample_std='N/A',
             paper_value_source='Trajectory has no directly comparable scalar paper value',wandb_url=row['wandb_url'],
             local_artifact=str(root/'trajectory_d128.csv'),notes='Selected seed, not seed-averaged path.'))
-    mapping.append(dict(mapping[0],experiment_id='T17-planned',figure_or_table='T17 sensitivity',metric_name='cumulative population B',
-        mean='N/A',sample_std='N/A',paper_value_source='Exploratory one-factor analysis planned after main matrix',
+    mapping.append(dict(mapping[0],experiment_id='T17-outside-this-export',figure_or_table='T17 sensitivity',metric_name='cumulative population B',
+        mean='N/A',sample_std='N/A',paper_value_source='Separate CP05 exploratory one-factor results; not aggregated here',
         dimension=128,steps=2000,n_seeds=3,wandb_url='N/A',local_artifact='configs/convex_cp03_sensitivity.yaml',slide_number=28,
-        scientific_status='planned',notes='No sensitivity runs executed. Never retune main protocol.'))
+        scientific_status='not-covered-by-this-export',notes='See docs/results/cp04-cp05/RESULTS.md for CP05 sensitivity evidence. Never retune main protocol.'))
     for filename,rows in (('population_curves.csv',curves),('sheet4_mapping.csv',mapping)):
         with (root/filename).open('w',newline='',encoding='utf-8') as stream:
             writer=csv.DictWriter(stream,fieldnames=list(rows[0]))
