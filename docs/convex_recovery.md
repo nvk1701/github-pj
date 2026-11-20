@@ -1,107 +1,68 @@
-# Convex recovery and reproduction guide
+# Hướng dẫn recovery và kiểm tra chéo Convex
 
-CP03.5 adds operational evidence only. Frozen scientific protocol remains
-`convex-cp03-v1` in configs/convex_cp03.yaml. No trainer, RNG, comparator,
-population equation or main matrix value changes.
+Giao thức khoa học frozen vẫn là `convex-cp03-v1`, source`7e0499c450a3e503ab09d4c6c3d272e6576b4432`. Verifier bảo trì không được dùng SHA của tool để gán lại nguồn tạo60 runs cũ. Nhánh bàn giao hiện hành là `feat/convex`; chỉ dùng SHA release sau khi đã được công bố.
 
-## Fresh checkout on Windows
+## Checkout và môi trường
 
-The repository currently contains a literal empty `configs/*.yaml` path that
-Windows cannot materialize. Do not delete it or change global Git settings.
-After the release branch is published, clone with `--no-checkout` first.
-Before publication, teammates cannot fetch the new commit from GitHub.
+Nhánh hiện hành đã tích hợp rename từ main: `configs/*.yaml → configs/test.yaml`. Fresh Windows checkout bình thường được hỗ trợ; không cần global Git configuration. CPython3.12 là target đã kiểm tra. Cài requirements trong environment riêng, chạy từ repository root:
 
 ```powershell
-git clone --no-checkout https://github.com/nvk1701/github-pj.git convex-reproduce
-Set-Location convex-reproduce
-# Replace RELEASE_SHA with the exact approved commit from the release report.
-git symbolic-ref HEAD refs/heads/reproduce
-git update-ref refs/heads/reproduce RELEASE_SHA
-git -c core.protectNTFS=false read-tree RELEASE_SHA
-git -c core.protectNTFS=false update-index --skip-worktree -- 'configs/*.yaml'
-git -c core.protectNTFS=false update-index --no-skip-worktree -- configs/convex.yaml configs/convex_cp03.yaml configs/convex_cp03_sensitivity.yaml
-git checkout-index -a
-```
-
-The new local reproduce branch makes HEAD agree with the materialized index.
-Do not run these bootstrap commands in an existing dirty repo.
-The per-command NTFS exception only permits loading the index. The invalid
-file stays skipped. No command attempts to write it to disk. A proposed rename
-patch is kept outside the repository for team review, not applied automatically.
-
-Create a separate Python environment and install the existing requirements.
-The development interpreter is Project/.venv-t2-clean/Scripts/python.exe.
-On another machine use that machine's environment, not the development absolute
-path. Core imports resolve relative to this checkout. The tests and `--dry-run`
-work before any online authentication. Configure writable WANDB_DIR,
-WANDB_DATA_DIR and WANDB_CACHE_DIR and the actual Forge endpoint. Let the SDK
-load existing credentials or use its supported login flow. Never put a key in
-the YAML, CLI, metadata or report.
-
-```powershell
-python -B -m unittest discover -s tests -v
+python -m pip check
+python -B -m scripts.check_environment --require-isolated
+python -B -m scripts.smoke_tracking --mode offline --member Khoa
 python -B experiments/convex_official.py --config configs/convex_cp03.yaml --dry-run
 ```
 
-## Batch layout and durable attempts
+Offline smoke kiểm tra SDK local, không chứng minh quyền ghi hoặc independent reproduction. Thiết lập WANDB_DIR/DATA_DIR/CACHE_DIR/CONFIG_DIR ở nơi có quyền ghi; endpoint Forge là `https://api.forge.coreweave.com`. Login bằng tài khoản cá nhân qua SDK, không đưa key vào CLI/config/report. Public view không đồng nghĩa quyền ghi.
 
-Prefer five roots, one per dimension, nine cells each. The union is still45.
-Every explicit run creates fresh UUID attempt identities under the deterministic
-logical cell keys. Root directories must be new. No resume, silent skip,
-automatic retrain or upload retry occurs. The same source SHA and normalized
-scientific hash must be used across all roots. A full config hash is retained
-per root. Scientific hash ignores only root/selection/mode/logging options.
+### Immutable frozen source trên Windows
 
-Status/config JSON is fsynced and atomically replaced. `attempts.jsonl` is an
-append-only fsynced ledger. Immutable `failure-*.json` records preserve each
-failure. `checksums.json` seals config/CSV/NPZ/PNG before logging/upload.
-Local computation, SDK finish, server finish, artifact upload/verification and
-public access are separate states. A directory's existence is never success.
-Checksums, source/config identity, shape/finite checks and CSV/NPZ equality are
-required before aggregation.
-
-## Failure and recovery walkthrough
-
-1. Stop the failed batch. Keep its root and ledger. Earlier completed cells
-   stay valid. Unstarted cells are explicit missing coverage.
-2. If init/finish/upload outcome is uncertain, reconcile before retry. Init
-   discovery queries the existing remote attempt ID in config, without init or
-   upload. Zero/multiple matches require inspection, not an automatic new run.
-3. A failed/running server run is not verified success. Wait/reconcile if running.
-   If failure is established, retry only failed/unstarted selections into a NEW
-   root with the same source/scientific config. Do not overwrite old evidence.
-4. For uncertain finish, a complete local payload plus independently finished
-   server and matching downloaded artifact can reconcile success. A false SDK
-   finish flag is preserved rather than rewritten as if the call returned.
-5. Aggregate all roots only when every logical key has one verified successful
-   attempt. Duplicate successes reject by default. An explicit selection JSON
-   may choose one attempt per key after review. Failures are listed as excluded,
-   not hidden. A corrupt supposedly complete attempt fails closed.
+Frozen7e và CP057131 vẫn chứa literalpath không hợp lệ; rename mới không thay nội dung của commit lịch sử. Chỉ áp dụng bootstrap sau trong clone mới, không dùng trên worktree đang có thay đổi:
 
 ```powershell
-python -B experiments/convex_reconcile.py verify PATH_TO_CELL --download-root NEW_DOWNLOAD_PATH
-python -B experiments/convex_official.py --config configs/convex_cp03.yaml --dimensions 128 --output-dir outputs/cp04-d128
-# Example retry selection, only after inspecting the original failure:
-python -B experiments/convex_official.py --config configs/convex_cp03.yaml --dimensions 128 --seeds 1 --methods constant --output-dir outputs/cp04-d128-retry1
-python -B experiments/convex_reconcile.py merge --roots outputs/cp04-d2 outputs/cp04-d8 outputs/cp04-d32 outputs/cp04-d128 outputs/cp04-d512 outputs/cp04-d128-retry1 --output outputs/cp04-merged
+git clone --no-checkout https://github.com/nvk1701/github-pj.git convex-frozen
+Set-Location convex-frozen
+$sourceSha = '7e0499c450a3e503ab09d4c6c3d272e6576b4432'
+git symbolic-ref HEAD refs/heads/reproduce-frozen
+git update-ref refs/heads/reproduce-frozen $sourceSha
+git -c core.protectNTFS=false read-tree $sourceSha
+git -c core.protectNTFS=false update-index --skip-worktree -- 'configs/*.yaml'
+git update-index --no-skip-worktree -- configs/convex.yaml configs/convex_cp03.yaml configs/convex_cp03_sensitivity.yaml
+git checkout-index -a
+git status --short
+git rev-parse HEAD
 ```
 
-Reconciliation creates no run and uploads nothing. It requires exactly one
-COMMITTED artifact for that attempt, downloads with skip_cache=True, calls SDK
-artifact.verify and independently checks SHA256 for every payload file. Source,
-config, logical key and attempt identity must match the server config.
-Remote proof history is preserved in verification-*.json and the ledger.
-Main merges require remote proof. `--local-only` is for pilot/testing only.
-Merged plots read original selected files without copying or retraining them.
+Mỗi bước phải thành công; dừng nếu có lỗi hoặc HEAD/status không đúng. Exception NTFS chỉ theo lệnh, file literal không được materialize; không thay global safety. Nếu có dubious ownership, chỉ cấp safe.directory theo đúng clone được tin cậy.
 
-## Limits and release
+## Attempts và trạng thái bền vững
 
-This is single-writer per output root, not a multi-host database. Hard process
-kill may leave a running/computed status. It is rejected until reconciled or
-retried. Source changes between batches require a new coordinated matrix, not
-silently combining SHA versions. Scientific formulas and all legacy outputs
-are unchanged. Raw SHA256 may differ across platform newline conventions,
-while Git commit/blob identity and numerical checks establish source content.
-Public UI/member permissions are verified separately from authenticated API
-and artifact access. Do not infer teammate write permission from public viewing.
-No Git publication or official45-cell matrix is authorized by this guide.
+Official matrix có45 logical cells:5 dimensions ×3methods ×3seeds. Root output phải mới. Mỗi lần chạy có UUID attempt riêng; không resume, silent skip, tự retrain hoặc upload retry. Config/source/science hashes phải nhất quán theo protocol; sensitivity khác điều kiện có science hash riêng, không gộp vào45-cell standard matrix.
+
+Status/config JSON được fsync và atomic replace. attempts.jsonl append-only; failure records không bị xóa. checksums.json đóng dấu config/CSV/NPZ/PNG trước upload. Local computation, SDK finish, server finish, artifact verification và public access là trạng thái riêng. Directory tồn tại không chứng minh success.
+
+## Failure và reconcile
+
+1. Giữ nguyên batch root, payload, ledger và failure evidence. Không chạy lại vào root cũ.
+2. Init/finish/upload chưa rõ phải reconcile trước retry. Run discovery dùng attempt identity; zero/multiple matches là ambiguity, không tự tạo run thay thế.
+3. Server failed/running không phải verified success. Chỉ retry failed/unstarted cells sau khi kiểm tra, vào root mới với source/protocol được duyệt.
+4. Remote success không thay thế computation local còn thiếu. SDK-finished=false vẫn giữ nếu lời gọi không trả về; reconcile chỉ bổ sung trạng thái quan sát thật.
+5. Aggregate yêu cầu đúng coverage và một successful attempt cho mỗi key. Duplicate successes fail mặc định; explicit selection cần review. Corruption fail closed, failure không bị giấu.
+
+Read-only là lựa chọn phù hợp để kiểm tra batch frozen bằng tool mới:
+
+```powershell
+python -B experiments/convex_reconcile.py verify PATH_TO_CELL --read-only --download-root NEW_EXTERNAL_DOWNLOAD_PATH
+```
+
+PATH_TO_CELL nhận relative hoặc absolute path; `seed0` từ thư mục cha đã có regression. Download root phải mới và nằm ngoài toàn input batch. Chỉ root này nhận downloads; proof/status/ledger đầu vào không bị ghi dù success hay failure. Không có run/artifact W&B mới. Nếu bỏ `--read-only`, verifier ghi observation proofs/status/ledger theo recovery contract.
+
+Verifier yêu cầu đúng một COMMITTED `convex-evidence` với tên KEY-ATTEMPT:v0 và metadata attempt/config/science đúng. Chỉ backend `wandb-history` của cùng run được nhận diện riêng; duplicate science, type lạ, wrong attempt/version vẫn fail. Source/config/protocol/logical identity, completed server state, exact file manifest, fresh download, SDK verify và SHA256 đều được kiểm tra.
+
+`head`/`training_source_sha` mô tả nguồn huấn luyện; `verification_tool_sha`/`verification_tool_file_sha256` mô tả tool thực thi. Raw working CRLF hash có thể khác Git LF blob hash; phải nêu convention trước so sánh.
+
+## T19 và giới hạn
+
+Khoa tự thực hiện cross-check, ghi account/machine/date, immutable source/tool SHA, command, env/BLAS, coverage, tolerances, output và actual/reference differences. Codex local suite hoặc read-only download không thay independent human reproduction. CP04/CP05 CSV có60 real URLs và hashes trong [provenance](results/cp04-cp05/data/run_provenance.csv). Directly comparable paper scalar vẫn N/A; dữ liệu dự án không phải exact author reproduction.
+
+T19 report trên main là human declaration cho phạm vi đã ghi; full60 và các hướng Linear/NN cần evidence tương ứng. Không tự dùng credentials khác, thu hẹp scope hoặc nới tolerance để báo PASS. Shared root chỉ có một writer; hard kill có thể để lại pending status, cần điều tra/reconcile. Hướng dẫn này không tự cho phép experiment, merge hoặc nghiệm thu issue.

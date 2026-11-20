@@ -188,8 +188,8 @@ class RecoveryTests(unittest.TestCase):
             self.make_fixture(root,cfg,plan['source']['head'],plan['runs'])
             cell=root/'d2/constant/seed0'
             metadata=json.loads((cell/'config.json').read_text())
-            artifact=Mock(state='COMMITTED',metadata={'attempt_id':metadata['attempt_id']})
-            artifact.name='test-artifact:v0'
+            artifact=Mock(state='COMMITTED',type='convex-evidence',metadata={k:metadata[k] for k in ('attempt_id','config_sha256','science_sha256')})
+            artifact.name=metadata['key']+'-'+metadata['attempt_id']+':v0'
             artifact.files.return_value=[Mock(name='unused') for _ in range(5)]
             for item,name in zip(artifact.files.return_value,('config.json','metrics.csv','history.npz','figure.png','checksums.json')):
                 item.name=name
