@@ -39,3 +39,20 @@ Forge API xác thực quyền đọc trong lần kiểm toán, xác nhận đư�
 Để hoàn tất về khoa học, người có Colab cần chạy script T18 trong runtime riêng và giao 5 cặp native, 3 cặp diagnostic cùng log thực thi. Sau khi parity đạt, tiếp tục I và A bằng resume. T19 yêu cầu cross-run độc lập của teammate, T22 chờ xác nhận và tích hợp của lead. [Colab](AUTHOR_NATIVE_EXECUTION.md) · [Lệnh tái lập và push có ủy quyền](REPRODUCE.md)
 
 `--report-only` cho lại đủ 17 hash artifact sinh tự động. `--resume` chạy lại 137 test, đọc 10 record hiện có và giữ nguyên hash lẫn thời gian sửa từng record trước khi về mã 2. Gói công bố kèm docs và bảng W&B có 20 hash đã seal.
+
+## Preflight kết nối Colab MCP và Forge
+
+| Hạng mục | Trạng thái | Bằng chứng |
+|---|---|---|
+| Môi trường Codex | VS Code extension cục bộ trên Windows | Originator `codex_vscode`, executable thuộc extension `openai.chatgpt`, CLI đi kèm `0.169.0-alpha.11.1` |
+| Cấu hình MCP | Đã thêm `google-colab` | Entry trong cấu hình cá nhân của Codex trỏ tới `https://colaboratory.googleapis.com/mcp` qua Streamable HTTP. Không cài thêm phần mềm |
+| Khám phá tools | 10 tool từ endpoint thật | `tools/list` trả HTTP 200 gồm `list_runtimes`, `list_runtime_specs`, `create_runtime`, `get_runtime`, `create_session`, `delete_session`, `list_sessions`, `execute_code`, `delete_runtime`, `get_subscription` |
+| OAuth | Chờ client đăng ký trước | `list_runtimes` trả HTTP 401. `codex mcp add` đã lưu entry nhưng login tự động dừng vì Google từ chối Dynamic Client Registration. Metadata public chỉ định issuer `https://accounts.google.com/` và scope `https://www.googleapis.com/auth/colaboratory` |
+| Colab Python và truyền tệp | `BLOCKED_EXTERNAL_EXECUTION` | Chưa có OAuth session xác thực. Chưa gọi tạo runtime, chưa chạy Python từ xa, chưa có checksum truyền hai chiều. Cổng Colab vẫn đóng |
+| Forge W&B | `WANDB_WRITE_READY` ở mức quyền API và chuẩn bị sync | Viewer xác thực đọc được run frozen `38easaio` ở trạng thái `finished`. Team và project đều trả `readOnly=false`; trường project được SDK định nghĩa theo caller. Kiểm SHA-256 đủ 7 bundle và SDK `sync --dry-run` chọn đúng 7. Lần kiểm tra này không gửi bundle. 0/7 ID pilot được xác minh từ xa |
+
+Người dùng cần chọn Google Cloud project được phép sử dụng, bật Colab API (`colaboratory.googleapis.com`) và tạo OAuth client loại **Desktop app**. Với ứng dụng ở chế độ Testing, thêm tài khoản đăng nhập vào Test users. Trang tạo client của Google Cloud Console đã được yêu cầu mở trong trình duyệt. Tải JSON vào thư mục riêng ngoài repo, chỉ thông báo đường dẫn cục bộ để tiếp tục cấu hình và mở OAuth consent. Thông tin xác thực và token runtime giữ ngoài Git và chat. [Google Cloud OAuth setup](https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers) · [Google Colab MCP reference](https://developers.google.com/colab/api/reference/mcp) · [Codex MCP](https://learn.chatgpt.com/docs/extend/mcp?surface=ide)
+
+Sau OAuth, kiểm tra `list_runtimes` có xác thực. Dùng phiên Jupyter riêng trên runtime CPU phù hợp, hoặc tạo một runtime đúng quota nếu chưa có. Smoke test sẽ chạy Python trả một nonce mới, rồi dùng `get_runtime` và HTTP proxy của Google để đưa một tệp thử từ worktree lên runtime, biến đổi tệp bằng Python và tải kết quả về thư mục output cục bộ. Kiểm SHA-256 hai chiều và giữ token proxy trong bộ nhớ của client truyền file. Chỉ mở cổng `COLAB_EXECUTION_READY` sau khi đủ bằng chứng. R → parity → I → A tiếp tục theo protocol hiện hành.
+
+Quyền ghi Forge đã được server báo qua metadata; upload thực tế vẫn cần phê duyệt riêng. [Manifest của 7 bundle](../results/convex-author-v1/data/wandb_offline_sync.csv)
