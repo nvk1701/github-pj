@@ -16,7 +16,7 @@ Nguồn chính: [Fahrbach và cộng sự, ICML 2023, PDF](https://proceedings.m
 | Thời điểm và SGD | §2 dự báo rồi cập nhật | Cell 8: learner và reference đều pre-update; assign_sub | Giữ thứ tự | Pre-update, projected SGD | AUTHOR_CODE_EXPLICIT | Train/eval |
 | Shift | Def. 2.1 dùng optimizer population; Remark 4.4 nêu EMA | Cell 8: norm float32 của v[t+1]−v[t], cuối bằng 0 | Giữ nguyên; A1 EMA beta=.9 từ learner history | EMA learner beta=.9 | AUTHOR_CODE_EXPLICIT, PROJECT_PREEXISTING | Train |
 | L, sigma², Dmax | §6.1: .25, d/4, d | Cells 8/23: .25, sqrt(d/4) rồi bình phương, d | Giữ giá trị toán học | Giữ giá trị | PAPER_EXPLICIT, AUTHOR_CODE_EXPLICIT | Train |
-| Threshold và LR | Eq. 18–20 | Cell 8: căn trừ trực tiếp; bước 0 dùng tau1; scalar step_size cấu hình được đọc nhưng bỏ qua | Tái sử dụng threshold ổn định cùng công thức; kẹp LR trước vào [tau1,tau2] từ bước 1 | Threshold ổn định; kẹp eta_init=1 ngay bước đầu | AUTHOR_CODE_EXPLICIT, MATHEMATICALLY_DERIVED | Train |
+| Threshold và LR | Eq. 18–20 | Cell 8: căn trừ trực tiếp; bước 0 dùng tau1; scalar step_size cấu hình được đọc nhưng bỏ qua | Căn trừ trực tiếp, ép kiểu tường minh theo fixture Colab; giữ thứ tự các nhánh của Eq. 20 | Threshold ổn định; kẹp eta_init=1 ngay bước đầu | AUTHOR_CODE_EXPLICIT, MATHEMATICALLY_DERIVED | Train |
 | Projection | §4 giả định miền lồi bị chặn và SGD chiếu | Cell 8: assign_sub, không chiếu | Không chiếu; A4 bán kính d/2 | Bán kính d/2 | AUTHOR_CODE_EXPLICIT, PROJECT_PREEXISTING | Train; kiểm miền oracle A4 |
 | Comparator | §2 risk tại population minimizer | Cells 8/23: loss batch tại generating reference | M0 batch; M1/M2 deterministic population bổ sung | A/B population và MC diagnostics | AUTHOR_CODE_EXPLICIT, NEW_CONTROLLED_DESIGN | Eval |
 | Tổng và đồ thị | Fig. 5 | Cell 23: cumsum của hiệu float32, trục log, trajectories tọa độ 0 và 1 | Lưu signed float32 cumsum M0; M1/M2 float64 | Tổng population A/B float64 | AUTHOR_CODE_EXPLICIT, PROJECT_PREEXISTING | Eval |
@@ -24,6 +24,8 @@ Nguồn chính: [Fahrbach và cộng sự, ICML 2023, PDF](https://proceedings.m
 | Kernel/version | §6 ghi TensorFlow/Keras | Cell 0 và metadata thiếu pin runtime tái lập đầy đủ | Ghi phiên bản; parity cần tensors Colab | NumPy/SciPy đã pin | UNKNOWN_OR_UNVERIFIED | Train/eval |
 
 Shift tham chiếu nhìn trước một bước và khác drift của population minimizer khi nhãn có nhiễu. Bước 0 có gamma=0 nên LR=0, bước đầu tiên được phép đổi weights là chỉ số 9. Với A1, zero LR và zero EMA tạo trạng thái hấp thụ. Việc đưa warm start vào A1 sẽ là can thiệp thứ hai.
+
+Fixture Colab cho thấy hai đa thức của gamma và phần bình phương/trừ của Eq. 18–19 dùng trung gian float32 theo weak scalar promotion, trước khi hệ số variance float64 nâng kiểu ở căn. Kết quả này được xác nhận bằng cách so trực tiếp với ngưỡng export cho toàn bộ 2.000 bước ở d2/8/32. Pipeline độc lập diễn đạt ép kiểu tường minh và giữ dung sai parity đã khai báo. Pilot preflight cũ dùng dạng ổn định float64, được giữ nguyên với provenance riêng, kể cả bảy bundle Forge đã có.
 
 Output đã lưu ở cell 23 ghi M0 cuối 0.98582214, 3.7352686 và 48.065575 ở d=2,8,32. Log d=128 chỉ đến dòng bắt đầu thuật toán, d=512 chưa có output. Không có lỗi cụ thể được ghi trong cell. Đây là output lịch sử của snapshot, không xác nhận runtime hiện tại và không dùng làm test truth.
 

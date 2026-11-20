@@ -8,7 +8,6 @@ from scipy.special import expit
 
 from core.convex_population import PopulationEvaluator
 from core.drift import EMADriftEstimator
-from core.schedules import ConvexSchedule
 from core.utils import project_to_ball
 
 ALIGNED = "convex-author-aligned-v1"
@@ -87,6 +86,24 @@ def loss_gradient(theta, x, y):
     return bce(logits, y), gradient
 
 
+def author_thresholds(gamma, batch_size, smoothness, diameter, variance):
+    """Evaluate Eq. 18–19 with the scalar precision observed on Colab."""
+    gamma = np.float32(gamma)
+    diameter = np.float32(diameter)
+    smoothness = np.float32(smoothness)
+    bounds = np.array([
+        np.square(gamma) + (np.float32(2) * diameter) * gamma,
+        np.square(gamma + diameter),
+    ], dtype=np.float32)
+    # The notebook's weak scalar promotion keeps these intermediates in float32.
+    # The explicit NumPy float64 variance factor then promotes the radical.
+    quadratic = np.square(bounds) * np.square(smoothness)
+    linear = bounds * smoothness
+    variance_ratio = np.square(np.sqrt(np.float64(variance))) / batch_size
+    return (np.sqrt(quadratic.astype(np.float64) + (4 * variance_ratio) * bounds.astype(np.float64))
+            - linear) * (np.float64(0.5) / variance_ratio)
+
+
 def train(cfg, case, *, native_rng=False, supplied=None):
     """Train on bounded-memory phases, or replay a diagnostic export."""
     d, steps, batch = case.dimension, cfg["steps"], cfg["batch_size"]
@@ -111,8 +128,8 @@ def train(cfg, case, *, native_rng=False, supplied=None):
     history["projection_active"] = np.zeros(steps, dtype=bool)
     history["reference"] = refs
     history["initial"] = theta = np.zeros(d, dtype=np.float32)
-    schedule = ConvexSchedule(cfg["L"], d * cfg["diameter_per_dimension"],
-                              d * cfg["variance_per_dimension"])
+    diameter = d * cfg["diameter_per_dimension"]
+    variance = d * cfg["variance_per_dimension"]
     ema = EMADriftEstimator(knobs["ema_beta"]) if knobs["ema_beta"] is not None else None
     x_hash, y_hash = hashlib.sha256(), hashlib.sha256()
     previous_lr = knobs["initial_lr"]
@@ -129,8 +146,8 @@ def train(cfg, case, *, native_rng=False, supplied=None):
                 else float(np.linalg.norm(refs[t] - refs[min(t + 1, steps - 1)]))
             )
             if case.method == "convex":
-                lo, hi = schedule.thresholds(gamma, batch)
-                lr = lo if previous_lr is None else min(hi, max(lo, previous_lr))
+                lo, hi = author_thresholds(gamma, batch, cfg["L"], diameter, variance)
+                lr = lo if previous_lr is None or previous_lr <= lo else min(hi, previous_lr)
                 history["thresholds"][t] = lo, hi
             elif case.method == "constant":
                 lr = cfg["baseline_lr0"]

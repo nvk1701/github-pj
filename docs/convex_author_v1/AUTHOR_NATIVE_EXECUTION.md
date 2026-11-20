@@ -1,6 +1,16 @@
 # Colab riêng cho T18
 
-**BLOCKED_EXTERNAL_EXECUTION.** Phiên này đọc được Git blob qua GitHub connector và không có runtime Colab được cấp điều khiển. Snapshot có ba M0 đã lưu, còn trạng thái thực thi hiện tại của cả năm dimension cần đo mới.
+**R = 5/5 VERIFIED.** Đã chạy nguyên bản Figure 5-bottom trong runtime Colab CPU qua MCP. Tệp xuất của mỗi dimension đủ 2.000 batch, khớp SHA-256 và thỏa đẳng thức tích lũy M0 theo float32. Runtime dùng Linux, Python 3.13.18, NumPy 1.26.4 và TensorFlow 2.21.0.
+
+| d | M0 cuối Colab native |
+|---:|---:|
+| 2 | 0.9858183861 |
+| 8 | 3.7352774143 |
+| 32 | 48.0655975342 |
+| 128 | 180.8743438721 |
+| 512 | 1207.9738769531 |
+
+Các cặp JSON/NPZ và log thực thi ở `outputs/colab-author-external/`. Bộ này được chuyển qua HTTPS runtime proxy và kiểm checksum tại worktree. Fixture parity được chạy trong một kernel riêng trên cùng runtime.
 
 ## Chạy nguyên bản
 

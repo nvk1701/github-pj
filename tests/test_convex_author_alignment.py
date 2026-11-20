@@ -13,7 +13,7 @@ from scipy.special import expit
 from core.convex_population import gaussian_population_loss_gradient, gaussian_population_oracle
 from core.utils import load_config
 from experiments.convex_author_aligned import (
-    ALIGNED, ABLATION, Case, bce, evaluate, loss_gradient, matrix, phases_with_data,
+    ALIGNED, ABLATION, Case, author_thresholds, bce, evaluate, loss_gradient, matrix, phases_with_data,
     reference_phases, train,
 )
 from experiments.convex_author_analysis import verify_pairs
@@ -80,7 +80,7 @@ class AuthorAlignmentTests(unittest.TestCase):
         for column, b in enumerate((b1, (gamma + 8)**2)):
             v_over_b = 2 / SMALL["batch_size"]
             expected = (np.sqrt((.25 * b)**2 + 4 * v_over_b * b) - .25 * b) / (2 * v_over_b)
-            np.testing.assert_allclose(history["thresholds"][:, column], expected, atol=1e-13)
+            np.testing.assert_allclose(history["thresholds"][:, column], expected, rtol=2e-5, atol=2e-6)
         np.testing.assert_array_equal(history["lr"], np.clip(np.r_[0., history["lr"][:-1]],
                                                              *history["thresholds"].T))
         np.testing.assert_array_equal(history["post_theta"],
@@ -88,6 +88,13 @@ class AuthorAlignmentTests(unittest.TestCase):
         np.testing.assert_array_equal(history["post_theta"][:-1], history["theta"][1:])
         self.assertFalse(history["projection_active"].any())
         np.testing.assert_array_equal(history["M0"], np.cumsum(history["loss"] - history["reference_loss"]))
+
+    def test_colab_threshold_mixed_precision(self):
+        # First forward shift for d=32 in the immutable author fixture.
+        gamma = np.float32(4.316861)
+        expected = [3.99322598, 3.99856315]
+        np.testing.assert_allclose(author_thresholds(gamma, 256, .25, 32, 8),
+                                   expected, rtol=0, atol=6e-9)
 
     def test_matched_inputs_and_ema_zero_lr(self):
         base, expected = train(SMALL, CASE)

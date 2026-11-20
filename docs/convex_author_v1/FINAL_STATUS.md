@@ -70,3 +70,9 @@ R 0/5, F2/F3 UNVERIFIED, I 0/45, A 0/36 và Forge mới 0/88. Đã kiểm lại 
 **OAuth đã xác thực.** Bản CLI hiện tại thiếu khả năng đọc OAuth client secret qua tùy chọn tham chiếu biến môi trường đã thử. Codex hoàn tất callback với trường `oauth.client_secret` trong cấu hình tạm bên ngoài repo, chỉ cho tài khoản Windows hiện tại. Cấu hình tạm đã được xóa. Phiên được đọc lại từ Windows keyring bằng cùng Codex home riêng, và MCP báo `oAuth`.
 
 **Cổng Colab vẫn đóng.** `list_runtimes`, `list_runtime_specs` và `get_subscription` đều trả 403 kèm lý do “API has not been used”. Google Cloud yêu cầu bật API sản phẩm cho project dùng MCP. Đã mở Colab API Library cho đúng project OAuth để chủ dự án bấm **Enable**. Khi API được bật, tái sử dụng phiên đã lưu và kiểm tra Python cùng checksum qua runtime proxy, sau đó mới mở R → F2/F3 → I → A. [Google Cloud Service Usage](https://docs.cloud.google.com/mcp/enable-disable-mcp-servers) · [Colab MCP](https://developers.google.com/colab/api/reference/mcp)
+
+### API retry và Colab smoke test
+
+Sau khi chủ dự án xác nhận Colab API ở trạng thái Enabled, chính phiên OAuth đã lưu trả thành công `list_runtime_specs` và `list_runtimes`. Không còn lỗi để trích consumer, reason hoặc link kích hoạt từ lần gọi hiện tại. Không thay đổi quota header, IAM, trạng thái API hay OAuth client. Tạo một runtime đủ điều kiện `VARIANT_CPU / SHAPE_STANDARD / NONE` khi danh sách runtime rỗng.
+
+`COLAB_EXECUTION_READY`: Python chạy qua MCP trên Linux, Python 3.13.18, NumPy 1.26.4, TensorFlow 2.21.0, google-colab 1.0.0. Runtime báo SHA-256 đầu vào `08b82e94629cb7e9cd896aea2dacc819fc8a2372da992e3e12d13cf8f26163a4` và trả phép tính 285. Tệp do Python ghi được tải về qua HTTPS runtime proxy và khớp digest dự kiến `c2cabedef7784f636f1e042e9932fceee8514fce98100e99cc9f77aa8a32e5e7`. Bằng chứng nằm trong `outputs/colab-mcp-preflight/`. Kết quả smoke mở cổng chạy notebook gốc, còn R và F2/F3 cần artifact riêng.
