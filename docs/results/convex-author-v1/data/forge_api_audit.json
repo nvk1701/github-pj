@@ -1,0 +1,11 @@
+{
+  "remote_verified": 88,
+  "counts": {
+    "convex-author-pilot-v1": 7,
+    "convex-author-aligned-v1": 45,
+    "convex-author-ablation-v1": 36
+  },
+  "remote_history_rows": 8800,
+  "api_summaries_matched": 88,
+  "historical_ids_checked": 60
+}

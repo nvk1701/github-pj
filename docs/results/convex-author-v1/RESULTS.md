@@ -51,4 +51,4 @@ P báo M2-style B với phase grid, std và cơ chế drift riêng. R báo M0 th
 
 ## Phát hành Forge
 
-Đã seal 88 bundle offline gồm 7 pilot gốc, 45 I và 36 A. Đối soát chỉ đọc Forge chưa thấy ID tương ứng. Upload trong lượt này bị bộ duyệt chặn vì cần ủy quyền trực tiếp cho payload và đích. Trạng thái hiện tại được ghi theo từng ID. [Sổ đối soát Forge](data/forge_release_verification.csv)
+Forge đã xác minh độc lập 88/88 run ở trạng thái `finished`, gồm 7 pilot gốc, 45 I và 36 A. Với mỗi ID, API khớp group, cấu hình ca, commit, SHA-256 khoa học và SHA-256 history gốc. Cả 88 summary và 8.800 dòng M0/M1/M2/LR tại các bước 20, 40, …, 2.000 khớp với các history cục bộ tương ứng. 60 ID CP04/CP05 được đối chiếu chỉ đọc và giữ trạng thái đã đóng băng. [Sổ đối soát Forge](data/forge_release_verification.csv) · [Tổng hợp kiểm toán API](data/forge_api_audit.json)

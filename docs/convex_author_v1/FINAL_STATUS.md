@@ -81,4 +81,8 @@ Sau khi chủ dự án xác nhận Colab API ở trạng thái Enabled, chính p
 
 R 5/5, F2/F3 VERIFIED trên d2/8/32, I 45/45 và A 36/36. Đã kiểm cả 91 history cục bộ, g?m 10 ca validation, và đối chiếu độc lập 108 paired differences cùng 66 dòng thống kê. M2−M1 khớp hiệu chỉnh comparator với residual lớn nhất 4.44e−16 mỗi batch và 4.36e−12 trên các prefix tích lũy. Full suite đạt 138/138, clone sạch tái tạo 10 history validation với SHA-256 trùng khớp, và 19 tệp CP04/CP05 giữ nguyên byte. [Kết quả](../results/convex-author-v1/RESULTS.md) · [Native](AUTHOR_NATIVE_EXECUTION.md) · [Metric audit](../results/convex-author-v1/data/independent_validation.json)
 
-`READY_TO_PUSH_WITH_DISCLOSED_LIMITATIONS`. Đủ 88 SDK bundle offline, 0/88 Forge remote verified. Bộ duyệt tự động chặn upload vì chưa có xác nhận trực tiếp cho payload 7 pilot, 45 I và 36 A cùng đích `gr_ml_29_37_37/ml-distribution-shift` qua `api.forge.coreweave.com`. Không push, merge hay upload trong lượt kiểm toán này. T19 và duyệt slide vẫn là các bước của nhóm. [Trạng thái theo ID](../results/convex-author-v1/data/forge_release_verification.csv)
+## Kiểm toán trước push V5
+
+**SCIENTIFICALLY_COMPLETE_READY_TO_PUSH.** Các cổng F0–F5 đã xác minh, R 5/5, I 45/45 và A 36/36. Kiểm toán cuối dựng lại 23 artifact từ bằng chứng hiện có, đối chiếu 13 hình công bố, 10 history tái lập từ clone sạch và 19 tệp CP04/CP05 theo SHA-256. Full suite đạt 138/138. [Manifest và cổng kiểm chứng](../results/convex-author-v1/manifest.json)
+
+Forge đạt 88/88 `REMOTE_VERIFIED` sau lượt đồng bộ được duyệt. Đối soát API ghi lại trạng thái, summary, cấu hình và SHA-256 của 100 dòng M0/M1/M2/LR cho mỗi ID. 60 run lịch sử chỉ được truy vấn. Các bundle pilot thuộc lượt preflight ban đầu. Không push hay merge Git. Cross-run bởi thành viên nhóm theo T19 và duyệt slide vẫn là các bước bàn giao. [Đối soát theo run](../results/convex-author-v1/data/forge_release_verification.csv)

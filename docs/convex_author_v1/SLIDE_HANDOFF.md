@@ -61,7 +61,7 @@ Tài liệu bổ sung sau freeze, gửi lead duyệt trước khi nhập deck ch
 
 **Bảng/hình.** [Inventory](../results/convex-author-v1/data/inventory.csv) và [manifest F0–F5](../results/convex-author-v1/manifest.json). Footnote [2]–[4].
 
-**Speaker notes.** Bất biến quan trọng là source snapshot và input cùng cặp. M0 cuối từ output lưu lịch sử cho ba chiều nhỏ là sanity check. Để tuyên bố parity cần cả trajectories, losses, grad và LR cùng inputs từ Colab. Kết quả pilot chỉ dùng như chứng cứ chạy và phát hiện câu hỏi tiếp theo. T19 còn cross-run độc lập của thành viên.
+**Speaker notes.** Shared-input replay đã khớp trajectories, loss, gradient và LR qua đủ 2.000 bước ở d=2, 8, 32. Forge đã xác minh riêng 7 pilot gốc, 45 I và 36 A theo ID. T19 còn cross-run độc lập của thành viên. [Bằng chứng Forge](../results/convex-author-v1/data/forge_release_verification.csv)
 
 ## Slide 26 · Kết quả Convex và góc nhìn d512
 

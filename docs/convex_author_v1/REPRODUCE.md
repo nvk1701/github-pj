@@ -53,7 +53,7 @@ if ((Get-FileHash -Algorithm SHA256 -LiteralPath $Row.bundle).Hash.ToLowerInvari
 python -m wandb sync --yes (Split-Path -Parent $Row.bundle)
 ```
 
-Đối chiếu lại ID, trạng thái `finished`, group và `validated_history_sha256` trên Forge. Nếu lần sync bị gián đoạn hoặc ID đã hiện diện, đối soát trước mọi lần thử tiếp theo. Chứng cứ hiện tại dừng ở `SDK_FINISHED` offline và Forge API read-only.
+Đối chiếu lại ID, trạng thái `finished`, group và `validated_history_sha256` trên Forge. Nếu lần sync bị gián đoạn hoặc ID đã hiện diện, đối soát trước mọi lần thử tiếp theo. Bản V5 đã xác minh 88 run qua API. Để kiểm lại metric, đọc summary và history qua `Run.scan_history` cho `_step`, `M0`, `M1`, `M2`, `lr`. History có 100 dòng tại các bước chia hết cho 20. Đối chiếu với các giá trị tương ứng trong history cục bộ theo SHA-256 đã lưu. CSV lưu thêm SHA-256 của chuỗi JSON UTF-8 các dòng API theo thứ tự step, với key được sắp xếp và dấu phân cách JSON không thêm khoảng trắng. [Đối soát theo ID](../results/convex-author-v1/data/forge_release_verification.csv)
 
 ### Push khi đã có ủy quyền riêng
 

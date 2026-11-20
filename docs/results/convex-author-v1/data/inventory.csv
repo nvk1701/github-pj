@@ -1,7 +1,7 @@
 family,expected,validated,failed,blocked,status,evidence,wandb_remote_verified
 P,60,60,0,0,VERIFIED,historical freeze,60
 R,5,5,0,0,VERIFIED,Colab exports,0
-I,45,45,0,0,VERIFIED,SHA-256 sealed local histories,0
-A,36,36,0,0,VERIFIED,SHA-256 sealed local histories,0
-pilot,7,7,0,0,VERIFIED,SHA-256 sealed local histories,0
+I,45,45,0,0,VERIFIED,SHA-256 sealed local histories,45
+A,36,36,0,0,VERIFIED,SHA-256 sealed local histories,36
+pilot,7,7,0,0,VERIFIED,SHA-256 sealed local histories,7
 rng diagnostic,3,3,0,0,VERIFIED,SHA-256 sealed local histories,0

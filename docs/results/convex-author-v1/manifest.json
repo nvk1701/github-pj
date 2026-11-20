@@ -29,7 +29,7 @@
       "blocked": 0,
       "status": "VERIFIED",
       "evidence": "SHA-256 sealed local histories",
-      "wandb_remote_verified": 0
+      "wandb_remote_verified": 45
     },
     {
       "family": "A",
@@ -39,7 +39,7 @@
       "blocked": 0,
       "status": "VERIFIED",
       "evidence": "SHA-256 sealed local histories",
-      "wandb_remote_verified": 0
+      "wandb_remote_verified": 36
     },
     {
       "family": "pilot",
@@ -49,7 +49,7 @@
       "blocked": 0,
       "status": "VERIFIED",
       "evidence": "SHA-256 sealed local histories",
-      "wandb_remote_verified": 0
+      "wandb_remote_verified": 7
     },
     {
       "family": "rng diagnostic",
@@ -8383,7 +8383,7 @@
     "data/comparator_correction.csv": "30156f0980a008a0813029ff91af010cb96a4c17e96e13a3e19f5d8c0e725936",
     "data/d512_windows.csv": "a80f3f225acb1a37ce420e3a7278bca6496a93cf77372caf86b6ae9eb93eca2f",
     "data/fidelity.csv": "223c982f1caf430ef6aadf83cd8b1fa575593f0e652a5568ba56a24cf2ca97a1",
-    "data/inventory.csv": "e89d10719f0ee0bf8035195f20fe2313235c1f6fe739ea3cf693ae1334ce6cc0",
+    "data/inventory.csv": "5420fb4ace0eae58065cbe4a15c7f76150209eed7634c8d89bd79902a51c95e0",
     "data/method_summary.csv": "78598e4248dd3ecba826fa03bd599de9fd8177bd2675ece730c8f33174c471a7",
     "data/native_curves.csv": "769da703c8d0af30947975bbb7cf6d0b552b3977869ec3665e8f75ef77680719",
     "data/per_run.csv": "bd40303cfcaa5974cf8f2744b676166624a495766c8a11c3abfaabc851d4e516",
@@ -8401,17 +8401,18 @@
     "figures/project_context_m2.png": "96fff001c0aa2c841d753162ebbf1c77f5c8a0ec380667de5b30e6f158534378",
     "figures/trajectory_d128.png": "5e22c4b414a3beb1726784800e2f8e4ddf9bf424eb23c411d4712ea4f295a7c8",
     "provenance.json": "cb241bab76cc2ebd98c8bf2a008deebac9847fa6ff0b975d5770d87f10426c1b",
-    "data/forge_release_verification.csv": "4dc2590e47676c0ca3919f935667f75f17b9dd7d22d993648cc3400013d7df39",
+    "data/forge_release_verification.csv": "3d9621a4c084939aa6741678533e29790025b30728310e4e860b7a8ff6182a10",
     "data/native_execution.txt": "256ad3423bb089759b1ab936652112a43b6bc26b85f2ce35f8aeed29d8237a43",
     "data/diagnostic_execution.txt": "4af9da07dac2743a0ecc8d6fcfcab0a9a14a369b7018690c9834089e4621d7c8",
     "data/colab_smoke.json": "acb2c3f11a21893e1eb76f7ee8fdae3e8d53a08cf339a557bdaacecbab5dceef",
     "data/independent_validation.json": "f907fadbb37be542fe55a4f416238a89cf330ee5bdd96fef45463c98e24b204f",
-    "RESULTS.md": "30984a755db90cab1f53e1badd06466afc3ffd0ed0c943052bf177bdd7d87382",
+    "RESULTS.md": "be10284421f12857dc68d554de707a470725850948f89f934cfcb6f8fb829768",
     "PROTOCOL.md": "c75cfd34d19b4e4df5a6556da29be069ebcc02a9d4b2bf46dca5f70294b3e462",
-    "data/wandb_offline_sync.csv": "929b9a0b93dbd7f9165a6941dd0ac328e95b56b46eeec5482e341a25d593c160"
+    "data/wandb_offline_sync.csv": "929b9a0b93dbd7f9165a6941dd0ac328e95b56b46eeec5482e341a25d593c160",
+    "data/forge_api_audit.json": "adf7527686576698a8366d3a60f2760ffdb360c6e571983dfa2d22e67f259af2"
   },
   "release_audit": {
-    "status": "READY_TO_PUSH_WITH_DISCLOSED_LIMITATIONS",
+    "status": "SCIENTIFICALLY_COMPLETE_READY_TO_PUSH",
     "native_runs_verified": 5,
     "shared_input_parity": "VERIFIED",
     "independent_runs_verified": 45,
@@ -8421,15 +8422,28 @@
     "frozen_files_unchanged": 19,
     "forge": {
       "pilot_i_a_bundles_sealed": 88,
-      "remote_verified": 0,
+      "remote_verified": 88,
       "manifest": "data/forge_release_verification.csv",
-      "destination": "gr_ml_29_37_37/ml-distribution-shift"
+      "destination": "gr_ml_29_37_37/ml-distribution-shift",
+      "counts": {
+        "convex-author-pilot-v1": 7,
+        "convex-author-aligned-v1": 45,
+        "convex-author-ablation-v1": 36
+      },
+      "remote_history_rows": 8800,
+      "api_summaries_matched": 88,
+      "historical_ids_checked": 60,
+      "endpoint": "https://api.forge.coreweave.com",
+      "api_audit": "data/forge_api_audit.json"
     },
     "checked_histories": 91,
     "method_summary_rows": 66,
     "matched_ablation_differences": 108,
     "max_identity_step": 4.440892098500626e-16,
     "max_identity_cumulative": 4.3649528436162655e-12,
-    "regenerated_machine_artifacts": 23
+    "regenerated_machine_artifacts": 23,
+    "regenerated_figures_byte_identical": 13,
+    "regenerated_tables_matching_after_lf_normalization": 9,
+    "provenance_regenerated_with_current_git_commit": true
   }
 }
