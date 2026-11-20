@@ -1,5 +1,6 @@
 """Validate external Colab exports without loading notebook source or pickle data."""
 
+from datetime import datetime, timedelta
 import hashlib
 import json
 from pathlib import Path
@@ -9,6 +10,7 @@ import numpy as np
 from experiments.convex_author_aligned import (
     Case, DIAGNOSTIC, phases_with_data, reference_phases, train,
 )
+from scripts.export_convex_author_colab import SNAPSHOT_SHA256, URL
 
 
 def sha256(path):
@@ -18,16 +20,32 @@ def sha256(path):
 
 def load_export(root, kind, dimension, cfg):
     sidecar = root / f"{kind}-d{dimension}.json"
-    if not sidecar.is_file():
-        return None
-    meta = json.loads(sidecar.read_text(encoding="utf-8"))
-    if (meta["author_commit"] != cfg["author_commit"] or meta["author_blob"] != cfg["author_blob"]
-            or meta["kind"] != kind or meta["dimension"] != dimension
-            or not all(meta["environment"].get(k) for k in ("python", "numpy", "tensorflow", "runtime"))
-            or not meta["executed_at_utc"]):
-        raise ValueError(f"invalid Colab evidence metadata: {sidecar.name}")
     path = sidecar.with_suffix(".npz")
-    if sha256(path) != meta["sha256"]:
+    if not sidecar.is_file() and not path.is_file():
+        return None
+    if not sidecar.is_file() or not path.is_file():
+        raise ValueError(f"incomplete Colab export: {sidecar.stem}")
+    try:
+        meta = json.loads(sidecar.read_text(encoding="utf-8"))
+        env = meta["environment"]
+        executed = datetime.fromisoformat(meta["executed_at_utc"])
+        valid = (
+            meta["author_commit"] == cfg["author_commit"]
+            and meta["author_blob"] == cfg["author_blob"]
+            and meta["notebook_sha256"] == SNAPSHOT_SHA256
+            and meta["author_url"] == URL
+            and meta["kind"] == kind and type(meta["dimension"]) is int
+            and meta["dimension"] == dimension
+            and executed.utcoffset() == timedelta(0)
+            and env["runtime"] == "google-colab"
+            and all(isinstance(env.get(k), str) and env[k].strip()
+                    for k in ("python", "numpy", "tensorflow"))
+        )
+    except (KeyError, TypeError, ValueError, AttributeError) as exc:
+        raise ValueError(f"invalid Colab evidence metadata: {sidecar.name}") from exc
+    if not valid:
+        raise ValueError(f"invalid Colab evidence metadata: {sidecar.name}")
+    if sha256(path) != meta.get("sha256"):
         raise ValueError(f"export checksum mismatch: {path.name}")
     return meta, path
 

@@ -19,3 +19,9 @@
 Forge endpoint `https://api.forge.coreweave.com` được kiểm tra chỉ đọc bằng SDK, có viewer xác thực và đọc được frozen run `38easaio` ở trạng thái finished. Bộ duyệt tự động từ chối yêu cầu đồng bộ 7 SDK artifacts vì chưa có ủy quyền rõ cho payload và đích. Không thử đồng bộ qua đường khác. Không có URL remote mới được xác minh. [Run manifest](../results/convex-author-v1/manifest.json) · [Handoff tái lập](REPRODUCE.md)
 
 Clean-clone smoke đã dựng lại 10/10 history NPZ khớp SHA-256 và kiểm 15/15 publication hashes. Import checksum/replay chạy thử bằng fixture tổng hợp nội bộ riêng, gồm trường hợp payload bị sửa, không dùng làm bằng chứng F2/F3. Script Colab helper được kiểm tra cú pháp; thực thi ở Colab vẫn chờ runtime.
+
+## Preflight bổ sung ngày 20/11/2026
+
+Worktree research sạch tại `23a608139eb94ccf6322e506a70411759f9351e6`. Đã kiểm trực tiếp 19 SHA-256 frozen và 15 SHA-256 publication. Có 7 pilot, 3 diagnostic MT19937, 7 bundle SDK offline. Hai NPZ tìm thấy ở thư mục self-check mang nhãn dữ liệu tổng hợp nội bộ. Runtime Colab và export thật chưa có. Trạng thái ban đầu của F2/F3 là UNVERIFIED. Không chạy I/A trước khi cổng này mở.
+
+Máy kiểm tra có 20 CPU logic, RAM tổng 15,73 GiB, RAM khả dụng 1,80 GiB tại thời điểm preflight, ổ D còn 146,11 GiB. Dùng Windows 11 và môi trường Python 3.12.2 đã pin. Máy đủ cho tuần tự NumPy, còn thực thi TensorFlow notebook nguyên bản thuộc Colab riêng. W&B và Git chỉ kiểm tra đọc hoặc cục bộ theo yêu cầu pre-push hiện tại.

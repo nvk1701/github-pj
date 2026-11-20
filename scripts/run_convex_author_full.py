@@ -29,7 +29,7 @@ from core.utils import load_config
 from experiments.convex_author_aligned import (
     ABLATION, ALIGNED, DIAGNOSTIC, PILOT, Case, evaluate, matrix, settings, train,
 )
-from experiments.convex_author_evidence import inspect_evidence, sha256
+from experiments.convex_author_evidence import inspect_evidence, require_array, sha256
 
 
 BASE = "8686740adca5f6879775e52a500b28cb203123d0"
@@ -39,6 +39,7 @@ AUDIT = "docs/convex_author_v1/SOURCE_AUDIT.md"
 SOURCES = (CONFIG, AUDIT, "requirements.txt", "scripts/run_convex_author_full.py",
            "experiments/convex_author_aligned.py", "experiments/convex_author_evidence.py",
            "experiments/convex_author_analysis.py", "tests/test_convex_author_alignment.py",
+           "scripts/export_convex_author_colab.py",
            "core/convex_population.py", "core/drift.py", "core/schedules.py",
            "core/utils.py", "core/tracking.py", "core/convex_recovery.py")
 
@@ -91,17 +92,50 @@ def provenance(cfg):
     }
 
 
+def validate_history(stored, steps, dimension, metrics):
+    vectors = {"initial": (dimension,)}
+    vectors.update({name: (steps, dimension) for name in ("theta", "post_theta", "gradient", "reference")})
+    for name, shape in vectors.items():
+        require_array(stored[name], shape, ("float32",), name)
+    require_array(stored["oracle"], (steps, dimension), ("float64",), "oracle")
+    require_array(stored["thresholds"], (steps, 2), ("float64",), "thresholds")
+    require_array(stored["projection_active"], (steps,), ("bool",), "projection_active")
+    for name in ("loss", "reference_loss", "M0_step", "M0"):
+        require_array(stored[name], (steps,), ("float32",), name)
+    for name in ("M1", "M2", "M1_step", "M2_step", "correction", "gamma", "lr",
+                 "m1_quadrature_budget", "m2_quadrature_budget", "oracle_parameter_error",
+                 "oracle_suboptimality"):
+        require_array(stored[name], (steps,), ("float64",), name)
+    if (not np.array_equal(stored["initial"], np.zeros(dimension))
+            or not np.array_equal(stored["theta"][0], stored["initial"])
+            or not np.array_equal(stored["theta"][1:], stored["post_theta"][:-1])
+            or not np.array_equal(stored["M0_step"], stored["loss"] - stored["reference_loss"])
+            or not np.allclose(stored["M2_step"] - stored["M1_step"], stored["correction"],
+                               atol=3e-15, rtol=0)):
+        raise ValueError("history failed trajectory or comparator identity")
+    for name, dtype in (("M0", np.float32), ("M1", np.float64), ("M2", np.float64)):
+        series = stored[name]
+        if (not np.array_equal(series, np.cumsum(stored[name + "_step"], dtype=dtype))
+                or float(series[-1]) != metrics[name]):
+            raise ValueError(f"history failed cumulative {name} identity")
+
+
 def validated(root, case, proof):
     folder = root / "runs" / case.key
     path = folder / "record.json"
     if not path.is_file():
+        if (folder / "history.npz").exists():
+            raise ValueError(f"unsealed history retained; use a new output root: {case.key}")
         return None
     record = json.loads(path.read_text(encoding="utf-8"))
     keys = ("science_sha256", "config_sha256", "source_sha256", "environment")
     if (record["case"] != asdict(case) or record["status"] != "VERIFIED"
             or any(record["provenance"][key] != proof[key] for key in keys)
+            or record["steps"] != proof["steps"] or record["batch"] != proof["batch_size"]
             or record["history_sha256"] != sha256(folder / "history.npz")):
         raise ValueError(f"incompatible or corrupt completed record: {case.key}")
+    with np.load(folder / "history.npz", allow_pickle=False) as stored:
+        validate_history(stored, proof["steps"], case.dimension, record["metrics"])
     return record
 
 
@@ -119,6 +153,8 @@ def execute(root, cfg, case, proof, evaluators):
         start = perf_counter()
         history, data_hashes = train(cfg, case, native_rng=(case.protocol == DIAGNOSTIC))
         history.update(evaluate(cfg, case, history, evaluators))
+        metrics = {name: float(history[name][-1]) for name in ("M0", "M1", "M2")}
+        validate_history(history, cfg["steps"], case.dimension, metrics)
         path = folder / "history.npz"
         with tempfile.NamedTemporaryFile(dir=folder, suffix=".npz", delete=False) as stream:
             temporary = Path(stream.name)
@@ -135,7 +171,7 @@ def execute(root, cfg, case, proof, evaluators):
             "rng": "MT19937 seeded by phase, X then noise" if case.protocol == DIAGNOSTIC
             else "PCG64 independent X/noise SeedSequence([seed, dimension]).spawn(2)",
             "data": data_hashes, "history_sha256": sha256(path),
-            "metrics": {name: float(history[name][-1]) for name in ("M0", "M1", "M2")},
+            "metrics": metrics,
             "diagnostics": {
                 "lr_mean": float(history["lr"].mean()),
                 "fraction_lr_ge_3_96": float((history["lr"] >= 3.96).mean()),
@@ -223,6 +259,7 @@ def main():
     before = frozen_hashes()
     cfg = config()
     proof = provenance(cfg)
+    proof.update(steps=cfg["steps"], batch_size=cfg["batch_size"])
     cases = matrix(cfg)
     root.mkdir(parents=True, exist_ok=True)
     atomic_json(root / "plan.json", {"provenance": proof, "frozen_sha256": before,

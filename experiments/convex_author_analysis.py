@@ -44,10 +44,83 @@ def tracking(root, case):
             if (path := root / "runs" / case.key / f"wandb-{mode}.json").is_file()}
 
 
+def verify_pairs(records):
+    streams = {}
+    for case, record in records.items():
+        if case.protocol in (ALIGNED, PILOT):
+            key = (case.protocol, case.dimension, case.seed)
+            expected = streams.setdefault(key, record["data"])
+            if record["data"] != expected:
+                raise ValueError(f"unmatched method inputs: {case.key}")
+        elif case.protocol == ABLATION:
+            control = Case(ALIGNED, case.dimension, case.seed)
+            if control not in records:
+                raise ValueError(f"missing ablation control: {case.key}")
+            baseline = records[control]["data"]
+            noise_changed = case.intervention == "noise"
+            if (record["data"]["X_sha256"] != baseline["X_sha256"]
+                    or (record["data"]["y_sha256"] != baseline["y_sha256"]) != noise_changed):
+                raise ValueError(f"unmatched ablation inputs: {case.key}")
+
+
 def save(fig, figures, name):
     fig.tight_layout()
     fig.savefig(figures / f"{name}.png", dpi=160)
     plt.close(fig)
+
+
+def supplemental_diagnostics(root, data, figures, records, seed):
+    protocol = ALIGNED if sum(c.protocol == ALIGNED for c in records) == 45 else PILOT
+    cases = [c for c in records if c.protocol == protocol and c.seed == seed]
+    if not cases:
+        return
+    fig, ax = plt.subplots(figsize=(8, 4.4))
+    correction_rows = []
+    for case in sorted((c for c in cases if c.method == "convex"), key=lambda c: c.dimension):
+        [correction] = history(root, case, "correction")
+        cumsum = np.cumsum(correction)
+        ax.plot(np.arange(1, len(cumsum) + 1), cumsum, label=f"d={case.dimension}")
+        correction_rows.append({**asdict(case), "final_correction": float(cumsum[-1])})
+    ax.set(title=f"{protocol}, seed {seed}, label-noise std=0.1",
+           xlabel="Batch step", ylabel="Cumulative comparator correction (M2 - M1)")
+    ax.legend(ncol=3)
+    save(fig, figures, "comparator_correction")
+    write_csv(data / "comparator_correction.csv",
+              ["protocol", "dimension", "seed", "method", "intervention", "final_correction"],
+              correction_rows)
+
+    high = [c for c in cases if c.dimension == 512]
+    if not high:
+        return
+    fig, axes = plt.subplots(2, 2, figsize=(10, 6.2), sharex=True)
+    high_rows = []
+    for case in high:
+        grad, theta, post, gamma, lr, m2, projected = history(
+            root, case, "gradient", "theta", "post_theta", "gamma", "lr", "M2_step", "projection_active")
+        grad_norm = np.linalg.norm(grad, axis=1)
+        update_norm = np.linalg.norm(post - theta, axis=1)
+        series = (grad_norm, update_norm, gamma, m2)
+        step = np.arange(1, len(lr) + 1)
+        for ax, values, label in zip(axes.flat, series, ("Gradient norm", "Update norm",
+                                                        "Forward reference shift", "Per-step M2")):
+            ax.plot(step, values, linewidth=.7, alpha=.8, label=case.method)
+            ax.set_ylabel(label)
+        for start, stop in ((0, 20), (900, 1100), (0, len(step))):
+            window = slice(start, stop)
+            high_rows.append({
+                **asdict(case), "step_start": start + 1, "step_end": stop,
+                "mean_grad_norm": float(grad_norm[window].mean()),
+                "mean_update_norm": float(update_norm[window].mean()),
+                "rms_update_norm": float(np.sqrt(np.mean(update_norm[window].astype(float)**2))),
+                "mean_gamma": float(gamma[window].mean()),
+                "mean_lr": float(lr[window].mean()), "sum_M2": float(m2[window].sum()),
+                "projected_updates": int(projected[window].sum()),
+            })
+    axes[0, 0].legend(fontsize=8)
+    fig.supxlabel("Batch step")
+    fig.suptitle(f"{protocol}, d=512, seed {seed}, label-noise std=0.1")
+    save(fig, figures, "d512_gradient_drift")
+    write_csv(data / "d512_windows.csv", list(high_rows[0]), high_rows)
 
 
 def figures_from_runs(root, target, cfg, records, native, matched, frozen_csv, paired):
@@ -191,6 +264,7 @@ def report(root, frozen, cfg, proof, frozen_hashes, plan, parity, native, matche
     rng_cases = [Case(DIAGNOSTIC, d, seed) for d in cfg["parity_dimensions"]]
     all_cases = [*plan, *pilots, *rng_cases]
     records = {c: record for c in all_cases if (record := validate(root, c, proof)) is not None}
+    verify_pairs(records)
     errors = {c.key for c in all_cases if (root / "runs" / c.key / "failure.json").is_file() and c not in records}
     logs = {c.key: tracking(root, c) for c in records}
 
@@ -277,6 +351,7 @@ def report(root, frozen, cfg, proof, frozen_hashes, plan, parity, native, matche
                   [{"dimension": d, "step": i+1, "M0": float(value)}
                    for d, entry in sorted(native.items()) for i, value in enumerate(entry["M0"])])
     figures_from_runs(root, figures, cfg, records, native, matched, frozen / "data/cp04_method_summary.csv", pairs)
+    supplemental_diagnostics(root, data, figures, records, seed)
     atomic_json(target / "manifest.json", {
         "status": "VERIFIED" if all(row["status"] == "VERIFIED" for row in inventory)
         else "COMPLETED_WITH_LIMITATIONS",

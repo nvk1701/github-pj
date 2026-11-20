@@ -1,7 +1,9 @@
 """Deterministic internal measurements. Author parity requires Colab exports."""
 
 from dataclasses import replace
+import json
 from pathlib import Path
+from tempfile import TemporaryDirectory
 import unittest
 
 import numpy as np
@@ -14,6 +16,10 @@ from experiments.convex_author_aligned import (
     ALIGNED, ABLATION, Case, bce, evaluate, loss_gradient, matrix, phases_with_data,
     reference_phases, train,
 )
+from experiments.convex_author_analysis import verify_pairs
+from experiments.convex_author_evidence import load_export, sha256
+from scripts.export_convex_author_colab import SNAPSHOT_SHA256, URL
+from scripts.run_convex_author_full import validate_history, validated
 
 ROOT = Path(__file__).resolve().parents[1]
 CFG = load_config(ROOT / "configs/convex_author_v1.yaml")
@@ -127,6 +133,77 @@ class AuthorAlignmentTests(unittest.TestCase):
         self.assertAlmostEqual(derivative, 0, places=10)
         self.assertLess(w, ref[0])
         np.testing.assert_array_equal(gaussian_population_oracle(ref, 0.)["theta"], ref)
+
+    def test_ema_cold_start_has_nonzero_gradients_but_zero_updates(self):
+        case = Case(ABLATION, 512, 0, intervention="ema")
+        history, _ = train({**SMALL, "steps": 100}, case)
+        self.assertTrue(np.all(np.linalg.norm(history["gradient"], axis=1) > 0))
+        for key in ("lr", "gamma", "theta", "post_theta"):
+            np.testing.assert_array_equal(history[key], 0)
+
+    def test_resume_preserves_unsealed_payload(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            folder = root / "runs" / CASE.key
+            folder.mkdir(parents=True)
+            self.assertIsNone(validated(root, CASE, {}))
+            path = folder / "history.npz"
+            path.write_bytes(b"unsealed")
+            with self.assertRaisesRegex(ValueError, "unsealed history"):
+                validated(root, CASE, {})
+            self.assertEqual(path.read_bytes(), b"unsealed")
+
+    def test_history_checks_metrics_and_dtype(self):
+        history, _ = train(SMALL, CASE)
+        history.update(evaluate(SMALL, CASE, history, {}))
+        metrics = {name: float(history[name][-1]) for name in ("M0", "M1", "M2")}
+        validate_history(history, SMALL["steps"], CASE.dimension, metrics)
+        with self.assertRaisesRegex(ValueError, "cumulative M1"):
+            validate_history(history, SMALL["steps"], CASE.dimension, {**metrics, "M1": -1.})
+        with self.assertRaisesRegex(ValueError, "invalid array M0"):
+            validate_history({**history, "M0": history["M0"].astype(float)},
+                             SMALL["steps"], CASE.dimension, metrics)
+
+    def test_paired_aggregation_rejects_unmatched_streams(self):
+        base = {"data": {"X_sha256": "common_x", "y_sha256": "common_y"}}
+        variant = {"data": {"X_sha256": "common_x", "y_sha256": "noisier_y"}}
+        noise = Case(ABLATION, CASE.dimension, CASE.seed, intervention="noise")
+        constant = replace(CASE, method="constant")
+        verify_pairs({CASE: base, constant: base, noise: variant})
+        with self.assertRaisesRegex(ValueError, "unmatched method"):
+            verify_pairs({CASE: base, constant: variant})
+        with self.assertRaisesRegex(ValueError, "unmatched ablation"):
+            verify_pairs({CASE: base, noise: base})
+        with self.assertRaisesRegex(ValueError, "missing ablation control"):
+            verify_pairs({noise: variant})
+
+    def test_export_provenance_and_checksum_checks(self):
+        # Only validate sidecar mechanics. No author experiment runs in this test.
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "native-d2.npz"
+            sidecar = path.with_suffix(".json")
+            self.assertIsNone(load_export(root, "native", 2, CFG))
+            path.write_bytes(b"test payload")
+            with self.assertRaisesRegex(ValueError, "incomplete Colab export"):
+                load_export(root, "native", 2, CFG)
+            meta = {"author_commit": CFG["author_commit"], "author_blob": CFG["author_blob"],
+                    "author_url": URL, "notebook_sha256": SNAPSHOT_SHA256, "kind": "native",
+                    "dimension": 2, "executed_at_utc": "2026-11-20T09:00:00+00:00",
+                    "environment": {"runtime": "google-colab", "python": "test",
+                                    "numpy": "test", "tensorflow": "test"},
+                    "sha256": sha256(path)}
+            sidecar.write_text(json.dumps(meta), encoding="utf-8")
+            self.assertEqual(load_export(root, "native", 2, CFG), (meta, path))
+            for invalid in ({"executed_at_utc": "local test"}, {"notebook_sha256": "wrong"},
+                            {"environment": {**meta["environment"], "runtime": "local"}}):
+                sidecar.write_text(json.dumps(meta | invalid), encoding="utf-8")
+                with self.assertRaisesRegex(ValueError, "invalid Colab evidence metadata"):
+                    load_export(root, "native", 2, CFG)
+            sidecar.write_text(json.dumps(meta), encoding="utf-8")
+            path.write_bytes(b"corruption")
+            with self.assertRaisesRegex(ValueError, "checksum mismatch"):
+                load_export(root, "native", 2, CFG)
 
 
 if __name__ == "__main__":
