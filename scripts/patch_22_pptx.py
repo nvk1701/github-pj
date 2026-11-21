@@ -180,6 +180,43 @@ def make_formula_sp_element(
     return ET.fromstring(xml_str)
 
 
+def add_hyperlink_relationship(rels_xml_bytes: bytes, url: str) -> Tuple[bytes, str]:
+    ET.register_namespace("", REL_NS)
+    root = ET.fromstring(rels_xml_bytes)
+    existing_ids = [el.attrib.get("Id", "") for el in root]
+    max_num = 0
+    for rid in existing_ids:
+        if rid.startswith("rId") and rid[3:].isdigit():
+            max_num = max(max_num, int(rid[3:]))
+    new_rid = f"rId{max_num + 1}"
+    rel_el = ET.SubElement(root, f"{{{REL_NS}}}Relationship")
+    rel_el.set("Id", new_rid)
+    rel_el.set("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink")
+    rel_el.set("Target", url)
+    rel_el.set("TargetMode", "External")
+    out_bytes = ET.tostring(root, encoding="utf-8", xml_declaration=True)
+    return out_bytes, new_rid
+
+
+def attach_hyperlinks_to_slide(slide_xml_bytes: bytes, rels_xml_bytes: bytes, url_map: Dict[str, str]) -> Tuple[bytes, bytes]:
+    root = ET.fromstring(slide_xml_bytes)
+    for r_el in root.findall(f".//{{{A_NS}}}r"):
+        t_el = r_el.find(f"{{{A_NS}}}t")
+        if t_el is None or not t_el.text:
+            continue
+        for key, url in url_map.items():
+            if key in t_el.text:
+                rels_xml_bytes, rid = add_hyperlink_relationship(rels_xml_bytes, url)
+                rpr = r_el.find(f"{{{A_NS}}}rPr")
+                if rpr is None:
+                    rpr = ET.Element(f"{{{A_NS}}}rPr")
+                    r_el.insert(0, rpr)
+                if rpr.find(f"{{{A_NS}}}hlinkClick") is None:
+                    ET.SubElement(rpr, f"{{{A_NS}}}hlinkClick", {f"{{{R_NS}}}id": rid})
+                break
+    return ET.tostring(root, encoding="utf-8", xml_declaration=True), rels_xml_bytes
+
+
 def add_image_relationship(rels_xml_bytes: bytes, media_filename: str) -> Tuple[bytes, str]:
     """
     Thêm `<Relationship>` trỏ tới `../media/<media_filename>` vào `slideX.xml.rels`
