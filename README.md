@@ -12,7 +12,7 @@ Nghiên cứu Convex bổ sung sau mốc đóng băng 18/11/2026 có [báo cáo 
 
 ## Cấu Trúc Thư Mục & Giải Thích Chức Năng Từng File (Dành Cho Cả Nhóm)
 
-Dưới đây là sơ đồ tổ chức repository và hướng dẫn nhanh để các thành viên (**TV1: Khoa**, **TV2: Khôi**, **TV3: Hòa**) tra cứu chức năng của từng thư mục/file:
+Dưới đây là sơ đồ tổ chức repository và hướng dẫn nhanh để các thành viên (**TV1: Khoa — Trưởng nhóm**, **TV2: Khôi**; *lưu ý: TV3 Hòa không hoàn thành nhiệm vụ nên toàn bộ phần Non-convex & Flow Cytometry do TV1 Khoa thực hiện*) tra cứu chức năng của từng thư mục/file:
 
 ```text
 PROJECT/
@@ -21,24 +21,27 @@ PROJECT/
 ├── configs/                           # [CẤU HÌNH SIÊU THAM SỐ CỐ ĐỊNH SEED]
 │   ├── linear.yaml                    # (T14 - Khoa) Cấu hình Figure 4 & Figure 5 (top) cho Linear Regression
 │   ├── convex.yaml                    # (T15 - Khôi) Cấu hình Figure 5 (bottom) cho Logistic Regression
-│   └── convex_cp03_sensitivity.yaml   # (T17 - Khôi) Cấu hình phân tích độ nhạy theo ell và sigma
+│   ├── convex_cp03_sensitivity.yaml   # (T17 - Khôi) Cấu hình phân tích độ nhạy theo ell và sigma
+│   └── cytometry.yaml                 # (T12, T16 - Khoa) Cấu hình Figure 6 cho Flow Cytometry 5-Layer MLP
 ├── core/                              # [KHUNG CODE DÙNG CHUNG CHO CẢ 3 BÀI TOÁN]
 │   ├── tracking.py                    # (T2 - Khôi) Khởi tạo & quản lý W&B run dùng chung (`init_run`)
 │   ├── utils.py                       # (T6 - Khoa) Cố định seed (`set_seed`), đọc/ghi YAML, phép chiếu Euclid `project_to_ball`
 │   ├── drift.py                       # (T6 - Khoa) Sinh quỹ đạo xoắn ốc Eq. 26 (`generate_spiral_trajectory`), tính shift `gamma_t` & `EMADriftEstimator`
-│   ├── schedules.py                   # (T6, T7, T9) `BaseSchedule`, Baselines, `LinearOptimalSchedule` (Alg. 1) & `ConvexSchedule` (Prop. 4.3)
+│   ├── schedules.py                   # (T6, T7, T9, T12 - Khoa & Khôi) `BaseSchedule`, Baselines, `LinearOptimalSchedule`, `ConvexSchedule`, `NonConvexSchedule`
 │   ├── trainer.py                     # (T6 - Khoa) Vòng lặp Never-Ending Online SGD (`OnlineSGDTrainer`) cho Linear & Logistic + log W&B
 │   ├── convex_eval.py                 # (T15 - Khôi) Hàm mất mát BCE ổn định dấu & đánh giá Monte Carlo
 │   ├── convex_population.py           # (T15 - Khôi) Tích phân cầu phương Gaussian 1D & nghiệm xấp xỉ Oracle
-│   └── data.py                        # (T11 - Hòa) Tải dữ liệu tế bào tụy `scvelo.datasets.pancreas()` & sinh luồng 4 pha P1->P4
+│   └── data.py                        # (T11 - Khoa) Tải dữ liệu tế bào tụy `scvelo.datasets.pancreas()` (10 genes) & sinh luồng 4 pha P1->P4
 ├── docs/                              # [TÀI LIỆU ĐỌC HIỂU BÀI BÁO (MILESTONE 2) & BÀN GIAO]
-│   ├── 00_fastpass.md                 # (T0) Ghi chú đọc lướt (Fast Pass) nắm ý tưởng cốt lõi bài báo
-│   ├── motivation_example.md          # (T3) Thống nhất phạm vi Full Scope, phân công & Ví dụ thực tế (CTR thương mại điện tử)
+│   ├── 00_fastpass.md                 # (T0 - Khoa) Ghi chú đọc lướt (Fast Pass) nắm ý tưởng cốt lõi bài báo
+│   ├── motivation_example.md          # (T3 - Khoa) Thống nhất phạm vi Full Scope, phân công & Ví dụ thực tế (CTR thương mại điện tử)
 │   ├── 01_context.md                  # (T4 - Khoa) Bối cảnh, động lực thực tế & phân tích 3 phương pháp tiền nhiệm
 │   ├── notation.md                    # (T5 - Khoa) Bảng ký hiệu thống nhất, Bài toán hình thức & Giải thích 2 Pipeline (Inference + Training)
 │   ├── 03_linear.md                   # (T7 - Khoa) Lý thuyết xấp xỉ SDE, phương trình moment ODE, HJB & Algorithm 1
 │   ├── 04_convex.md                   # (T9 - Khôi) Lý thuyết hàm lồi tổng quát, Theorem 4.2, 4.7 & Proposition 4.3
-│   ├── 05_nonconvex_experiments.md    # (T11 - Hòa) Lý thuyết hàm không lồi & thiết lập thực nghiệm Flow Cytometry MLP
+│   ├── 05_nonconvex.md                # (T11, T12 - Khoa) Lý thuyết hàm không lồi (Theorem 5.1) & thực nghiệm Flow Cytometry MLP
+│   ├── theorems.md                    # (T10 - Khoa & Khôi) Bảng tổng hợp 7 định lý, giả thiết toán học, trực giác & giới hạn
+│   ├── original_code_comparison.md    # (T18 - Khoa & Khôi) Kiểm toán mã nguồn gốc tác giả & phân tích độ lệch
 │   ├── T2_handover.md                 # (T2 - Khôi) Tài liệu bàn giao môi trường, kiểm thử W&B và quy ước commit
 │   ├── T19_cross_check_report.md      # (T19 - Khoa) Biên bản kiểm tra chéo độc lập code & số liệu giữa TV1 và TV2
 │   └── references.md                  # (T10 - Khôi) Danh mục tài liệu tham khảo chuẩn IEEE
@@ -47,7 +50,7 @@ PROJECT/
 │   ├── linear_regression.py           # (T14 - Khoa) Thực nghiệm 1: Tái hiện Figure 4 và Figure 5 (top) cho Linear Regression
 │   ├── convex.py                      # (T15 - Khôi) Thực nghiệm 2: Tái hiện Figure 5 (bottom) cho Logistic Regression
 │   ├── sensitivity.py                 # (T17 - Khôi) Phân tích mở rộng (Bonus): Quét độ nhạy theo tốc độ trôi `gamma` và nhiễu `sigma`
-│   └── neural_net.py                  # (T16 - Hòa) Thực nghiệm 3: Tái hiện Figure 6 (Flow Cytometry MLP 5 tầng với Adam Restart)
+│   └── neural_net.py                  # (T12, T16 - Khoa) Thực nghiệm 3: Tái hiện Figure 6 (Flow Cytometry MLP 5 tầng với Adam Restart)
 ├── results/                           # [BẢNG SỐ LIỆU CSV TÁI HIỆN THỰC NGHIỆM]
 │   ├── linear/                        # (T14 - Khoa) CSV kết quả Figure 4, Figure 5 (top) và đối chiếu Baselines
 │   ├── logistic/                      # (T15 - Khôi) CSV kết quả Figure 5 (bottom) trên 45 runs chính thức

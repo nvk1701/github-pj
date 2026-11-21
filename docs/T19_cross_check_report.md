@@ -47,4 +47,4 @@ Tài liệu này ghi nhận kết quả kiểm tra chéo độc lập của **TV
    - Đã được TV1 chạy kiểm tra chéo độc lập (**T19**), xác nhận khả năng tái lập chính xác tuyệt đối tới cấp độ máy ($10^{-16}$) và đầy đủ 60 W&B runs public.
 3. **Các mục còn chờ hoàn tất từ các thành viên khác**:
    - **TV2 (Khôi)**: Bổ sung các file tài liệu đọc hiểu chung Milestone 2 (`docs/02_contributions.md`, `docs/06_complexity.md`, `docs/theorems.md`, `docs/references.md`).
-   - **TV3 (Hòa)**: Hoàn thiện code `core/data.py` (**T11**), MLP 5 tầng + Adam Restart (**T12**), `experiments/neural_net.py` (**T16**) và đối chiếu code gốc (**T18**).
+   - **TV1 (Khoa — thực hiện thay phần việc TV3 Hòa không hoàn thành)**: Đã hoàn thiện toàn bộ code `core/data.py` (**T11**), MLP 5 tầng + Adam Restart (**T12**), `experiments/neural_net.py` (**T16**) và đối chiếu code gốc (**T18**).

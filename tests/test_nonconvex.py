@@ -2,7 +2,7 @@ r"""
 ================================================================================
 FILE: tests/test_nonconvex.py
 MỤC ĐÍCH:
-    Unit tests kiểm chứng toàn bộ phần việc của TV3 (Task T11, T12, T16, T18):
+    Unit tests kiểm chứng toàn bộ phần việc Non-Convex & Flow Cytometry (Task T11, T12, T16, T18 - do TV1 Khoa thực hiện):
     1. `core/data.py`: Tải đúng 3.696 tế bào tuyến tụy với 10 marker genes
        (`Pyy, Meg3, Malat1, Gcg, Gnas, Actb, Ghrl, Rps3, Ins2, Hspa8`) và 4 phân lớp
        (`Alpha: 481, Beta: 591, Delta: 70, Ductal: 916`), sinh luồng dữ liệu 4 pha

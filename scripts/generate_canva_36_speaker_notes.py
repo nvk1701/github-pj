@@ -15,42 +15,43 @@ CANVA_36_SLIDES: List[Tuple[int, str, str, str, str]] = [
     (
         1,
         "I. RESEARCH FOUNDATION",
-        "Hòa (TV3)",
+        "Khoa (TV1)",
         "Learning Rate Schedules in the Presence of Distribution Shift",
         (
-            "Chào thầy và hội đồng chấm bài. Đây là báo cáo giữa kỳ môn Học Máy (Milestone 2 kết hợp Lab 1) của nhóm chúng em gồm ba thành viên: "
-            "Khoa (Trưởng nhóm), Khôi và Hòa. Công trình nghiên cứu mà nhóm trình bày và tái lập thực nghiệm là bài báo 'Learning Rate Schedules in the "
-            "Presence of Distribution Shift' của bốn tác giả Matthew Fahrbach, Adel Javanmard, Vahab Mirrokni và Pratik Worah thuộc Google Research và "
-            "Đại học Nam California (USC), công bố tại hội nghị ICML 2023 [1]. Bài báo giải quyết một bài toán nền tảng của các hệ thống học máy trực "
-            "tuyến hoạt động liên tục (never-ending online learning): khi dữ liệu đầu vào đến theo luồng thời gian thực và phân phối xác suất sinh dữ "
-            "liệu P_t thay đổi theo thời gian (distribution shift), bộ học sử dụng thuật toán Stochastic Gradient Descent (SGD) cần điều chỉnh tốc độ "
-            "học eta_t như thế nào để duy trì sai số dự đoán thấp nhất trong suốt vòng đời vận hành? Trong học máy tĩnh truyền thống, nguyên lý kinh "
-            "điển là giảm dần tốc độ học về 0 (như quy luật 1/t của Robbins-Monro) để triệt tiêu phương sai nhiễu mini-batch khi hội tụ về nghiệm cố "
-            "định. Tuy nhiên, bài báo chứng minh cả về mặt lý thuyết lẫn thực nghiệm rằng: khi nghiệm tối ưu dịch chuyển theo thời gian, lịch tốc độ học "
-            "tối ưu phải có khả năng TĂNG LÊN tương ứng với cường độ dịch chuyển để mở rộng bước khám phá và bám đuổi nghiệm mới, rồi mới giảm xuống khi "
-            "môi trường ổn định. Báo cáo 36 trang này trình bày toàn diện cả cơ sở lý thuyết trên ba lớp hàm mất mát lẫn kết quả tái lập thực nghiệm, "
-            "kiểm toán mã nguồn gốc và phân tích mở rộng của nhóm."
+            "Chào thầy và hội đồng chấm bài. Đây là báo cáo giữa kỳ môn Học Máy (Milestone 2 kết hợp Lab 1) của nhóm chúng em, do hai thành viên trực "
+            "tiếp hoàn thành toàn bộ mã nguồn, thực nghiệm và biên soạn báo cáo là Khoa (Trưởng nhóm — TV1) và Khôi (TV2) (thành viên thứ ba là Hòa không "
+            "hoàn thành nhiệm vụ được giao nên toàn bộ học phần Non-convex và các slide liên quan do Trưởng nhóm Khoa đảm nhận thay thế 100%). Công trình "
+            "nghiên cứu mà nhóm trình bày và tái lập thực nghiệm là bài báo 'Learning Rate Schedules in the Presence of Distribution Shift' của bốn tác "
+            "giả Matthew Fahrbach, Adel Javanmard, Vahab Mirrokni và Pratik Worah thuộc Google Research và Đại học Nam California (USC), công bố tại hội "
+            "nghị ICML 2023 [1]. Bài báo giải quyết một bài toán nền tảng của các hệ thống học máy trực tuyến hoạt động liên tục (never-ending online "
+            "learning): khi dữ liệu đầu vào đến theo luồng thời gian thực và phân phối xác suất sinh dữ liệu P_t thay đổi theo thời gian (distribution "
+            "shift), bộ học sử dụng thuật toán Stochastic Gradient Descent (SGD) cần điều chỉnh tốc độ học eta_t như thế nào để duy trì sai số dự đoán "
+            "thấp nhất trong suốt vòng đời vận hành? Trong học máy tĩnh truyền thống, nguyên lý kinh điển là giảm dần tốc độ học về 0 (như quy luật 1/t "
+            "của Robbins-Monro) để triệt tiêu phương sai nhiễu mini-batch khi hội tụ về nghiệm cố định. Tuy nhiên, bài báo chứng minh cả về mặt lý thuyết "
+            "lẫn thực nghiệm rằng: khi nghiệm tối ưu dịch chuyển theo thời gian, lịch tốc độ học tối ưu phải có khả năng TĂNG LÊN tương ứng với cường độ "
+            "dịch chuyển để mở rộng bước khám phá và bám đuổi nghiệm mới, rồi mới giảm xuống khi môi trường ổn định. Báo cáo 36 trang này trình bày toàn "
+            "diện cả cơ sở lý thuyết trên ba lớp hàm mất mát lẫn kết quả tái lập thực nghiệm, kiểm toán mã nguồn gốc và phân tích mở rộng của nhóm."
         ),
     ),
     (
         2,
         "I. RESEARCH FOUNDATION",
-        "Hòa (TV3)",
+        "Khoa (TV1)",
         "Cấu trúc nghiên cứu",
         (
             "Slide 2 trình bày cấu trúc tổng thể của báo cáo gồm 36 trang, được tổ chức thành 5 phần mạch lạc nhằm tách bạch rõ ràng giữa lý thuyết "
-            "của bài báo gốc và các đóng góp kiểm chứng thực nghiệm của nhóm. Phần I — Research Foundation (từ Slide 01 đến Slide 09) thiết lập bối cảnh "
-            "học trực tuyến dưới dịch chuyển phân phối, phân tích các nhánh nghiên cứu tiền nhiệm để chỉ ra khoảng trống nghiên cứu, tổng hợp đóng góp "
-            "của bài báo, định nghĩa hệ thống ký hiệu toán học chung, quy trình đánh giá trước cập nhật (test-then-train) và khung kiểm chứng tái lập "
-            "bốn bước của dự án. Ba phần tiếp theo đi sâu vào từng lớp hàm mất mát theo cấu trúc thống nhất từ mô hình lý thuyết, thuật toán lập lịch "
-            "cho đến kết quả tái lập thực nghiệm: Phần II — Linear Regression (Slides 10 đến 16, do Khoa phụ trách) trình bày xấp xỉ phương trình vi "
-            "phân ngẫu nhiên SDE, hệ phương trình vi phân thường cho moment bậc hai, bài toán điều khiển tối ưu dẫn xuất Algorithm 1 và kết quả tái "
-            "lập Figure 4 cùng Figure 5-top. Phần III — General Convex Losses (Slides 17 đến 26, do Khôi phụ trách) trình bày cận trên và cận dưới của "
-            "Dynamic Regret, quy tắc hai ngưỡng Proposition 4.3, thiết kế benchmark Logistic Regression, hiệu chỉnh nghiệm tối ưu quần thể bằng tích phân "
-            "cầu phương, kiểm chứng khớp từng bước với notebook tác giả, cùng các phân tích độ nhạy và can thiệp có đối chứng (controlled ablations). "
-            "Phần IV — Non-convex Losses (Slides 27 đến 31, do Hòa phụ trách) trình bày tiêu chí chuẩn gradient, Theorem 5.1 và thực nghiệm mạng nơ-ron "
-            "MLP 5 tầng với cơ chế Adam Restart trên dữ liệu tế bào Flow Cytometry (Figure 6). Cuối cùng, Phần V (Slides 32 đến 36) tổng hợp so sánh "
-            "lý thuyết, độ phức tạp tính toán, mức độ tái lập và hướng mở rộng."
+            "của bài báo gốc và các đóng góp kiểm chứng thực nghiệm của nhóm. Phần I — Research Foundation (từ Slide 01 đến Slide 09, do Khoa và Khôi "
+            "phụ trách) thiết lập bối cảnh học trực tuyến dưới dịch chuyển phân phối, phân tích các nhánh nghiên cứu tiền nhiệm để chỉ ra khoảng trống "
+            "nghiên cứu, tổng hợp đóng góp của bài báo, định nghĩa hệ thống ký hiệu toán học chung, quy trình đánh giá trước cập nhật (test-then-train) "
+            "và khung kiểm chứng tái lập bốn bước của dự án. Ba phần tiếp theo đi sâu vào từng lớp hàm mất mát theo cấu trúc thống nhất từ mô hình lý "
+            "thuyết, thuật toán lập lịch cho đến kết quả tái lập thực nghiệm: Phần II — Linear Regression (Slides 10 đến 16, do Khoa phụ trách) trình "
+            "bày xấp xỉ phương trình vi phân ngẫu nhiên SDE, hệ phương trình vi phân thường cho moment bậc hai, bài toán điều khiển tối ưu dẫn xuất "
+            "Algorithm 1 và kết quả tái lập Figure 4 cùng Figure 5-top. Phần III — General Convex Losses (Slides 17 đến 26, do Khôi phụ trách) trình bày "
+            "cận trên và cận dưới của Dynamic Regret, quy tắc hai ngưỡng Proposition 4.3, thiết kế benchmark Logistic Regression, hiệu chỉnh nghiệm tối "
+            "ưu quần thể bằng tích phân cầu phương, kiểm chứng khớp từng bước với notebook tác giả, cùng các phân tích độ nhạy và can thiệp có đối chứng "
+            "(controlled ablations). Phần IV — Non-convex Losses (Slides 27 đến 31, do Khoa thực hiện và trình bày) giải thích tiêu chí chuẩn gradient, "
+            "Theorem 5.1 và thực nghiệm mạng nơ-ron MLP 5 tầng với cơ chế Adam Restart trên dữ liệu tế bào Flow Cytometry (Figure 6). Cuối cùng, Phần V "
+            "(Slides 32 đến 36) tổng hợp so sánh lý thuyết, độ phức tạp tính toán, mức độ tái lập và hướng mở rộng."
         ),
     ),
     (
@@ -168,7 +169,7 @@ CANVA_36_SLIDES: List[Tuple[int, str, str, str, str]] = [
     (
         8,
         "I. RESEARCH FOUNDATION",
-        "Hòa (TV3)",
+        "Khoa (TV1)",
         "Phạm vi thực nghiệm và câu hỏi nghiên cứu",
         (
             "Slide 8 xác định rõ phạm vi thực nghiệm toàn diện (Full Scope) của dự án cùng ba câu hỏi nghiên cứu trọng tâm tương ứng với từng bài toán "
@@ -614,10 +615,10 @@ CANVA_36_SLIDES: List[Tuple[int, str, str, str, str]] = [
     (
         27,
         "IV. NON-CONVEX LOSSES",
-        "Hòa (TV3)",
+        "Khoa (TV1)",
         "Hàm không lồi và tiêu chí chuẩn gradient",
         (
-            "Bước sang Phần IV — Non-convex Losses (từ Slide 27 đến Slide 31, do Hòa phụ trách, tài liệu chi tiết tại `docs/05_nonconvex.md`), Slide 27 "
+            "Bước sang Phần IV — Non-convex Losses (từ Slide 27 đến Slide 31, do Khoa thực hiện và trình bày, tài liệu chi tiết tại `docs/05_nonconvex.md`), Slide 27 "
             "giải thích bước chuyển dịch khái niệm từ tối ưu lồi sang tối ưu không lồi tại Mục 5 của bài báo — cơ sở lý thuyết để huấn luyện trực tuyến "
             "các mạng nơ-ron sâu. Câu hỏi nền tảng đầu tiên là: Tại sao hai định nghĩa ở Phần II và Phần III (độ tiếc nuối dựa trên khoảng cách tới "
             "nghiệm tối ưu toàn cục theta*_t và độ dịch chuyển dựa trên khoảng cách Euclid ||theta*_t - theta*_{t+1}||_2) không còn sử dụng được cho hàm "
@@ -638,7 +639,7 @@ CANVA_36_SLIDES: List[Tuple[int, str, str, str, str]] = [
     (
         28,
         "IV. NON-CONVEX LOSSES",
-        "Hòa (TV3)",
+        "Khoa (TV1)",
         "Theorem 5.1 và lịch tốc độ học",
         (
             "Trên cơ sở định nghĩa Regret theo tổng bình phương chuẩn gradient ở Slide 27, Slide 28 trình bày Theorem 5.1 — định lý thiết lập cận trên "
@@ -662,7 +663,7 @@ CANVA_36_SLIDES: List[Tuple[int, str, str, str, str]] = [
     (
         29,
         "IV. NON-CONVEX LOSSES",
-        "Hòa (TV3)",
+        "Khoa (TV1)",
         "Flow Cytometry: dữ liệu và mô hình MLP",
         (
             "Slide 29 giới thiệu bài toán ứng dụng sinh học thực tế tại Phụ lục E (trang 22–23) của bài báo: Phân loại trực tuyến các dòng tế bào tuyến "
@@ -687,7 +688,7 @@ CANVA_36_SLIDES: List[Tuple[int, str, str, str, str]] = [
     (
         30,
         "IV. NON-CONVEX LOSSES",
-        "Hòa (TV3)",
+        "Khoa (TV1)",
         "Adam Restart và thiết kế thực nghiệm",
         (
             "Slide 30 trình bày cơ chế hoạt động của thuật toán Adam Restart, thiết kế thực nghiệm đối chứng cho Figure 6 và một phát hiện kiểm toán mã "
@@ -712,7 +713,7 @@ CANVA_36_SLIDES: List[Tuple[int, str, str, str, str]] = [
     (
         31,
         "IV. NON-CONVEX LOSSES",
-        "Hòa (TV3)",
+        "Khoa (TV1)",
         "Figure 6: kết quả Adam và Adam Restart",
         (
             "Slide 31 trình bày kết quả định lượng và đồ thị tái lập Figure 6-right (`figures/fig6_right_adam_restart_regret.png` ở bên phải và bảng "
@@ -786,7 +787,7 @@ CANVA_36_SLIDES: List[Tuple[int, str, str, str, str]] = [
     (
         34,
         "V. GLOBAL SYNTHESIS & CONCLUSION",
-        "Hòa (TV3)",
+        "Khoa (TV1)",
         "Mức độ tái lập và sai lệch triển khai",
         (
             "Slide 34 tổng kết mức độ tái lập thực nghiệm đã được xác minh trên cả ba mô-đun của dự án và hệ thống hóa các sai lệch triển khai (implementation "
@@ -833,25 +834,24 @@ CANVA_36_SLIDES: List[Tuple[int, str, str, str, str]] = [
     (
         36,
         "V. GLOBAL SYNTHESIS & CONCLUSION",
-        "Hòa (TV3)",
+        "Khoa (TV1)",
         "Phân công và tài nguyên nghiên cứu",
         (
-            "Slide 36 khép lại báo cáo giữa kỳ bằng bảng phân công trách nhiệm minh bạch của cả ba thành viên trên từng trang slide và từng mô-đun kỹ "
-            "thuật, kèm theo ba liên kết tài nguyên công khai để giảng viên và hội đồng chấm bài có thể truy cập kiểm tra trực tiếp. Cấu trúc phân công "
-            "của nhóm được tổ chức đối xứng sao cho mỗi thành viên làm chủ trọn vẹn một lớp bài toán từ lý thuyết đến thực nghiệm, đồng thời cùng đóng "
-            "góp vào phần nền tảng chung (Phần I) và phần tổng hợp toàn cục (Phần V): Thành viên thứ nhất — Khoa (Trưởng nhóm) phụ trách toàn bộ Phần "
-            "II — Linear Regression từ lý thuyết SDE, Moment ODE, điều khiển tối ưu HJB, cài đặt Algorithm 1 cho đến tái lập thực nghiệm Figure 4 và "
-            "Figure 5-top (Slides 10 đến 16), đồng thời biên soạn các trang nền tảng về động lực dịch chuyển phân phối, nghiên cứu tiền nhiệm, phát biểu "
-            "bài toán, quy trình học trực tuyến (Slides 03, 04, 06, 07) và trang kết luận chung, giới hạn cùng hướng mở rộng (Slide 35). Thành viên thứ "
-            "hai — Khôi phụ trách toàn bộ Phần III — General Convex Losses từ lý thuyết cận Dynamic Regret, quy tắc hai ngưỡng Proposition 4.3, hiệu "
-            "chỉnh nghiệm tối ưu quần thể bằng tích phân cầu phương, kiểm chứng khớp từng bước với notebook tác giả, tái lập độc lập đa hạt giống cho "
-            "đến phân tích độ nhạy và 36 runs controlled ablations (Slides 17 đến 26), đồng thời biên soạn phần đóng góp và tính mới, khung tái lập "
-            "kiểm chứng (Slides 05, 09), bảng so sánh lý thuyết và phân tích độ phức tạp tính toán (Slides 32, 33). Thành viên thứ ba — Hòa phụ trách "
-            "toàn bộ Phần IV — Non-convex Losses từ tiêu chí chuẩn gradient, Theorem 5.1, tiền xử lý bộ dữ liệu tế bào tụy `scvelo` 10-gene, huấn luyện "
-            "mạng MLP 5 tầng với Adam Restart cho đến tái lập Figure 6 (Slides 27 đến 31), đồng thời phụ trách trang bìa, cấu trúc báo cáo, phạm vi thực "
-            "nghiệm (Slides 01, 02, 08), tổng hợp mức độ tái lập và kiểm toán mã nguồn (Slides 34, 36). Toàn bộ mã nguồn, bộ kiểm thử tự động, bảng số "
-            "liệu CSV, biểu đồ độ phân giải cao và lịch sử các lần chạy thực nghiệm đều đã được công khai đầy đủ tại GitHub Repository và Weights & "
-            "Biases Dashboard trên slide. Nhóm chúng em xin chân thành cảm ơn thầy đã lắng nghe và theo dõi!"
+            "Slide 36 khép lại báo cáo giữa kỳ bằng bảng ghi nhận trung thực đóng góp thực tế của các thành viên trên từng trang slide và từng mô-đun "
+            "kỹ thuật, kèm theo ba liên kết tài nguyên công khai để giảng viên và hội đồng chấm bài có thể truy cập kiểm tra trực tiếp. Trong quá trình "
+            "thực hiện đồ án, do thành viên thứ ba (Hòa — TV3) không hoàn thành nhiệm vụ được giao (0% đóng góp về mã nguồn, thực nghiệm và slide), toàn "
+            "bộ khối lượng công việc của dự án đã được hai thành viên là Khoa (Trưởng nhóm — TV1) và Khôi (TV2) phân chia đảm nhận và hoàn thiện 100%: "
+            "Cụ thể, Thành viên thứ nhất — Khoa (Trưởng nhóm, phụ trách 22/36 slides) thực hiện toàn bộ Phần II — Linear Regression từ lý thuyết SDE, "
+            "Moment ODE, điều khiển tối ưu HJB, cài đặt Algorithm 1 cho đến tái lập thực nghiệm Figure 4 và Figure 5-top (Slides 10 đến 16); đồng thời "
+            "trực tiếp thực hiện thay toàn bộ Phần IV — Non-convex Losses từ lý thuyết chuẩn gradient, Theorem 5.1, xử lý bộ dữ liệu tế bào tụy `scvelo` "
+            "10-gene (`core/data.py`), cài đặt mạng MLP 5 tầng với Adam Restart (`experiments/neural_net.py`) cho đến 12 runs W&B tái lập Figure 6 "
+            "(Slides 27 đến 31), cùng các trang nền tảng Phần I (Slides 01, 02, 03, 04, 06, 07, 08) và tổng kết Phần V (Slides 34, 35, 36). Thành viên "
+            "thứ hai — Khôi (TV2, phụ trách 14/36 slides) thực hiện toàn bộ Phần III — General Convex Losses từ lý thuyết cận Dynamic Regret, quy tắc hai "
+            "ngưỡng Proposition 4.3, hiệu chỉnh nghiệm tối ưu quần thể bằng tích phân cầu phương, kiểm chứng khớp từng bước với notebook tác giả, tái lập "
+            "độc lập đa hạt giống cho đến phân tích độ nhạy và 36 runs controlled ablations (Slides 17 đến 26), đồng thời biên soạn phần đóng góp, khung "
+            "tái lập kiểm chứng (Slides 05, 09), bảng so sánh lý thuyết và độ phức tạp tính toán (Slides 32, 33). Toàn bộ mã nguồn, bộ kiểm thử tự động, "
+            "bảng số liệu CSV, biểu đồ và lịch sử chạy thực nghiệm đều đã được công khai tại GitHub Repository và Weights & Biases Dashboard trên slide. "
+            "Nhóm chúng em xin chân thành cảm ơn thầy đã theo dõi!"
         ),
     ),
 ]
