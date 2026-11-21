@@ -871,17 +871,19 @@ def main() -> None:
 
     body_lines: List[str] = ["", "---", ""]
 
-    for s_num, section, owner, title, note in CANVA_36_SLIDES:
+    for s_num, section, owner, title, raw_note in CANVA_36_SLIDES:
+        speaker_tag = f"[Người trình bày: {owner} | Slide {s_num:02d}/36 — {section} | {title}]"
+        note = f"{speaker_tag}\n\n{raw_note}"
         wc = len(note.split())
         if not (250 <= wc <= 490):
             raise ValueError(f"Slide {s_num:02d} ({title}) có {wc} từ, nằm ngoài ngưỡng an toàn [250, 490]!")
         header_lines.append(
-            f"| **Slide {s_num:02d}** | `{section}` | {owner} | {title} | **{wc} từ** | ĐẠT (✔) |"
+            f"| **Slide {s_num:02d}** | `{section}` | **{owner}** | {title} | **{wc} từ** | ĐẠT (✔) |"
         )
         body_lines.extend(
             [
-                f"## Slide {s_num:02d} — {title}",
-                f"- **Phần**: `{section}` | **Phụ trách**: **{owner}** | **Độ dài Speaker Notes**: **`{wc} / 500 từ`**",
+                f"## Slide {s_num:02d} — {title} *(Người nói: {owner})*",
+                f"- **Phần**: `{section}` | **Người trình bày**: **{owner}** | **Tổng số từ (đã tính cả dòng tên người nói)**: **`{wc} / 500 từ`**",
                 "",
                 "```text",
                 note,
