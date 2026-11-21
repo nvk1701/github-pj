@@ -872,8 +872,9 @@ def main() -> None:
     body_lines: List[str] = ["", "---", ""]
 
     for s_num, section, owner, title, raw_note in CANVA_36_SLIDES:
-        speaker_tag = f"[Người trình bày: {owner} | Slide {s_num:02d}/36 — {section} | {title}]"
-        note = f"{speaker_tag}\n\n{raw_note}"
+        full_name = "Nguyễn Việt Khoa - 24122037 (TV1)" if "Khoa" in owner else "Nguyễn Đăng Khôi - 23122037 (TV2)"
+        speaker_tag = f"[Người trình bày: {full_name} | Slide {s_num:02d}/36]"
+        note = f"{speaker_tag} {raw_note}"
         wc = len(note.split())
         if not (250 <= wc <= 490):
             raise ValueError(f"Slide {s_num:02d} ({title}) có {wc} từ, nằm ngoài ngưỡng an toàn [250, 490]!")
